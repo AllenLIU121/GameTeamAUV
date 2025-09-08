@@ -27,8 +27,7 @@ git checkout main
 git pull origin main
 
 # 2. 根据你的任务创建一个新分支
-# 分支命名规范: type/short-description (例如: feature/player-jump)
-git checkout -b feature/your-task-name
+git checkout -b your-branch-name
 ```
 
 #### 2.2 保存进度：本地提交
@@ -38,9 +37,8 @@ git checkout -b feature/your-task-name
 # 1. 添加更改到暂存区
 git add .
 
-# 2. 提交并撰写清晰的说明
-# 提交信息规范: Type: Description (例如: Feat: Add player jump logic)
-git commit -m "Feat: Implement player jump logic"
+# 2. 提交并撰写说明
+git commit -m "your commit description"
 ```
 
 #### 2.3 分享进度：推送到远程
@@ -51,8 +49,8 @@ git commit -m "Feat: Implement player jump logic"
 git push -u origin feature/your-task-name
 ```
 
-#### 2.4 完成任务：创建 Pull Request (PR)
-当分支上的功能开发完毕，前往 GitHub 仓库页面，为你的分支创建一个 Pull Request，请求合并到 `main` 分支。请在 PR 中清晰描述你所做的工作.
+#### 2.4 完成任务后：创建 Pull Request
+当分支上的功能开发完毕，前往 GitHub 仓库页面，为你的分支创建一个 Pull Request，请求合并到 `main` 分支.
 
 ## 3. Unity 项目结构与使用规范
 
@@ -64,20 +62,18 @@ Assets/
    ├── Audio/           <-- 音频资源 (音乐, 音效)
    ├── Prefabs/         <-- 预制体
    ├── Scenes/          <-- 场景
+   |     |一一 TestScenes/       <-- 个人测试场景
    ├── Scripts/         <-- C# 脚本
    └── Materials/        <-- 材质相关
 ```
 
 #### 3.2 使用规则 (非常重要！)
 
-* **Prefab**
-    * 游戏中的所有可复用对象（角色、道具、UI窗口等）**必须**做成 Prefab。
-    * **严禁**通过复制 (`Ctrl+D`) 一个已有的 Prefab 或 Scene 来创建新版本。这会造成无法维护的混乱。
-
-* **使用 Prefab Variant 创建差异化版本**
+* **预制体**
+    * 游戏中的所有可复用对象（角色、道具、UI窗口等）**需要**做成 Prefab。
     * 当你需要一个“特殊版本”的 Prefab 时，请在原始 Prefab 上右键 -> `Create` -> `Prefab Variant`。
-    * 在 Variant 上进行修改（例如提升血量、更换材质）。这样，当原始 Prefab 更新时（例如增加新动画），所有 Variant 都会自动继承这些更新。
+    * 在 Variant 上进行修改，当原始 Prefab 更新时（例如增加新动画），所有 Variant 都会自动继承这些更新。
 
 * **在个人测试场景中开发**
-    * 创建你自己的测试场景（例如 `Assets/_Project/Scenes/Testing/YourName/TestFeature.unity`），并**不要将它提交到版本库** (通过 `.gitignore` 规则)。
-    * 在测试场景中完成开发和调试，然后将最终成果应用到相应的 Prefab 或主场景中。
+    * 在Scenes/TestScenes/下创建你自己的测试场景, 它已经被gitignore掉 不会被上传到github上。
+    * 在测试场景中完成开发和调试，将最终成果应用到相应的 Prefab 或主场景中。
