@@ -1,0 +1,17 @@
+# 追踪常见的贴图文件
+git lfs track "*.png" "*.psd" "*.tga" "*.jpg" "*.jpeg" "*.dds" "*.exr"
+
+# 追踪常见的模型文件
+git lfs track "*.fbx" "*.obj" "*.blend" "*.max" "*.ma"
+
+# 追踪常见的音频文件 (特别是未压缩的)
+git lfs track "*.wav" "*.aif" "*.aiff"
+
+# 追踪视频文件
+git lfs track "*.mp4" "*.mov" "*.avi"
+
+# 追踪Unity特定的大型资产文件
+git lfs track "*.unity" "*.prefab" "*.asset"
+
+# 追踪其他可能的二进制文件
+git lfs track "*.bin" "*.dll" "*.lib" "*.so" "*.a"
