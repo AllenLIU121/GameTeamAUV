@@ -1,4 +1,4 @@
-## 1. 🔧 环境配置：Git LFS
+## 1. 环境配置：Git LFS
 
 本项目使用 Git LFS (Large File Storage) 管理美术、音频等大文件。**此为必须步骤**。
 
@@ -16,7 +16,7 @@
         git lfs install
         ```
 
-## 2. 🔄 Git 与 GitHub 工作流
+## 2. Git 与 GitHub 工作流
 ** 不要使用别人的分支 **
 #### 2.1 开始新任务：同步并创建分支
 在开始编码前，确保你的工作是基于最新版本。
@@ -70,14 +70,14 @@ Assets/
 
 #### 3.2 使用规则 (非常重要！)
 
-* **规则一：拥抱 Prefab，杜绝复制！**
+* **Prefab**
     * 游戏中的所有可复用对象（角色、道具、UI窗口等）**必须**做成 Prefab。
     * **严禁**通过复制 (`Ctrl+D`) 一个已有的 Prefab 或 Scene 来创建新版本。这会造成无法维护的混乱。
 
-* **规则二：使用 Prefab Variant 创建差异化版本**
+* **使用 Prefab Variant 创建差异化版本**
     * 当你需要一个“特殊版本”的 Prefab 时，请在原始 Prefab 上右键 -> `Create` -> `Prefab Variant`。
     * 在 Variant 上进行修改（例如提升血量、更换材质）。这样，当原始 Prefab 更新时（例如增加新动画），所有 Variant 都会自动继承这些更新。
 
-* **规则三：在个人测试场景中开发**
+* **在个人测试场景中开发**
     * 创建你自己的测试场景（例如 `Assets/_Project/Scenes/Testing/YourName/TestFeature.unity`），并**不要将它提交到版本库** (通过 `.gitignore` 规则)。
     * 在测试场景中完成开发和调试，然后将最终成果应用到相应的 Prefab 或主场景中。
