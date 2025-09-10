@@ -59,11 +59,12 @@ git push -u origin feature/your-task-name
 
 ```
 Assets/
-   ├── Art/             <-- 美术资源 (模型, 贴图, 精灵)
-   ├── Audio/           <-- 音频资源 (音乐, 音效)
-   ├── Prefabs/         <-- 预制体
-   ├── Scenes/          <-- 场景
-   |     |一一 TestScenes/       <-- 个人测试场景
+   ├── Art/                 <-- 美术资源 (模型, 贴图, 精灵)
+   ├── Audio/                <-- 音频资源 (音乐, 音效)
+   ├── Prefabs/               <-- 预制体
+   ├── Scriptable Objects/      <-- 静态数据 (角色属性, 物品信息等)
+   ├── Scenes/               <-- 场景
+   |     ├── TestScenes/       <-- 个人测试场景
    ├── Scripts/         <-- C# 脚本
    └── Materials/        <-- 材质相关
 ```
@@ -78,3 +79,17 @@ Assets/
 * **在个人测试场景中开发**
     * 在Scenes/TestScenes/下创建你自己的测试场景, 它已经被gitignore掉 不会被上传到github上。
     * 在测试场景中完成开发和调试，将最终成果应用到相应的 Prefab 或主场景中。
+
+## 4. 项目框架
+
+### 当前内容
+* **AddressableManager (资源加载):** 使用 Addressables 插件，高效处理单个或批量资源的加载和释放 (所有平台兼容)。
+* **SceneController (场景加载):** 异步加载和切换不同场景。
+* **EventManager (事件系统):** 触发事件并且通知订阅者，实现模块间解耦。
+* **AudioManager (音乐):** 管理音乐和音效的播放、切换及暂停。
+* **GameManager (游戏状态):** 切换游戏状态，状态包括：主菜单、游戏中、暂停等。
+* **GameStateManager (游戏数据中心):** 管理游戏数据的存储、加载和回滚，是逻辑层和UI层的连接枢纽。
+* **CharacterManager (角色):** 负责角色相关的核心逻辑。
+* **InventoryManager (物品栏):** 负责物品栏相关的核心逻辑。
+* **ItemDatabase (物品数据库):** 存放所有物品的静态信息。
+* **ObjectPoolManager (对象池):** 对高频次实例化和销毁的物体（如特效、子弹、音效实例等）进行复用，提升性能。
