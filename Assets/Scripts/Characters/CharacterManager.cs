@@ -1,21 +1,25 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class CharacterManager : Singleton<CharacterManager>
+public class CharacterManager : MonoBehaviour 
 {
     public List<CharacterSO> charactersSO;
     private Dictionary<string, CharacterSO> characterSODict = new Dictionary<string, CharacterSO>();
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
+        GameStateManager.Instance.RegisterCharacterManager(this);
 
         foreach (var characterSO in charactersSO)
         {
             if (characterSO != null && !string.IsNullOrEmpty(characterSO.characterID))
             {
-                 characterSODict[characterSO.characterID] = characterSO;
+                characterSODict[characterSO.characterID] = characterSO;
             }
         }
+
+        EventManager.Instance.Subscribe<OnItemUseRequest>(HandleItemUseRequest);
     }
 
     private void Start()
@@ -23,9 +27,38 @@ public class CharacterManager : Singleton<CharacterManager>
         InitializeCharacters();
     }
 
+    private void OnDestroy()
+    {
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.UnregisterCharacterManager();
+        }
+
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.Unsubscribe<OnItemUseRequest>(HandleItemUseRequest);
+        }
+    }
+
+    // 恢复使用物品的角色的体力和饥饿值
+    private void HandleItemUseRequest(OnItemUseRequest eventData)
+    {
+        var itemSO = eventData.itemSO;
+        var targetCharacterID = eventData.targetCharacterID;
+
+        if (itemSO.staminaToRestore > 0)
+        {
+            GameStateManager.Instance.UpdateStamina(targetCharacterID, itemSO.staminaToRestore);
+        }
+        if (itemSO.hungerToRestore > 0)
+        {
+            GameStateManager.Instance.UpdateHunger(targetCharacterID, itemSO.hungerToRestore);
+        }
+    }
+
     private void InitializeCharacters()
     {
-        if (GameSaveManager.Instance.GetCharacterData(charactersSO[0].characterID) == null)
+        if (GameStateManager.Instance.GetCharacterData(charactersSO[0].characterID) == null)
         {
             foreach (var characterSO in charactersSO)
             {
@@ -38,10 +71,10 @@ public class CharacterManager : Singleton<CharacterManager>
                     currentHunger = characterSO.maxHunger
                 };
 
-                GameSaveManager.Instance.RegisterNewCharacter(newCharacterData);
+                GameStateManager.Instance.RegisterNewCharacter(newCharacterData);
             }
-            
-            GameSaveManager.Instance.PublishCharacterDataForSync();
+
+            GameStateManager.Instance.PublishCharacterDataForSync();
         }
     }
 

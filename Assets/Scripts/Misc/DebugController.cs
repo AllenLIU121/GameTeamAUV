@@ -69,26 +69,26 @@ public class DebugController : Singleton<DebugController>
     [ContextMenu("执行存储数据")]
     public void TriggerSaveData()
     {
-        if (GameSaveManager.Instance != null)
+        if (GameStateManager.Instance != null)
         {
-            _ = GameSaveManager.Instance.SaveGameAsync();
+            _ = GameStateManager.Instance.SaveGameAsync();
         }
         else
         {
-            Debug.LogError("GameSaveManager not found! Please make sure all managers are initialized correctly.");
+            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
         }
     }
 
     [ContextMenu("执行读取数据")]
     public void TriggerRollbackData()
     {
-        if (GameSaveManager.Instance != null)
+        if (GameStateManager.Instance != null)
         {
-            _ = GameSaveManager.Instance.LoadGameAsync();
+            _ = GameStateManager.Instance.LoadGameAsync();
         }
         else
         {
-            Debug.LogError("GameSaveManager not found! Please make sure all managers are initialized correctly.");
+            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
         }
     }
 }

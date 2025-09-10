@@ -4,14 +4,24 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameSaveManager : Singleton<GameSaveManager>
+public class GameStateManager : Singleton<GameStateManager>
 {
     // 游戏数据
-    private GameData currentData;
+    public GameData currentData { get; private set; }
     private Stack<GameData> historyStack = new Stack<GameData>();
     private const string SAVE_FILE_NAME = "savegame.json";
 
-    // 角色数据更新列表
+    // 注册的服务属性
+    public InventoryManager Inventory { get; private set; }
+    public CharacterManager Character { get; private set; }
+
+    // 注册/注销服务接口
+    public void RegisterInventoryManager(InventoryManager manager) => Inventory = manager;
+    public void RegisterCharacterManager(CharacterManager manager) => Character = manager;
+    public void UnregisterInventoryManager() => Inventory = null;
+    public void UnregisterCharacterManager() => Character = null;
+
+    // 角色数据更新请求列表
     private Dictionary<string, List<float>> staminaModifiers = new Dictionary<string, List<float>>();
     private Dictionary<string, List<float>> hungerModifiers = new Dictionary<string, List<float>>();
 
@@ -141,7 +151,7 @@ public class GameSaveManager : Singleton<GameSaveManager>
         string json = JsonUtility.ToJson(currentData, true);
         GameData snapshot = JsonUtility.FromJson<GameData>(json);
         historyStack.Push(snapshot);
-        Debug.Log($"<color=green>[GameSaveManager] Snapshot created. History depth: {historyStack.Count}</color>");
+        Debug.Log($"<color=green>[GameStateManager] Snapshot created. History depth: {historyStack.Count}</color>");
     }
 
     // 游戏内数据回滚
@@ -193,7 +203,7 @@ public class GameSaveManager : Singleton<GameSaveManager>
         string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
 
         await Task.Run(() => File.WriteAllText(path, json));
-        Debug.Log("[GameSaveManager] Game saved successfully.");
+        Debug.Log("[GameStateManager] Game saved successfully.");
     }
 
     // 从玩家本地(Windows)读取数据, 在玩家进入菜单时并且点击继续游戏时调用
@@ -203,20 +213,20 @@ public class GameSaveManager : Singleton<GameSaveManager>
 
         if (!File.Exists(path))
         {
-            Debug.LogWarning("[GameSaveManager] No save file found.");
+            Debug.LogWarning("[GameStateManager] No save file found.");
             return false;
         }
 
         string json = await Task.Run(() => File.ReadAllText(path));
         if (string.IsNullOrEmpty(json))
         {
-            Debug.LogError("[GameSaveManager] Save file is empty or corrupted.");
+            Debug.LogError("[GameStateManager] Save file is empty or corrupted.");
             return false;
         }
 
         currentData = JsonUtility.FromJson<GameData>(json);
 
-        Debug.Log("[GameSaveManager] Game loaded successfully.");
+        Debug.Log("[GameStateManager] Game loaded successfully.");
         return true;
     }
 #endif
