@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -7,14 +6,14 @@ using UnityEngine.SceneManagement;
 
 public class GameSaveManager : Singleton<GameSaveManager>
 {
+    // 游戏数据
     private GameData currentData;
     private Stack<GameData> historyStack = new Stack<GameData>();
-
-    // 角色状态
-    private List<float> hungerModifiers = new List<float>();
-    private List<float> energyModifiers = new List<float>();
-
     private const string SAVE_FILE_NAME = "savegame.json";
+
+    // 角色数据更新列表
+    private Dictionary<string, List<float>> staminaModifiers = new Dictionary<string, List<float>>();
+    private Dictionary<string, List<float>> hungerModifiers = new Dictionary<string, List<float>>();
 
     protected override void Awake()
     {
@@ -22,14 +21,127 @@ public class GameSaveManager : Singleton<GameSaveManager>
         currentData = new GameData();
     }
 
-    // 更新Runtime数据
+    // 帧末更新本帧变化的数据
     private void LateUpdate()
     {
-        bool hasChanges = hungerModifiers.Count > 0 || energyModifiers.Count > 0;
+        ProcessModifiers();
+    }
 
-        if (!hasChanges) return;
+    private void ProcessModifiers()
+    {
+        // 记录属性变化的角色
+        HashSet<string> modifiedCharacters = new HashSet<string>();
+        foreach (var key in staminaModifiers.Keys) modifiedCharacters.Add(key);
+        foreach (var key in hungerModifiers.Keys) modifiedCharacters.Add(key);
 
-        // TODO: Update GameData
+        foreach (string characterID in modifiedCharacters)
+        {
+            if (!currentData.characters.ContainsKey(characterID)) continue;
+
+            var data = currentData.characters[characterID];
+
+            // 结算体力值
+            if (staminaModifiers.TryGetValue(characterID, out var staminaChanges))
+            {
+                float totalChange = 0;
+                foreach (var modifier in staminaChanges) totalChange += modifier;
+
+                if (totalChange != 0)
+                {
+                    float oldValue = data.currentStamina;
+                    data.currentStamina = Mathf.Clamp(oldValue + totalChange, 0, data.maxStamina);
+
+                    EventManager.Instance.Publish(new OnCharacterStatChanged
+                    {
+                        characterID = characterID,
+                        statType = StatType.Stamina,
+                        newValue = data.currentStamina,
+                        changeAmount = data.currentStamina - oldValue
+                    });
+                }
+            }
+
+            // 结算饥饿值
+            if (hungerModifiers.TryGetValue(characterID, out var hungerChanges))
+            {
+                float totalChange = 0;
+                foreach (var modifier in hungerChanges) totalChange += modifier;
+
+                if (totalChange != 0)
+                {
+                    float oldValue = data.currentHunger;
+                    data.currentHunger = Mathf.Clamp(oldValue + totalChange, 0, data.maxHunger);
+
+                    EventManager.Instance.Publish(new OnCharacterStatChanged
+                    {
+                        characterID = characterID,
+                        statType = StatType.Hunger,
+                        newValue = data.currentHunger,
+                        changeAmount = data.currentHunger - oldValue
+                    });
+                }
+            }
+        }
+
+        ClearAllModifiers();
+    }
+
+    private void ClearAllModifiers()
+    {
+        staminaModifiers.Clear();
+        hungerModifiers.Clear();
+    }
+
+
+    // --------------- 初始化/获取 角色数据 ---------------
+
+    // 初始化角色
+    public void RegisterNewCharacter(CharacterRuntimeData newCharacterData)
+    {
+        if (currentData.characters.ContainsKey(newCharacterData.characterID)) return;
+        currentData.characters[newCharacterData.characterID] = newCharacterData;
+    }
+
+    // 获取单个角色运行时数据
+    public CharacterRuntimeData GetCharacterData(string characterID)
+    {
+        currentData.characters.TryGetValue(characterID, out CharacterRuntimeData characterData);
+        return characterData;
+    }
+
+
+    // --------------- 更新角色某一属性数据(在帧末统一结算) ---------------
+
+    // 体力值更新
+    public void UpdateStamina(string characterID, float amount)
+    {
+        if (!staminaModifiers.ContainsKey(characterID))
+        {
+            staminaModifiers[characterID] = new List<float>();
+        }
+        staminaModifiers[characterID].Add(amount);
+    }
+
+    // 饥饿值更新
+    public void UpdateHunger(string characterID, float amount)
+    {
+        if (!hungerModifiers.ContainsKey(characterID))
+        {
+            hungerModifiers[characterID] = new List<float>();
+        }
+        hungerModifiers[characterID].Add(amount);
+    }
+
+
+    // --------------- 游戏 存/读/回档 ---------------
+
+    // 游戏内数据快照
+    public void GenerateSnapshot()
+    {
+        string json = JsonUtility.ToJson(currentData, true);
+        GameData snapshot = JsonUtility.FromJson<GameData>(json);
+        historyStack.Push(snapshot);
+        Debug.Log($"<color=green>[GameSaveManager] Snapshot created. History depth: {historyStack.Count}</color>");
     }
 
     // 游戏内数据回滚
@@ -39,12 +151,35 @@ public class GameSaveManager : Singleton<GameSaveManager>
         {
             currentData = historyStack.Pop();
 
-            hungerModifiers.Clear();
-            energyModifiers.Clear();
+            ClearAllModifiers();
 
-            // TODO: Update GameData
+            PublishCharacterDataForSync();
 
             EventManager.Instance.Publish(new OnGameDataLoaded());
+        }
+    }
+
+    public void PublishCharacterDataForSync()
+    {
+        foreach (var character in currentData.characters.Values)
+        {
+            // 体力值更新
+            EventManager.Instance.Publish(new OnCharacterStatChanged
+            {
+                characterID = character.characterID,
+                statType = StatType.Stamina,
+                newValue = character.currentStamina,
+                changeAmount = 0
+            });
+
+            // 饥饿值更新
+            EventManager.Instance.Publish(new OnCharacterStatChanged
+            {
+                characterID = character.characterID,
+                statType = StatType.Hunger,
+                newValue = character.currentHunger,
+                changeAmount = 0
+            });
         }
     }
 
@@ -80,7 +215,6 @@ public class GameSaveManager : Singleton<GameSaveManager>
         }
 
         currentData = JsonUtility.FromJson<GameData>(json);
-        EventManager.Instance.Publish(new OnGameDataLoaded());
 
         Debug.Log("[GameSaveManager] Game loaded successfully.");
         return true;
