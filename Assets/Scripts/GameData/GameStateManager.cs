@@ -68,6 +68,7 @@ public class GameStateManager : Singleton<GameStateManager>
                         newValue = data.currentStamina,
                         changeAmount = data.currentStamina - oldValue
                     });
+                    Debug.Log($"Character {characterID}'s stamina has changed, newValue: {data.currentStamina}, changeAmount: {data.currentStamina - oldValue}");
                 }
             }
 
@@ -89,6 +90,7 @@ public class GameStateManager : Singleton<GameStateManager>
                         newValue = data.currentHunger,
                         changeAmount = data.currentHunger - oldValue
                     });
+                    Debug.Log($"Character {characterID}'s hunger has changed, newValue: {data.currentHunger}, changeAmount: {data.currentHunger - oldValue}");
                 }
             }
         }
@@ -102,10 +104,17 @@ public class GameStateManager : Singleton<GameStateManager>
         hungerModifiers.Clear();
     }
 
+    // --------------- 新游戏接口 ---------------
+    public void NewGame()
+    {
+        currentData = new GameData();
+        historyStack.Clear();
+        ClearAllModifiers();
+    }
 
     // --------------- 初始化/获取 角色数据 ---------------
 
-    // 初始化角色
+        // 初始化角色
     public void RegisterNewCharacter(CharacterRuntimeData newCharacterData)
     {
         if (currentData.characters.ContainsKey(newCharacterData.characterID)) return;
@@ -225,6 +234,9 @@ public class GameStateManager : Singleton<GameStateManager>
         }
 
         currentData = JsonUtility.FromJson<GameData>(json);
+
+        PublishCharacterDataForSync();
+        EventManager.Instance.Publish(new OnGameDataLoaded());
 
         Debug.Log("[GameStateManager] Game loaded successfully.");
         return true;

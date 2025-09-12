@@ -12,6 +12,7 @@ public class ItemSO : ScriptableObject
     public Sprite itemIcon;
 
     [Header("物品属性和效果")]
+    public float fresh;
     public float weight;
     public float hungerToRestore;
     public float staminaToRestore;

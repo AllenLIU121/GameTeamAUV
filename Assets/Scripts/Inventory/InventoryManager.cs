@@ -4,7 +4,7 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     [Header("物品栏配置")]
-    [SerializeField] private int inventoryCapacity = 20;
+    [SerializeField] private int inventoryCapacity = 10;
     [SerializeField] private float maxWeightCapacity = 10f;
 
     private GameData gameData;
