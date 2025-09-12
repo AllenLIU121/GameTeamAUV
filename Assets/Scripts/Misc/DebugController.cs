@@ -65,5 +65,31 @@ public class DebugController : Singleton<DebugController>
             Debug.LogError("AudioManager not found! Please make sure all managers are initialized correctly.");
         }
     }
+
+    [ContextMenu("执行存储数据")]
+    public void TriggerSaveData()
+    {
+        if (GameStateManager.Instance != null)
+        {
+            _ = GameStateManager.Instance.SaveGameAsync();
+        }
+        else
+        {
+            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
+        }
+    }
+
+    [ContextMenu("执行读取数据")]
+    public void TriggerRollbackData()
+    {
+        if (GameStateManager.Instance != null)
+        {
+            _ = GameStateManager.Instance.LoadGameAsync();
+        }
+        else
+        {
+            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
+        }
+    }
 }
 #endif
