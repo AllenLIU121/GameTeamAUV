@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class UI_CharactersPanel : MonoBehaviour
@@ -40,7 +38,7 @@ public class UI_CharactersPanel : MonoBehaviour
             if (characterPanel != null)
             {
                 characterPanel.InitializeCharacterData(
-                    data.characterName,
+                    // data.characterName,
                     data.characterPortrait,
                     data.maxStamina,
                     data.maxHunger
