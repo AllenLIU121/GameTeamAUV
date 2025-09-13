@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -24,7 +25,7 @@ public class SceneController : Singleton<SceneController>
     }
 
     // 异步加载资源和场景
-    public async void LoadSceneAsync(string sceneName, string assetLabel = null)
+    public async void LoadSceneAsync(string sceneName, string assetLabel = null, Action onComplete = null)
     {
         if (isLoading) return;
 
@@ -38,6 +39,8 @@ public class SceneController : Singleton<SceneController>
 
         // 加载新场景
         await LoadingProgressAsync(sceneName);
+
+        onComplete?.Invoke();
 
         // 发布场景加载完毕事件
         EventManager.Instance.Publish(new OnSceneLoaded());
