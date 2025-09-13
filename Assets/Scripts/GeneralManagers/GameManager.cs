@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -32,7 +33,7 @@ public class GameManager : Singleton<GameManager>
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
-        if (sceneName == "MenuScene")
+        if (sceneName == GameConstants.SceneName.MenuScene)
             ChangeGameState(GameState.MainMenu);
         else
             ChangeGameState(GameState.Playing);
@@ -57,6 +58,39 @@ public class GameManager : Singleton<GameManager>
         }
 
         EventManager.Instance.Publish(new OnGameStateChanged { newState = newState });
+    }
+
+    // --------------- 新游戏/继续游戏 方法接口 ---------------
+
+    // 新游戏
+    public void NewGame()
+    {
+        GameStateManager.Instance.NewGame();
+        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.GameScene);
+    }
+
+    // 继续游戏
+    public async Task ContinueGame()
+    {
+        bool loadSuccess = await GameStateManager.Instance.LoadGameAsync();
+
+        if (loadSuccess)
+        {
+            string lastScene = GameStateManager.Instance.currentData.lastSceneName;
+            if (!string.IsNullOrEmpty(lastScene))
+            {
+                SceneController.Instance.LoadSceneAsync(lastScene);
+            }
+            else
+            {
+                Debug.LogError("Save data has no scene name");
+            }
+        }
+        else
+        {
+            Debug.Log("No save file found, starting a new game.");
+            NewGame();
+        }
     }
 
     private void HandleMainMenuState()

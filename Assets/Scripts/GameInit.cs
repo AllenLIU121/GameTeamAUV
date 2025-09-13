@@ -13,6 +13,6 @@ public class GameInit : MonoBehaviour
 
     private void Start()
     {
-        SceneController.Instance.LoadSceneAsync("Framework Test Scene (Menu)");
+        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.MenuScene);
     }
 }
