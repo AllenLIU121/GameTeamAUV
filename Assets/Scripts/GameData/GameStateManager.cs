@@ -14,16 +14,24 @@ public class GameStateManager : Singleton<GameStateManager>
     // 注册的服务属性
     public InventoryManager Inventory { get; private set; }
     public CharacterManager Character { get; private set; }
+    public SkillManager Skill { get; private set; }
+    public BuffManager Buff { get; private set; }
 
     // 注册/注销服务接口
     public void RegisterInventoryManager(InventoryManager manager) => Inventory = manager;
     public void RegisterCharacterManager(CharacterManager manager) => Character = manager;
+    public void RegisterSkillManager(SkillManager manager) => Skill = manager;
+    public void UnregisterSkillManager() => Skill = null;
+    public void RegisterBuffManager(BuffManager manager) => Buff = manager;
+    public void UnregisterBuffManager() => Buff = null;
     public void UnregisterInventoryManager() => Inventory = null;
     public void UnregisterCharacterManager() => Character = null;
-
     // 角色数据更新请求列表
     private Dictionary<string, List<float>> staminaModifiers = new Dictionary<string, List<float>>();
     private Dictionary<string, List<float>> hungerModifiers = new Dictionary<string, List<float>>();
+    //技能冷却
+    private Dictionary<string, Dictionary<string, List<float>>> skillCooldownModifiers = 
+        new Dictionary<string, Dictionary<string, List<float>>>();
 
     protected override void Awake()
     {
@@ -36,7 +44,7 @@ public class GameStateManager : Singleton<GameStateManager>
     {
         ProcessModifiers();
     }
-
+    
     private void ProcessModifiers()
     {
         // 记录属性变化的角色
@@ -64,7 +72,7 @@ public class GameStateManager : Singleton<GameStateManager>
                     EventManager.Instance.Publish(new OnCharacterStatChanged
                     {
                         characterID = characterID,
-                        statType = StatType.Stamina,
+                        statType = BuffSO.StatType.Stamina,
                         newValue = data.currentStamina,
                         changeAmount = data.currentStamina - oldValue
                     });
@@ -85,7 +93,7 @@ public class GameStateManager : Singleton<GameStateManager>
                     EventManager.Instance.Publish(new OnCharacterStatChanged
                     {
                         characterID = characterID,
-                        statType = StatType.Hunger,
+                        statType = BuffSO.StatType.Hunger,
                         newValue = data.currentHunger,
                         changeAmount = data.currentHunger - oldValue
                     });
@@ -95,7 +103,21 @@ public class GameStateManager : Singleton<GameStateManager>
 
         ClearAllModifiers();
     }
-
+    public class SerializableSkillData
+    {
+        public string skillID;
+        public float currentCooldown;
+        public float cooldownTime;
+    
+        public SerializableSkillData() { }
+    
+        public SerializableSkillData(SkillSO skill)
+        {
+            skillID = skill.skillID;
+            currentCooldown = skill.currentCooldown;
+            cooldownTime = skill.cooldownTime;
+        }
+    }
     private void ClearAllModifiers()
     {
         staminaModifiers.Clear();
@@ -177,7 +199,7 @@ public class GameStateManager : Singleton<GameStateManager>
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
                 characterID = character.characterID,
-                statType = StatType.Stamina,
+                statType = BuffSO.StatType.Stamina,
                 newValue = character.currentStamina,
                 changeAmount = 0
             });
@@ -186,7 +208,7 @@ public class GameStateManager : Singleton<GameStateManager>
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
                 characterID = character.characterID,
-                statType = StatType.Hunger,
+                statType = BuffSO.StatType.Hunger,
                 newValue = character.currentHunger,
                 changeAmount = 0
             });
@@ -229,5 +251,6 @@ public class GameStateManager : Singleton<GameStateManager>
         Debug.Log("[GameStateManager] Game loaded successfully.");
         return true;
     }
+    
 #endif
 }
