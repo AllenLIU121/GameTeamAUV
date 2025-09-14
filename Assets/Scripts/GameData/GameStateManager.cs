@@ -168,7 +168,7 @@ public class GameStateManager : Singleton<GameStateManager>
     {
         if (historyStack.Count > 0)
         {
-            currentData = historyStack.Pop();
+            currentData = historyStack.Peek();
 
             ClearAllModifiers();
 
