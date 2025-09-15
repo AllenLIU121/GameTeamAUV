@@ -27,7 +27,6 @@ public class CharacterSlot : MonoBehaviour
         Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - 饥饿：{newHunger}，体力：{newStamina}");
         hungerBar.value = newHunger;
         staminaBar.value = newStamina;
-        // 额外检查Slider组件是否有效
         if (hungerBar == null) Debug.LogError($"[CharacterSlot] 角色 {_characterID} 的hungerBar未赋值！");
         if (staminaBar == null) Debug.LogError($"[CharacterSlot] 角色 {_characterID} 的staminaBar未赋值！");
     }
