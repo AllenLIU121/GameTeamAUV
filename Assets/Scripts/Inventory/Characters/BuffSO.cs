@@ -4,7 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Buff", menuName = "Family Survival/Buffs/Buff")]
 public class BuffSO : ScriptableObject
 {
-    // Enums.cs (放在Scripts/Data/目录下)
     public enum DiseaseType
     {
         None,
