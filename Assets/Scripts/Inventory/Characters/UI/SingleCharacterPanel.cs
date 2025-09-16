@@ -26,4 +26,6 @@ public class SingleCharacterPanel : MonoBehaviour
     public void UpdateCharacterHunger(float hunger) => hungerSlider.value = hunger;
     public void UpdateCharacterSkillCooldown(float skillCooldown) => skillCooldownSlider.value = skillCooldown;
 }
+
+
  

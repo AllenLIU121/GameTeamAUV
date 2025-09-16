@@ -29,9 +29,9 @@ public class GameStateManager : Singleton<GameStateManager>
     // 角色数据更新请求列表
     private Dictionary<string, List<float>> staminaModifiers = new Dictionary<string, List<float>>();
     private Dictionary<string, List<float>> hungerModifiers = new Dictionary<string, List<float>>();
-    //技能冷却
-    private Dictionary<string, Dictionary<string, List<float>>> skillCooldownModifiers = 
-        new Dictionary<string, Dictionary<string, List<float>>>();
+    // //技能冷却
+    // private Dictionary<string, Dictionary<string, List<float>>> skillCooldownModifiers = 
+    //     new Dictionary<string, Dictionary<string, List<float>>>();
 
     protected override void Awake()
     {
@@ -107,21 +107,21 @@ public class GameStateManager : Singleton<GameStateManager>
 
         ClearAllModifiers();
     }
-    public class SerializableSkillData
-    {
-        public string skillID;
-        public float currentCooldown;
-        public float cooldownTime;
+    // public class SerializableSkillData
+    // {
+    //     public string skillID;
+    //     public float currentCooldown;
+    //     public float cooldownTime;
     
-        public SerializableSkillData() { }
+    //     public SerializableSkillData() { }
     
-        public SerializableSkillData(SkillSO skill)
-        {
-            skillID = skill.skillID;
-            currentCooldown = skill.currentCooldown;
-            cooldownTime = skill.cooldownTime;
-        }
-    }
+    //     public SerializableSkillData(SkillSO skill)
+    //     {
+    //         skillID = skill.skillID;
+    //         currentCooldown = skill.currentCooldown;
+    //         cooldownTime = skill.cooldownTime;
+    //     }
+    // }
     private void ClearAllModifiers()
     {
         staminaModifiers.Clear();

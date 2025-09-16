@@ -20,4 +20,6 @@ public class ItemDatabase : Singleton<ItemDatabase>
         itemDict.TryGetValue(itemID, out ItemSO itemSO);
         return itemSO;
     }
+
+    public List<ItemSO> GetAllItemSOs() => allItems;
 }
