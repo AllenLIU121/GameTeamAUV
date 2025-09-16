@@ -39,6 +39,8 @@ public class GameStateManager : Singleton<GameStateManager>
 
     private void ProcessModifiers()
     {
+        if (staminaModifiers.Count == 0 && hungerModifiers.Count == 0) return;
+        
         // 记录属性变化的角色
         HashSet<string> modifiedCharacters = new HashSet<string>();
         foreach (var key in staminaModifiers.Keys) modifiedCharacters.Add(key);
