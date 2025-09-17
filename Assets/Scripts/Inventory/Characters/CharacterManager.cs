@@ -2,30 +2,23 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterManager : MonoBehaviour 
+public class CharacterManager : MonoBehaviour
 {
-    public List<CharacterSO> charactersSO;
+    // public List<CharacterSO> charactersSO;
+    private Dictionary<string, GameObject> characterGODict = new Dictionary<string, GameObject>();
     private Dictionary<string, CharacterSO> characterSODict = new Dictionary<string, CharacterSO>();
 
     private void Awake()
     {
         GameStateManager.Instance.RegisterCharacterManager(this);
 
-        foreach (var characterSO in charactersSO)
-        {
-            if (characterSO != null && !string.IsNullOrEmpty(characterSO.characterID))
-            {
-                characterSODict[characterSO.characterID] = characterSO;
-            }
-        }
-
         EventManager.Instance.Subscribe<OnItemUseRequest>(HandleItemUseRequest);
     }
 
-    private void Start()
-    {
-        InitializeCharacters();
-    }
+    // private void Start()
+    // {
+    //     InitializeCharacters();
+    // }
 
     private void OnDestroy()
     {
@@ -40,60 +33,136 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
-    // 恢复使用物品的角色的体力和饥饿值
+    // 当角色使用物品时
     private void HandleItemUseRequest(OnItemUseRequest eventData)
     {
         var itemSO = eventData.itemSO;
         var targetCharacterID = eventData.targetCharacterID;
 
-        if (itemSO.staminaToRestore > 0)
+        var characterSO = GetCharacterSO(targetCharacterID);
+        var targetObject = GetCharacterGameObject(targetCharacterID);
+
+        if (characterSO == null || targetObject == null)
         {
-            GameStateManager.Instance.UpdateStamina(targetCharacterID, itemSO.staminaToRestore);
+            Debug.LogError($"Use item failed: Can't find character SO or GameObject with ID '{targetCharacterID}'");
+            return;
         }
-        if (itemSO.hungerToRestore > 0)
+
+        var characterStatus = targetObject.GetComponent<CharacterStatus>();
+        if (characterStatus == null)
         {
-            GameStateManager.Instance.UpdateHunger(targetCharacterID, itemSO.hungerToRestore);
+            Debug.LogError($"Character {targetCharacterID} is missing a CharacterStatus component");
+            return;
+        }
+
+        // 专属物品
+        if (!string.IsNullOrEmpty(itemSO.requiredCharacterTag) && characterSO.characterTag != itemSO.requiredCharacterTag)
+        {
+            Debug.LogWarning($"Character '{characterSO.characterID}' can't use this item. Only characters with tag '{itemSO.requiredCharacterTag}' can use it.");
+            return;
+        }
+
+        // 应用效果
+        foreach (var effect in itemSO.effects)
+        {
+            var buffManager = GameStateManager.Instance.Buff;
+            switch (effect.type)
+            {
+                case EffectType.RestoreStamina:
+                    characterStatus.ModifyStamina(effect.value);
+                    break;
+                case EffectType.RestoreHunger:
+                    characterStatus.ModifyHunger(effect.value);
+                    break;
+                case EffectType.ApplyBuff:
+                    if (effect.buffToApply != null)
+                        buffManager.ApplyBuff(targetObject, effect.buffToApply);
+                    break;
+                case EffectType.CureDisease:
+                    buffManager.RemoveDisease(targetObject, effect.diseaseToCure);
+                    break;
+            }
         }
     }
 
-    private void InitializeCharacters()
+    public void RegisterCharacter(CharacterSO characterSO, GameObject characterGO)
     {
-        if (GameStateManager.Instance.GetCharacterData(charactersSO[0].characterID) == null)
+        if (characterSO == null || characterGO == null) return;
+
+        // 注册GameObject实例
+        characterGODict[characterSO.characterID] = characterGO;
+
+        // 注册SO数据
+        if (!characterSODict.ContainsKey(characterSO.characterID))
         {
-            var skillManager = GameStateManager.Instance.Skill;
-            if (skillManager == null)
-            {
-                Debug.LogError("[CharacterManager] SkillManager is null");
-                return;
-            }
+            characterSODict[characterSO.characterID] = characterSO;
+        }
 
-            foreach (var characterSO in charactersSO)
-            {
-                // 初始化并注册角色
-                var newCharacterData = new CharacterRuntimeData
-                {
-                    characterID = characterSO.characterID,
-                    maxStamina = characterSO.maxStamina,
-                    maxHunger = characterSO.maxHunger,
-                    currentStamina = characterSO.maxStamina,
-                    currentHunger = characterSO.maxHunger
-                };
-                GameStateManager.Instance.RegisterNewCharacter(newCharacterData);
-
-                // 初始化并注册角色技能
-                if (characterSO.skill != null)
-                {
-                    skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
-                }
-            }
-
-            GameStateManager.Instance.PublishCharacterDataForSync();
+        // 注册角色技能
+        var skillManager = GameStateManager.Instance.Skill;
+        if (skillManager != null && characterSO.skill != null)
+        {
+            skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
         }
     }
+
+    public void UnregisterCharacter(CharacterSO characterSO)
+    {
+        if (characterSO == null) return;
+
+        if (characterGODict.ContainsKey(characterSO.characterID))
+            characterGODict.Remove(characterSO.characterID);
+    }
+
+    // private void InitializeCharacters()
+    // {
+    //     if (GameStateManager.Instance.GetCharacterData(charactersSO[0].characterID) == null)
+    //     {
+    //         var skillManager = GameStateManager.Instance.Skill;
+    //         if (skillManager == null)
+    //         {
+    //             Debug.LogError("[CharacterManager] SkillManager is null");
+    //             return;
+    //         }
+
+    //         foreach (var characterSO in charactersSO)
+    //         {
+    //             // 初始化并注册角色
+    //             var newCharacterData = new CharacterRuntimeData
+    //             {
+    //                 characterID = characterSO.characterID,
+    //                 maxStamina = characterSO.maxStamina,
+    //                 maxHunger = characterSO.maxHunger,
+    //                 currentStamina = characterSO.maxStamina,
+    //                 currentHunger = characterSO.maxHunger
+    //             };
+    //             GameStateManager.Instance.RegisterNewCharacter(newCharacterData);
+
+    //             // 初始化并注册角色技能
+    //             if (characterSO.skill != null)
+    //             {
+    //                 skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
+    //             }
+    //         }
+
+    //         GameStateManager.Instance.PublishCharacterDataForSync();
+    //     }
+    // }
 
     public CharacterSO GetCharacterSO(string characterID)
     {
         characterSODict.TryGetValue(characterID, out CharacterSO characterSO);
         return characterSO;
+    }
+
+    public GameObject GetCharacterGameObject(string characterID)
+    {
+        characterGODict.TryGetValue(characterID, out GameObject characterGO);
+        return characterGO;
+    }
+
+    public ICollection<GameObject> GetAllCharacterGOs()
+    {
+        return characterGODict.Values;
     }
 }

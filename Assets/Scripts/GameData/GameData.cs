@@ -46,6 +46,7 @@ public class GameData : ISerializationCallbackReceiver  // Runtime数据仓库
 public class CharacterRuntimeData
 {
     public string characterID;
+    public bool isAlive;
     public float maxStamina;
     public float maxHunger;
     public float currentStamina;

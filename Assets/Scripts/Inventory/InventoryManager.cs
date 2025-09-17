@@ -9,7 +9,7 @@ public class InventoryManager : MonoBehaviour
 
     private Dictionary<string, int> itemIDtoSlotIndexMap = new Dictionary<string, int>();
     private GameData gameData;
-    
+
     private void Awake()
     {
         GameStateManager.Instance.RegisterInventoryManager(this);
@@ -54,7 +54,7 @@ public class InventoryManager : MonoBehaviour
         float weightToAdd = itemSO.weight * amount;
         if (gameData.currentWeight + weightToAdd > maxWeightCapacity)
         {
-            Debug.LogWarning("[InventoryManager] Inventory is full]");
+            Debug.LogWarning("[InventoryManager] Can't add item as weight has exceeded the limit.");
             return false;
         }
 
@@ -171,11 +171,18 @@ public class InventoryManager : MonoBehaviour
         }
 
         DecreaseItemQuantity(slotIndex);
-        AddItem(itemSO.cookedVersion.itemID, itemSO.cookedVersion.stackAfterCook);
+        AddItem(itemSO.cookedVersion.itemID, itemSO.stackAfterCook);
         Debug.Log($"Cook Succeed. Consume 1 {itemSO.itemName} and recieve {itemSO.cookedVersion.stackAfterCook} {itemSO.cookedVersion.itemName}");
         return true;
     }
-    #endregion
+
+    // 妈妈技能 提供各个药品*1
+    public bool AddEachMedicine()
+    {
+
+        return true;
+    }
+    #endregion  --------- End ----------
 
     // 获取指定栏位的物品SO
     private ItemSO GetItemSO(int slotIndex)
@@ -242,7 +249,30 @@ public class InventoryManager : MonoBehaviour
             gameData.inventorySlots.Add(newSlot);
             itemIDtoSlotIndexMap[item.itemID] = i;
         }
+    }
 
-        // TOADD: Load Inventory Data From Save
+    // 物品栏数据同步
+    public void SyncFromGameData()
+    {
+        gameData = GameStateManager.Instance.currentData;
+
+        // 所有物品数量同步
+        itemIDtoSlotIndexMap.Clear();
+        var allItems = ItemDatabase.Instance.GetAllItemSOs();
+        if (allItems.Count != gameData.inventorySlots.Count)
+        {
+            Debug.LogError("[InventoryManager] Item count mismatch");
+            return;
+        }
+
+        for (int i = 0; i < allItems.Count; i++)
+        {
+            itemIDtoSlotIndexMap[allItems[i].itemID] = i;
+        }
+
+        // 更新物品栏UI
+        var allIndexes = Enumerable.Range(0, gameData.inventorySlots.Count).ToList();
+        RefreshSlotUIRequest(allIndexes);
+        Debug.Log("[InventoryManager] Inventory data synced.");
     }
 }

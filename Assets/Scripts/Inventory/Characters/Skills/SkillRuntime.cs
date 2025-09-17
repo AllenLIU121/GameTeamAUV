@@ -20,4 +20,5 @@ public class SkillRuntime
     }
 
     public void StartCooldown() => CurrentCooldown = SkillData.cooldownTime;
+    public void ResetCooldown() => CurrentCooldown = 0;
 }

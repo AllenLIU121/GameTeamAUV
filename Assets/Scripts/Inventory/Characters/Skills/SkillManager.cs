@@ -52,17 +52,31 @@ public class SkillManager : MonoBehaviour
             return false;
         }
 
-        var skillRuntime = characterSkillsData[characterID][skillID];
-        if (!skillRuntime.IsReady) return false;
+        // 检查角色是否死亡
+        var characterObject = GameStateManager.Instance.Character.GetCharacterGameObject(characterID);
+        if (characterObject == null) return false;
 
-        // 开始冷却
-        if (!skillRuntime.IsPassive)
+        var status = characterObject.GetComponent<CharacterStatus>();
+        if (status != null && status.IsAlive)
         {
-            skillRuntime.StartCooldown();
-        }
+            // 检测技能是否在冷却
+            var skillRuntime = characterSkillsData[characterID][skillID];
+            if (!skillRuntime.IsReady) return false;
 
-        PublishSkillActivatedEvent(characterID, skillID);
-        return true;
+            // 开始冷却
+            if (!skillRuntime.IsPassive)
+            {
+                skillRuntime.StartCooldown();
+            }
+
+            PublishSkillActivatedEvent(characterID, skillID);
+            return true;
+        }
+        else
+        {
+            Debug.LogWarning($"Character '{characterID}' is dead.");
+            return false;
+        }
     }
 
     // 激活作用于物品的角色技能
@@ -75,22 +89,37 @@ public class SkillManager : MonoBehaviour
             return false;
         }
 
-        var skillRuntime = characterSkillsData[characterID][skillID];
-        if (!skillRuntime.IsReady) return false;
+        // 检查角色是否死亡
+        var characterObject = GameStateManager.Instance.Character.GetCharacterGameObject(characterID);
+        if (characterObject == null) return false;
 
-        bool success = skillRuntime.SkillData.ExecuteSkill(slotIndex);
-        if (success)
+        var status = characterObject.GetComponent<CharacterStatus>();
+        if (status != null && status.IsAlive)
         {
-            if (!skillRuntime.IsPassive)
+            // 检测技能是否在冷却
+            var skillRuntime = characterSkillsData[characterID][skillID];
+            if (!skillRuntime.IsReady) return false;
+
+            bool success = skillRuntime.SkillData.ExecuteSkill(slotIndex);
+            if (success)
             {
-                skillRuntime.StartCooldown();
+                // 开始冷却
+                if (!skillRuntime.IsPassive)
+                {
+                    skillRuntime.StartCooldown();
+                }
+                // PublishSkillActivatedEvent(characterID, skillID);
+                return true;
             }
-            PublishSkillActivatedEvent(characterID, skillID);
-            return true;
+            else
+            {
+                Debug.Log($"Failed to execute the skill: {skillRuntime.SkillData.skillName}.");
+                return false;
+            }
         }
         else
         {
-            Debug.Log($"Failed to execute the skill: {skillRuntime.SkillData.skillName}.");
+            Debug.LogWarning($"Character '{characterID}' is dead.");
             return false;
         }
     }
@@ -102,5 +131,17 @@ public class SkillManager : MonoBehaviour
             characterID = characterID,
             skillID = skillID,
         });
+    }
+
+    // 重置所有技能冷却
+    public void ResetAllCooldowns()
+    {
+        foreach (var SkillData in characterSkillsData.Values)
+        { 
+            foreach(var skillRuntime in SkillData.Values)
+            {
+                skillRuntime.ResetCooldown();
+            }
+        }
     }
 }

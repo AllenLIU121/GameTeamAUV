@@ -97,18 +97,18 @@ public class DebugController : Singleton<DebugController>
         }
     }
 
-    [ContextMenu("改变角色状态")]
-    public void TriggerChangeCharacterStats()
-    {
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.UpdateHunger(characterID, hungerChangedAmount);
-            GameStateManager.Instance.UpdateStamina(characterID, staminaChangedAmount);
-        }
-        else
-        {
-            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
-        }
-    }
+    // [ContextMenu("改变角色状态")]
+    // public void TriggerChangeCharacterStats()
+    // {
+    //     if (GameStateManager.Instance != null)
+    //     {
+    //         GameStateManager.Instance.UpdateHunger(characterID, hungerChangedAmount);
+    //         GameStateManager.Instance.UpdateStamina(characterID, staminaChangedAmount);
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
+    //     }
+    // }
 }
 #endif
