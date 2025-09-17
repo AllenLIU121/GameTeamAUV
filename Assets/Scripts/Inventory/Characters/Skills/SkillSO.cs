@@ -21,23 +21,10 @@ public class SkillSO : ScriptableObject
     public bool buffAffectsCaster = false;
     public bool buffAffectsAllies = false;
     
-    // 运行时数据
-    [System.NonSerialized] public float currentCooldown;
-    
-    public bool IsReady => currentCooldown <= 0;
-    
-    public virtual void Initialize()
-    {
-        currentCooldown = 0f;
-    }
-    
-    public virtual void UpdateCooldown(float deltaTime)
-    {
-        if (currentCooldown > 0) currentCooldown = Mathf.Max(0, currentCooldown - deltaTime);
-    }
-    
-    public virtual void StartCooldown() => currentCooldown = cooldownTime;
-    
+    // 作用于物品的角色技能
+    public virtual bool ExecuteSkill(int slotIndex) { return false; }
+
+    // 作用于角色的角色技能
     public virtual bool ExecuteSkill(GameObject caster, BuffManager buffManager)
     {
         if (appliedBuff != null)
@@ -46,7 +33,7 @@ public class SkillSO : ScriptableObject
             {
                 buffManager.ApplyBuff(caster, appliedBuff, caster);
             }
-            
+
             if (buffAffectsAllies)
             {
                 // 找到所有盟友并应用Buff
@@ -60,31 +47,27 @@ public class SkillSO : ScriptableObject
                 }
             }
         }
-        
+
         return true;
     }
 }
 
-// 具体技能实现
-[CreateAssetMenu(fileName = "Grandmother_RefreshSkill", menuName = "Family Survival/Skills/Grandmother Refresh")]
-public class GrandmotherSkillSO : SkillSO
+// 姥姥保鲜技能
+[CreateAssetMenu(fileName = "Grandmother(Mother)_RefreshSkill", menuName = "Family Survival/Skills/Grandmother(Mother) Refresh")]
+public class Grandmother_Mother_SkillSO : SkillSO
 {
-    [Header("姥姥技能特有设置")]
-    public float foodRefreshAmount = 30f;
-    
-    public override bool ExecuteSkill(GameObject caster, BuffManager buffManager)
+    public override bool ExecuteSkill(int slotIndex)
     {
-        // 食物刷新逻辑
-        return base.ExecuteSkill(caster, buffManager);
+        return GameStateManager.Instance.Inventory.RestoreItemRefreshness(slotIndex);
     }
 }
 
-[CreateAssetMenu(fileName = "Sister_MoraleSkill", menuName = "Family Survival/Skills/Sister Morale")]
-public class SisterSkillSO : SkillSO
+// 奶奶烹饪技能
+[CreateAssetMenu(fileName = "Grandmother(Father)_CookFoodSkill", menuName = "Family Survival/Skills/Grandmother(Father) Cook Food")]
+public class Grandmother_Father_SkillSO : SkillSO
 {
-    public override bool ExecuteSkill(GameObject caster, BuffManager buffManager)
-    {
-        // 应用士气Buff
-        return base.ExecuteSkill(caster, buffManager);
+    public override bool ExecuteSkill(int slotIndex)
+    { 
+        return GameStateManager.Instance.Inventory.CookItem(slotIndex);
     }
 }

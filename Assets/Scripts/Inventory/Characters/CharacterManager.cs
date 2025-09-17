@@ -60,8 +60,16 @@ public class CharacterManager : MonoBehaviour
     {
         if (GameStateManager.Instance.GetCharacterData(charactersSO[0].characterID) == null)
         {
+            var skillManager = GameStateManager.Instance.Skill;
+            if (skillManager == null)
+            {
+                Debug.LogError("[CharacterManager] SkillManager is null");
+                return;
+            }
+
             foreach (var characterSO in charactersSO)
             {
+                // 初始化并注册角色
                 var newCharacterData = new CharacterRuntimeData
                 {
                     characterID = characterSO.characterID,
@@ -70,8 +78,13 @@ public class CharacterManager : MonoBehaviour
                     currentStamina = characterSO.maxStamina,
                     currentHunger = characterSO.maxHunger
                 };
-
                 GameStateManager.Instance.RegisterNewCharacter(newCharacterData);
+
+                // 初始化并注册角色技能
+                if (characterSO.skill != null)
+                {
+                    skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
+                }
             }
 
             GameStateManager.Instance.PublishCharacterDataForSync();

@@ -58,7 +58,21 @@ public class InventorySlot
 {
     public string itemID;
     public int quantity;
-    public InventorySlot() { Clear(); }
-    public void Clear() { itemID = string.Empty; quantity = 0; }
+    public float currentFreshness;
+
     public bool IsEmpty() => string.IsNullOrEmpty(itemID) || quantity <= 0;
+
+    public void Clear()
+    {
+        itemID = string.Empty;
+        quantity = 0;
+        currentFreshness = 0f;
+    }
+
+    public void SetItem(ItemSO item, int quantity)
+    {
+        itemID = item.itemID;
+        this.quantity = quantity;
+        currentFreshness = item.maxFreshness;
+    }
 }

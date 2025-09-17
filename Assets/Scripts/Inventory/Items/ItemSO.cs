@@ -2,6 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum FoodState
+{
+    Raw,
+    Cooked
+}
+
 [CreateAssetMenu(fileName = "New Item", menuName = "Game Data/Item Data")]
 public class ItemSO : ScriptableObject
 {
@@ -16,7 +22,10 @@ public class ItemSO : ScriptableObject
     public float hungerToRestore;
     public float staminaToRestore;
 
-    // TOADD: 是否需要烹饪
-    // TOADD: 角色专属
-    // TOADD: 物品特殊效果
+    [Header("食物相关属性")]
+    public bool isFood = false;
+    public float maxFreshness;
+    public FoodState foodState = FoodState.Raw;
+    public ItemSO cookedVersion;
+    public int stackAfterCook;
 }

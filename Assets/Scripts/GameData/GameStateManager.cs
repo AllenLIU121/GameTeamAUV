@@ -29,9 +29,9 @@ public class GameStateManager : Singleton<GameStateManager>
     // 角色数据更新请求列表
     private Dictionary<string, List<float>> staminaModifiers = new Dictionary<string, List<float>>();
     private Dictionary<string, List<float>> hungerModifiers = new Dictionary<string, List<float>>();
-    //技能冷却
-    private Dictionary<string, Dictionary<string, List<float>>> skillCooldownModifiers = 
-        new Dictionary<string, Dictionary<string, List<float>>>();
+    // //技能冷却
+    // private Dictionary<string, Dictionary<string, List<float>>> skillCooldownModifiers = 
+    //     new Dictionary<string, Dictionary<string, List<float>>>();
 
     protected override void Awake()
     {
@@ -47,6 +47,8 @@ public class GameStateManager : Singleton<GameStateManager>
     
     private void ProcessModifiers()
     {
+        if (staminaModifiers.Count == 0 && hungerModifiers.Count == 0) return;
+        
         // 记录属性变化的角色
         HashSet<string> modifiedCharacters = new HashSet<string>();
         foreach (var key in staminaModifiers.Keys) modifiedCharacters.Add(key);
@@ -76,6 +78,7 @@ public class GameStateManager : Singleton<GameStateManager>
                         newValue = data.currentStamina,
                         changeAmount = data.currentStamina - oldValue
                     });
+                    Debug.Log($"Character {characterID}'s stamina has changed, newValue: {data.currentStamina}, changeAmount: {data.currentStamina - oldValue}");
                 }
             }
 
@@ -97,37 +100,45 @@ public class GameStateManager : Singleton<GameStateManager>
                         newValue = data.currentHunger,
                         changeAmount = data.currentHunger - oldValue
                     });
+                    Debug.Log($"Character {characterID}'s hunger has changed, newValue: {data.currentHunger}, changeAmount: {data.currentHunger - oldValue}");
                 }
             }
         }
 
         ClearAllModifiers();
     }
-    public class SerializableSkillData
-    {
-        public string skillID;
-        public float currentCooldown;
-        public float cooldownTime;
+    // public class SerializableSkillData
+    // {
+    //     public string skillID;
+    //     public float currentCooldown;
+    //     public float cooldownTime;
     
-        public SerializableSkillData() { }
+    //     public SerializableSkillData() { }
     
-        public SerializableSkillData(SkillSO skill)
-        {
-            skillID = skill.skillID;
-            currentCooldown = skill.currentCooldown;
-            cooldownTime = skill.cooldownTime;
-        }
-    }
+    //     public SerializableSkillData(SkillSO skill)
+    //     {
+    //         skillID = skill.skillID;
+    //         currentCooldown = skill.currentCooldown;
+    //         cooldownTime = skill.cooldownTime;
+    //     }
+    // }
     private void ClearAllModifiers()
     {
         staminaModifiers.Clear();
         hungerModifiers.Clear();
     }
 
+    // --------------- 新游戏接口 ---------------
+    public void NewGame()
+    {
+        currentData = new GameData();
+        historyStack.Clear();
+        ClearAllModifiers();
+    }
 
     // --------------- 初始化/获取 角色数据 ---------------
 
-    // 初始化角色
+        // 初始化角色
     public void RegisterNewCharacter(CharacterRuntimeData newCharacterData)
     {
         if (currentData.characters.ContainsKey(newCharacterData.characterID)) return;
@@ -181,7 +192,7 @@ public class GameStateManager : Singleton<GameStateManager>
     {
         if (historyStack.Count > 0)
         {
-            currentData = historyStack.Pop();
+            currentData = historyStack.Peek();
 
             ClearAllModifiers();
 
@@ -247,6 +258,9 @@ public class GameStateManager : Singleton<GameStateManager>
         }
 
         currentData = JsonUtility.FromJson<GameData>(json);
+
+        PublishCharacterDataForSync();
+        EventManager.Instance.Publish(new OnGameDataLoaded());
 
         Debug.Log("[GameStateManager] Game loaded successfully.");
         return true;

@@ -24,23 +24,23 @@ public static class SceneAutoLoader
     [UnityEditor.MenuItem(MENU_NAME + "Disable", true)]
     private static bool DisableValidate() => IsEnabled;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void Initialize()
-    {
-        if (!IsEnabled) return;
+    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    // private static void Initialize()
+    // {
+    //     if (!IsEnabled) return;
 
-        if (Object.FindObjectOfType<GameManager>() != null) return; // 正常Boot场景启动
+    //     if (Object.FindObjectOfType<GameManager>() != null) return; // 正常Boot场景启动
 
-        var managersPrefab = Resources.Load<GameObject>("ManagersPrefab/Managers");
-        if (managersPrefab != null)
-        {
-            GameObject manageres = Object.Instantiate(managersPrefab);
-            MonoBehaviour.DontDestroyOnLoad(manageres);
-        }
-        else
-        {
-            Debug.LogError("[SceneAutoLoader] Could not find 'Managers' prefab in Resources folder");
-        }
-    }
+    //     var managersPrefab = Resources.Load<GameObject>("ManagersPrefab/Managers");
+    //     if (managersPrefab != null)
+    //     {
+    //         GameObject manageres = Object.Instantiate(managersPrefab);
+    //         MonoBehaviour.DontDestroyOnLoad(manageres);
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("[SceneAutoLoader] Could not find 'Managers' prefab in Resources folder");
+    //     }
+    // }
 }
 #endif
