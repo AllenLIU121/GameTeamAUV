@@ -47,7 +47,7 @@ public class BuffManager : MonoBehaviour
     private void OnDestroy()
     {
         // 从游戏状态管理器取消注册
-        // gameStateManager?.UnregisterBuffManager();
+        gameStateManager?.UnregisterBuffManager();
     }
     
     private void Update()
