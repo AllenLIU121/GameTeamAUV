@@ -18,8 +18,8 @@ public class CharacterSO : ScriptableObject
     public SkillSO skill;
 }
 
-public enum StatType
-{
-    Stamina,
-    Hunger
-}
+// public enum StatType
+// {
+//     Stamina,
+//     Hunger
+// }

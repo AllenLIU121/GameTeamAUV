@@ -111,7 +111,7 @@ public class InventoryManager : MonoBehaviour
         (fromSlot.itemID, fromSlot.quantity) = (toSlot.itemID, toSlot.quantity);
         (fromSlot.quantity, toSlot.quantity) = (toSlot.quantity, fromSlot.quantity);
 
-        EventManager.Instance.Publish(new OnInventoryChanged 
+        EventManager.Instance.Publish(new OnInventoryChanged
         {
             updatedSlotIndexes = new List<int> { fromIndex, toIndex }
         });
