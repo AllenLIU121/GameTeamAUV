@@ -9,7 +9,7 @@ public class BuffManager : MonoBehaviour
 {
     // 存储所有活动Buff的字典
     // Key: 目标游戏对象，Value: 该对象身上的所有ActiveBuff列表
-    private Dictionary<GameObject, List<ActiveBuff>> activeBuffs = new Dictionary<GameObject, List<ActiveBuff>>();
+    public Dictionary<CharacterSO, List<ActiveBuff>> activeBuffs = new Dictionary<CharacterSO, List<ActiveBuff>>();
     
     private GameStateManager gameStateManager;
     
@@ -20,14 +20,14 @@ public class BuffManager : MonoBehaviour
     {
         public BuffSO buff;           // Buff的数据脚本able object
         public float remainingTime;   // Buff剩余持续时间
-        public GameObject source;     // Buff来源对象（谁施加的这个Buff）
+        public CharacterSO source;     // Buff来源对象（谁施加的这个Buff）
         
         /// <summary>
         /// ActiveBuff构造函数
         /// </summary>
         /// <param name="buff">Buff数据</param>
         /// <param name="source">施加者</param>
-        public ActiveBuff(BuffSO buff, GameObject source)
+        public ActiveBuff(BuffSO buff, CharacterSO source)
         {
             this.buff = buff;
             this.source = source;
@@ -47,7 +47,7 @@ public class BuffManager : MonoBehaviour
     private void OnDestroy()
     {
         // 从游戏状态管理器取消注册
-        // gameStateManager?.UnregisterBuffManager();
+        gameStateManager?.UnregisterBuffManager();
     }
     
     private void Update()
@@ -102,7 +102,7 @@ public class BuffManager : MonoBehaviour
     /// <param name="buff">要施加的Buff数据</param>
     /// <param name="source">Buff来源对象（可选）</param>
     /// <returns>是否成功施加Buff</returns>
-    public bool ApplyBuff(GameObject target, BuffSO buff, GameObject source = null)
+    public bool ApplyBuff(CharacterSO target, BuffSO buff, CharacterSO source = null)
     {
         // 安全检查：确保目标和Buff不为空
         if (target == null || buff == null) return false;
@@ -166,7 +166,7 @@ public class BuffManager : MonoBehaviour
     /// <param name="target">目标对象</param>
     /// <param name="buff">要移除的Buff数据</param>
     /// <returns>是否成功移除Buff</returns>
-    public bool RemoveBuff(GameObject target, BuffSO buff)
+    public bool RemoveBuff(CharacterSO target, BuffSO buff)
     {
         // 安全检查
         if (target == null || buff == null || !activeBuffs.ContainsKey(target)) return false;
@@ -210,7 +210,7 @@ public class BuffManager : MonoBehaviour
     /// <param name="target">目标对象</param>
     /// <param name="diseaseType">要移除的疾病类型</param>
     /// <returns>是否成功移除疾病</returns>
-    public bool RemoveDisease(GameObject target, BuffSO.DiseaseType diseaseType)
+    public bool RemoveDisease(CharacterSO target, BuffSO.DiseaseType diseaseType)
     {
         // 安全检查
         if (target == null || !activeBuffs.ContainsKey(target)) return false;
@@ -234,7 +234,7 @@ public class BuffManager : MonoBehaviour
     /// <param name="target">目标对象</param>
     /// <param name="buffID">要检查的Buff ID</param>
     /// <returns>是否拥有该Buff</returns>
-    public bool HasBuff(GameObject target, string buffID)
+    public bool HasBuff(CharacterSO target, string buffID)
     {
         return target != null && 
                activeBuffs.ContainsKey(target) && 
@@ -247,7 +247,7 @@ public class BuffManager : MonoBehaviour
     /// <param name="target">目标对象</param>
     /// <param name="diseaseType">要检查的疾病类型</param>
     /// <returns>是否患有该疾病</returns>
-    public bool HasDisease(GameObject target, BuffSO.DiseaseType diseaseType)
+    public bool HasDisease(CharacterSO target, BuffSO.DiseaseType diseaseType)
     {
         return target != null && 
                activeBuffs.ContainsKey(target) && 
@@ -261,7 +261,7 @@ public class BuffManager : MonoBehaviour
     /// </summary>
     /// <param name="target">目标对象</param>
     /// <returns>Buff列表（如果没有则返回空列表）</returns>
-    public List<ActiveBuff> GetBuffs(GameObject target)
+    public List<ActiveBuff> GetBuffs(CharacterSO target)
     {
         // 返回副本以避免外部修改影响内部数据
         if (target != null && activeBuffs.ContainsKey(target))
@@ -276,7 +276,7 @@ public class BuffManager : MonoBehaviour
     /// </summary>
     /// <param name="target">目标对象</param>
     /// <returns>疾病Buff列表</returns>
-    public List<ActiveBuff> GetDiseases(GameObject target)
+    public List<ActiveBuff> GetDiseases(CharacterSO target)
     {
         var diseases = new List<ActiveBuff>();
         if (target != null && activeBuffs.ContainsKey(target))
@@ -292,54 +292,7 @@ public class BuffManager : MonoBehaviour
         }
         return diseases;
     }
-    
-    /// <summary>
-    /// 计算目标对象指定属性的总修正值
-    /// 处理加法和乘法修正的叠加
-    /// </summary>
-    /// <param name="target">目标对象</param>
-    /// <param name="statType">要计算的属性类型</param>
-    /// <returns>总修正值（加法修正 + 乘法修正）</returns>
-    public float GetStatModifier(GameObject target, BuffSO.StatType statType)
-    {
-        float additiveModifier = 0f;      // 加法修正总和
-        float multiplicativeModifier = 1f; // 乘法修正乘积（初始为1）
-        
-        if (target != null && activeBuffs.ContainsKey(target))
-        {
-            // 遍历所有Buff，计算属性修正
-            foreach (var activeBuff in activeBuffs[target])
-            {
-                // 遍历Buff影响的所有属性
-                for (int i = 0; i < activeBuff.buff.affectedStats.Length; i++)
-                {
-                    if (activeBuff.buff.affectedStats[i] == statType)
-                    {
-                        if (activeBuff.buff.isMultiplicative)
-                        {
-                            // 乘法修正：各个修正值相乘
-                            multiplicativeModifier *= activeBuff.buff.statModifiers[i];
-                        }
-                        else
-                        {
-                            // 加法修正：考虑叠加层数
-                            additiveModifier += activeBuff.buff.statModifiers[i];
-                        }
-                    }
-                }
-            }
-        }
-        
-        // 返回总修正值：加法修正 + (乘法修正 - 1)
-        // 例如：乘法修正为1.2时，返回0.2（表示增加20%）
-        return additiveModifier + (multiplicativeModifier - 1f);
-    }
-    
-    /// <summary>
-    /// 清除目标对象身上的所有Buff
-    /// </summary>
-    /// <param name="target">目标对象</param>
-    public void ClearAllBuffs(GameObject target)
+    public void ClearAllBuffs(CharacterSO target)
     {
         if (target != null && activeBuffs.ContainsKey(target))
         {

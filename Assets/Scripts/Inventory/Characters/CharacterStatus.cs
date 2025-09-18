@@ -144,7 +144,7 @@ public class CharacterStatus : MonoBehaviour
         BuffSO diseaseBuff = GetDiseaseBuff(diseaseType);
         if (diseaseBuff != null)
         {
-            buffManager.ApplyBuff(gameObject, diseaseBuff);
+            buffManager.ApplyBuff(Target, diseaseBuff);
         }
     }
 

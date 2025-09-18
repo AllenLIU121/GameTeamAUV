@@ -44,32 +44,32 @@ public struct OnSkillCooldownUpdated //角色技能冷却
 // BuffEvents.cs
 public struct OnBuffApplied
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO buff;
-    public GameObject source;
+    public CharacterSO source;
 }
 
 public struct OnBuffRemoved
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO buff;
 }
 
 public struct OnBuffUpdated
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO buff;
     public  float remainingTime;
 }
 
 public struct OnDiseaseContracted
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO.DiseaseType diseaseType;
 }
 
 public struct OnDiseaseCured
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO.DiseaseType diseaseType;
 }
