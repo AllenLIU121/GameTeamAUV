@@ -119,6 +119,7 @@ public class Hajimir_SkillSO : SkillSO
     {
         //直接调用BuffSO中LiveBuff
         LuckBoostBuff buff = new LuckBoostBuff();
+        //TODO:想一下给谁加
         LookafterChildBuff buff2 = new LookafterChildBuff();
         foreach (CharacterSO singlecaster in caster)
         {
