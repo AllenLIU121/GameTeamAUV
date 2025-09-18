@@ -16,7 +16,26 @@ public class CharacterSO : ScriptableObject
 
     [Header("角色技能")]
     public SkillSO skill;
+    
 }
+
+// public class Player : CharacterSO
+// {
+//     public void SetName(string name,string id)
+//     {
+//         characterName = name;
+//         characterID = "01";
+//     }
+// }
+//
+// public class Family : CharacterSO
+// {
+//     public void SetName(string name,string id)
+//     {
+//         characterName = name;
+//         characterID = id;
+//     }
+// }
 
 // public enum StatType
 // {
