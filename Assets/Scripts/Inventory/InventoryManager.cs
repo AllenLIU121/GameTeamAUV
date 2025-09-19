@@ -105,7 +105,10 @@ public class InventoryManager : MonoBehaviour
     //     (fromSlot.itemID, fromSlot.quantity) = (toSlot.itemID, toSlot.quantity);
     //     (fromSlot.quantity, toSlot.quantity) = (toSlot.quantity, fromSlot.quantity);
 
-    //     RefreshSlotUIRequest(new List<int> { fromIndex, toIndex });
+        // EventManager.Instance.Publish(new OnInventoryChanged 
+        // {
+        //     updatedSlotIndexes = new List<int> { fromIndex, toIndex }
+        // });
     // }
 
     // 在角色上Drop Item -> 使用物品

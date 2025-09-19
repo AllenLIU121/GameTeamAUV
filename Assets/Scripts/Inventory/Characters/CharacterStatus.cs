@@ -65,6 +65,7 @@ public class CharacterStatus : MonoBehaviour
         EventManager.Instance.Unsubscribe<OnBuffRemoved>(HandleBuffRemoved);
     }
 
+
     private void Update()
     {
         if (IsAlive)
