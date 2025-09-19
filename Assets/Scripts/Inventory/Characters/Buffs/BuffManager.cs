@@ -10,9 +10,7 @@ public class BuffManager : MonoBehaviour
     // 存储所有活动Buff的字典
     // Key: 目标游戏对象，Value: 该对象身上的所有ActiveBuff列表
     public Dictionary<CharacterSO, List<ActiveBuff>> activeBuffs = new Dictionary<CharacterSO, List<ActiveBuff>>();
-    public BuffDatabase BuffDatabase { get; private set; }
-    
-    private GameStateManager gameStateManager;
+    public BuffCollections buffCollections;
     
     /// <summary>
     /// 活动Buff类 - 表示一个正在生效的Buff实例
@@ -39,17 +37,14 @@ public class BuffManager : MonoBehaviour
 
     private void Awake()
     {
-        // 获取游戏状态管理器的单例实例
-        gameStateManager = GameStateManager.Instance;
         // 注册到游戏状态管理器
-        gameStateManager?.RegisterBuffManager(this);
-        BuffDatabase.Initialize();
+        GameStateManager.Instance.RegisterBuffManager(this);
     }
     
     private void OnDestroy()
     {
         // 从游戏状态管理器取消注册
-        gameStateManager?.UnregisterBuffManager();
+        GameStateManager.Instance.UnregisterBuffManager();
     }
     
     private void Update()
@@ -158,7 +153,9 @@ public class BuffManager : MonoBehaviour
                 source = source
             });
         }
-        
+        Debug.Log($"[BuffManager] {buff.buffID} applied to {target.characterID}");
+        Debug.Log($"[BuffManager] {target.characterID} has {activeBuffs[target].Count} active buffs");
+
         return true; // 施加成功
     }
     
@@ -182,7 +179,9 @@ public class BuffManager : MonoBehaviour
             
             // 从列表中移除Buff
             activeBuffs[target].Remove(buffToRemove);
-            
+
+            Debug.Log($"[BuffManager] {target.characterID} has {activeBuffs[target].Count} active buffs");
+
             // 如果是疾病类型的Buff，发布疾病治愈事件
             if (buff.buffType == BuffSO.BuffType.Disease && buff.diseaseType != BuffSO.DiseaseType.None)
             {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SkillManager : MonoBehaviour
@@ -10,13 +11,19 @@ public class SkillManager : MonoBehaviour
     {
         GameStateManager.Instance.RegisterSkillManager(this);
 
-        EventManager.Instance.Subscribe<OnCharacterRegistered>(HandleCharacterRegistered);
-        EventManager.Instance.Subscribe<OnCharacterDied>(HandleCharacterDied);
+        // EventManager.Instance.Subscribe<OnCharacterRegistered>(HandleCharacterRegistered);
+        // EventManager.Instance.Subscribe<OnCharacterDied>(HandleCharacterDied);
     }
+
+    private void Start()
+    {
+        StartCoroutine(ActivateSkillsAfterSeconds());
+    } 
 
     private void Update()
     {
-        UpdateAllCooldowns(Time.deltaTime);
+        if (GameManager.Instance.CurrentState == GameState.Playing)
+            UpdateAllCooldowns(Time.deltaTime);
     }
 
     private void UpdateAllCooldowns(float deltaTime)
@@ -34,20 +41,31 @@ public class SkillManager : MonoBehaviour
     {
         GameStateManager.Instance.UnregisterSkillManager();
         
-        EventManager.Instance.Unsubscribe<OnCharacterRegistered>(HandleCharacterRegistered);
-        EventManager.Instance.Unsubscribe<OnCharacterDied>(HandleCharacterDied);
+        // EventManager.Instance.Unsubscribe<OnCharacterRegistered>(HandleCharacterRegistered);
+        // EventManager.Instance.Unsubscribe<OnCharacterDied>(HandleCharacterDied);
     }
 
-    private void HandleCharacterRegistered(OnCharacterRegistered eventData)
-    {
-        Debug.Log($"[SkillManager] Activating passive skills for {eventData.characterSO.characterName}.");
-        eventData.characterSO.skill.OnActivate(eventData.characterSO);
-    }
+    // private void HandleCharacterRegistered(OnCharacterRegistered eventData)
+    // {
+    //     Debug.Log($"[SkillManager] Activating passive skills for {eventData.characterSO.characterName}.");
+    //     eventData.characterSO.skill.OnActivate(eventData.characterSO);
+    // }
 
-    private void HandleCharacterDied(OnCharacterDied eventData)
+    // private void HandleCharacterDied(OnCharacterDied eventData)
+    // {
+    //     Debug.Log($"[SkillManager] Deactivating passive skills for {eventData.characterSO.characterName}.");
+    //     eventData.characterSO.skill.OnDeactivate(eventData.characterSO);
+    // }
+
+    private IEnumerator ActivateSkillsAfterSeconds()
     {
-        Debug.Log($"[SkillManager] Deactivating passive skills for {eventData.characterSO.characterName}.");
-        eventData.characterSO.skill.OnDeactivate(eventData.characterSO);
+        yield return new WaitForSeconds(1f);
+        Debug.Log($"[SkillManager] Activating passive skills...");
+        foreach (var characterSO in GameStateManager.Instance.Character.GetAllAliveCharacterSOs())
+        {
+            if (characterSO.skill != null)
+                characterSO.skill.OnActivate(characterSO);
+        }
     }
 
     // 只注册主动技能并创建SkillRuntime实例

@@ -12,9 +12,10 @@ public class SkillSO : ScriptableObject
     
     [Header("技能设置")] 
     public float cooldownTime = 10f;
-    public float value; // 一次性技能数值
-    public bool isPassive = false;
-    public bool consumeResources = false;
+    [Tooltip("一次性技能数值")]
+    public float value;
+    // public bool isPassive = false;
+    // public bool consumeResources = false;
     
     [Header("Buff效果")]
     public BuffSO appliedBuff; // 技能应用的Buff

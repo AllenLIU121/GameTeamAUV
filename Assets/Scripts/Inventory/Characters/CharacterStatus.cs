@@ -3,21 +3,21 @@ using UnityEngine;
 
 public class CharacterStatus : MonoBehaviour
 {
-    [Header("角色信息CharacterSO")]
+    [Header("角色信息和控制组件")]
     public CharacterSO characterSO;
 
     private BuffManager buffManager;
-    private BuffDatabase buffDatabase;
     private CharacterManager characterManager;
 
     // Runtime
     public bool IsAlive { get; private set; }
     public float CurrentStamina => currentStamina;
+    public float CurrentHunger => currentHunger;
     private float currentStamina;
     private float currentHunger;
 
-    private float randomDiseaseTimer = 0f;
-    private float randomDiseaseCheckInterval = 5f; // 每5s跑一次随机患病概率
+    private float randomDiseaseTimer = 5f;
+    private float randomDiseaseCheckInterval = 1f; // 每5s跑一次随机患病概率
 
     public string CharacterID => characterSO.characterID;
     // public float MaxStamina => buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxStamina, characterSO.maxStamina);
@@ -29,26 +29,23 @@ public class CharacterStatus : MonoBehaviour
     public float StaminaDecayRate { get; private set; }
     public float HungerDecayRate { get; private set; }
 
+    private float directMaxStaminaModifier = 0f;
 
     private void Awake()
     {
-        characterManager = GameStateManager.Instance.Character;
-        buffManager = GameStateManager.Instance.Buff;
-        if (buffManager != null)
-        {
-            buffDatabase = buffManager.BuffDatabase;
-        }
-
         EventManager.Instance.Subscribe<OnBuffApplied>(HandleBuffApplied);
         EventManager.Instance.Subscribe<OnBuffRemoved>(HandleBuffRemoved);
     }
 
     private void Start()
     {
+        characterManager = GameStateManager.Instance.Character;
         if (characterManager != null)
         {
             characterManager.RegisterCharacter(characterSO, gameObject);
         }
+
+        buffManager = GameStateManager.Instance.Buff;
 
         // 初始化角色状态, 加载存档时此数据会被覆盖
         InitializeStats();
@@ -68,47 +65,55 @@ public class CharacterStatus : MonoBehaviour
 
     private void Update()
     {
-        if (IsAlive)
+        if (GameManager.Instance.CurrentState == GameState.Playing && IsAlive)
             UpdateContinuousStats(Time.deltaTime);
     }
     
     // 统一更新所有持续性状态变化: Buff衰减, 饥饿/体力惩罚
     private void UpdateContinuousStats(float deltaTime)
     {
-        ModifyStamina(-StaminaDecayRate * deltaTime, false);
-        ModifyHunger(-HungerDecayRate * deltaTime, false);
+        // 基础衰减速率
+        float currentFrameStaminaDecay = StaminaDecayRate;
+        float currentFrameHungerDecay = HungerDecayRate;
 
-        // --- 2.饥饿值过低引起的体力流失 ---
+        // 饥饿值过低引起的体力流失
         float hungerPercent = currentHunger / MaxHunger;
         float staminaPercent = currentStamina / MaxStamina;
 
         if (hungerPercent <= 0f)            // 饥饿值为0时 体力流失(速率0.13/s)
         {
-            ModifyStamina(-0.13f * deltaTime, false); 
+            currentFrameStaminaDecay = 0.13f * 10; 
         }
         else if (hungerPercent < 0.2f && staminaPercent > 0.1f)       // 饥饿值<20% 体力值>10%时 体力流失(速率0.1/s)
         {
-            ModifyStamina(-0.1f * deltaTime, false);
+            currentFrameStaminaDecay = 0.1f * 10;
         }
         else if (hungerPercent < 0.5f)       // 饥饿值<50%时 体力流失(速率0.08/s) 
         {
-            ModifyStamina(-0.08f * deltaTime, false);
+            currentFrameStaminaDecay = 0.08f * 10;
         }
 
-        // --- 3.体力值低于30%时 有20%几率获取随机疾病Debuff ---
-        if (staminaPercent < 0.3f)
+        // 最终衰减值
+        ModifyStamina(-currentFrameStaminaDecay * deltaTime, true);
+        ModifyHunger(-currentFrameHungerDecay * deltaTime, true);
+
+        // 体力值低于30%时 有20%几率获取随机疾病Debuff
+        if (staminaPercent < 0.9f)
         {
             randomDiseaseTimer += deltaTime;
             if (randomDiseaseTimer >= randomDiseaseCheckInterval)
             {
                 randomDiseaseTimer = 0f;
-                if (Random.value < 0.2f)
+                if (Random.value < 0.9f)
                 {
-                    var diseases = new List<BuffSO.DiseaseType> { BuffSO.DiseaseType.Cold, BuffSO.DiseaseType.Diarrhea, BuffSO.DiseaseType.Pneumonia };
-                    var randomDisease = diseases[Random.Range(0, diseases.Count)];
-                    characterManager.ContractDisease(characterSO, randomDisease);
+                    var randomDisease = buffManager.buffCollections.GetRandomDiseaseBuff();
+                    buffManager.ApplyBuff(characterSO, randomDisease);
                     Debug.Log($"<color=orange>'{characterSO.characterName}' has caught '{randomDisease}' because of low stamina.</color>");
                 }
+            }
+            else
+            {
+                randomDiseaseTimer = 0f;
             }
         }
     }
@@ -133,8 +138,11 @@ public class CharacterStatus : MonoBehaviour
 
     public void RecalculateStats()
     {
-        if (buffManager != null) return;
-        MaxStamina = buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxStamina, characterSO.maxStamina);
+        if (buffManager == null) return;
+
+        float runtimeBaseMaxStamina = characterSO.maxStamina + directMaxStaminaModifier;
+
+        MaxStamina = buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxStamina, runtimeBaseMaxStamina);
         MaxHunger = buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxHunger, characterSO.maxHunger);
         StaminaDecayRate = buffManager.GetStatModifier(characterSO, BuffSO.StatType.StaminaDecayRate, characterSO.staminaDecayRate);
         HungerDecayRate = buffManager.GetStatModifier(characterSO, BuffSO.StatType.HungerDecayRate, characterSO.hungerDecayRate);
@@ -145,13 +153,14 @@ public class CharacterStatus : MonoBehaviour
 
     public void ModifyStamina(float amount, bool publishEvent = true)
     {
-        if (!IsAlive) return;
+        if (!IsAlive || amount == 0) return;
 
         float oldValue = currentStamina;
         currentStamina = Mathf.Clamp(currentStamina + amount, 0, MaxStamina);
 
-        if (publishEvent && Mathf.Abs(currentStamina - oldValue) > 0.01f)
+        if (publishEvent && Mathf.Abs(currentStamina - oldValue) > 0f)
         {
+            // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Stamina)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
                 characterID = characterSO.characterID,
@@ -169,11 +178,15 @@ public class CharacterStatus : MonoBehaviour
 
     public void ModifyHunger(float amount, bool publishEvent = true)
     {
+        if (!IsAlive || amount == 0) return;
+        
         float oldValue = currentHunger;
         currentHunger = Mathf.Clamp(currentHunger + amount, 0, MaxHunger);
+        // Debug.Log($"{characterSO.characterID} currentHunger: {currentHunger}");
 
-        if (publishEvent && Mathf.Abs(currentHunger - oldValue) > 0.01f)
+        if (publishEvent && Mathf.Abs(currentHunger - oldValue) > 0f)
         {
+            // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Hunger)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
                 characterID = this.CharacterID,
@@ -184,19 +197,50 @@ public class CharacterStatus : MonoBehaviour
         }
     }
 
+    public void ModifyMaxStamina(float amount)
+    {
+        if (!IsAlive) return;
+
+        directMaxStaminaModifier += amount;
+        RecalculateStats();
+
+        EventManager.Instance.Publish(new OnCharacterStatChanged
+        {
+            characterID = characterSO.characterID,
+            statType = BuffSO.StatType.MaxStamina,
+            newValue = MaxStamina,
+            changeAmount = amount
+        });
+
+        if (currentStamina == (MaxStamina - amount) && amount > 0)
+        {
+            ModifyStamina(amount);
+        }
+    }
+
     public void InitializeStats()
     {
-        IsAlive = true;
-        RecalculateStats();
         currentStamina = characterSO.maxStamina;
         currentHunger = characterSO.maxHunger;
+        StaminaDecayRate = characterSO.staminaDecayRate;
+        HungerDecayRate = characterSO.hungerDecayRate;
+
+        RecalculateStats();
+        IsAlive = true;
+
+        Debug.Log($"Character {characterSO.characterID} is alive: {IsAlive}");
+        Debug.Log($"CurrentStamina: {currentStamina}, MaxStamina: {MaxStamina}, StaminaDecayRate: {StaminaDecayRate}");
+        Debug.Log($"CurrentHunger: {currentHunger}, MaxHunger: {MaxHunger}, HungerDecayRate: {HungerDecayRate}");
     }
 
     public void LoadState(CharacterRuntimeData data)
     {
-        IsAlive = data.isAlive;
+        directMaxStaminaModifier = data.directMaxStaminaModifier;
+        RecalculateStats();
+
         currentStamina = data.currentStamina;
         currentHunger = data.currentHunger;
+        IsAlive = data.isAlive;        
     }
 
     public CharacterRuntimeData GetStateForSaving()
@@ -205,10 +249,9 @@ public class CharacterStatus : MonoBehaviour
         {
             characterID = this.CharacterID,
             isAlive = IsAlive,
-            maxStamina = characterSO.maxStamina,
-            maxHunger = characterSO.maxHunger,
             currentStamina = this.currentStamina,
-            currentHunger = this.currentHunger
+            currentHunger = this.currentHunger,
+            directMaxStaminaModifier = this.directMaxStaminaModifier
         };
     }
 
@@ -228,6 +271,9 @@ public class CharacterStatus : MonoBehaviour
             characterSO = characterSO
         });
         Debug.Log($"<color=red>Character '{characterSO.characterID}' has died.</color>");
+
+        if(characterSO.skill != null)
+            characterSO.skill.OnDeactivate(characterSO);
     }
 
     // 角色复活逻辑, 体力饥饿恢复一半

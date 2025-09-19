@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class CharacterPanel : MonoBehaviour
 {
     [Header("角色UI组件")]
     [SerializeField] private List<CharacterSlot> characterSlots; 
-    [Header("角色配置数据")]
-    [SerializeField] private List<CharacterSO> characterSOList; 
+    [SerializeField] private List<CharacterSO> characterSOList;
 
     private void Start()
     {
@@ -91,11 +91,11 @@ public class CharacterPanel : MonoBehaviour
             CharacterSO characterSO = characterSOList[i];
 
             // 获取角色运行时数据
-            CharacterRuntimeData runtimeData = GameStateManager.Instance.GetCharacterData(characterSO.characterID);
+            CharacterStatus characterStatus = GameStateManager.Instance.Character.GetCharacterGameObject(characterSO.characterID).GetComponent<CharacterStatus>();
             
             // 如果没有运行时数据，使用默认值
-            float initHunger = runtimeData != null ? runtimeData.currentHunger : characterSO.maxHunger;
-            float initStamina = runtimeData != null ? runtimeData.currentStamina : characterSO.maxStamina;
+            float initHunger = characterStatus != null ? characterStatus.CurrentHunger : characterStatus.MaxHunger;
+            float initStamina = characterStatus != null ? characterStatus.CurrentStamina : characterStatus.MaxStamina;
 
             // 初始化槽位
             slot.InitSlot(characterSO, initHunger, initStamina);
@@ -113,10 +113,6 @@ public class CharacterPanel : MonoBehaviour
             return;
         }
 
-        CharacterRuntimeData runtimeData = GameStateManager.Instance.GetCharacterData(eventData.characterID);
-        if (runtimeData != null)
-        {
-            targetSlot.UpdateSlot(runtimeData.currentHunger, runtimeData.currentStamina);
-        }
+        targetSlot.UpdateSlot(eventData.statType,eventData.newValue);
     }
 }

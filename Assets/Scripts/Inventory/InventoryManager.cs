@@ -33,10 +33,7 @@ public class InventoryManager : MonoBehaviour
 
         // 初始化物品栏位
         InitializeInventorySlots();
-    }
 
-    private void Update()
-    {
         StartCoroutine(FreshnessDecayCoroutine());
     }
 
@@ -55,7 +52,10 @@ public class InventoryManager : MonoBehaviour
     {
         var itemSO = ItemDatabase.Instance.GetItemSO(itemID);
         if (itemSO == null || amount <= 0)
+        {
+            Debug.LogWarning($"ItemID: '{itemID}' not found in the ItemDatabse");
             return false;
+        }
 
         float weightToAdd = itemSO.weight * amount;
         if (gameData.currentWeight + weightToAdd > maxWeightCapacity)
@@ -77,6 +77,7 @@ public class InventoryManager : MonoBehaviour
         {
             // 如果是新槽位, 初始化数值
             slot.SetItem(itemSO, amount);
+            Debug.Log($"[InventoryManager] Add Item: {itemSO.itemName}, Quantity: {amount}, Index: {slotIndex}, Freshness: {slot.currentFreshness}");
         }
         else
         {
@@ -85,6 +86,7 @@ public class InventoryManager : MonoBehaviour
             float newTotalFreshness = itemSO.maxFreshness * amount;
             slot.quantity += amount;
             slot.currentFreshness = (oldTotalFreshness + newTotalFreshness) / slot.quantity;
+            Debug.Log($"[InventoryManager] Add Item: {itemSO.itemName}, Quantity: {amount}, Index: {slotIndex}, Freshness: {slot.currentFreshness}");
         }
 
         UpdateCurrentWeight(itemSO.weight * amount);
@@ -119,6 +121,7 @@ public class InventoryManager : MonoBehaviour
         var slot = gameData.inventorySlots[slotIndex];
         if (slot.IsEmpty()) return;
 
+        Debug.Log($"[InventoryManager] OnItemUseRequest Event Published. itemID: {slot.itemID}, itemFreshness: {slot.currentFreshness}");
         EventManager.Instance.Publish(new OnItemUseRequest
         {
             itemSO = ItemDatabase.Instance.GetItemSO(slot.itemID),
@@ -156,7 +159,7 @@ public class InventoryManager : MonoBehaviour
 
         // 恢复到最大新鲜度
         slot.currentFreshness = itemSO.maxFreshness;
-        Debug.Log($"Item: <color=green>{itemSO.itemName}</color> has been refreshed!");
+        Debug.Log($"<color=green>[InventoryManager] Item '{itemSO.itemName}' has been refreshed!</color>");
 
         RefreshSlotUIRequest(new List<int> { slotIndex });
         return true;
@@ -174,13 +177,13 @@ public class InventoryManager : MonoBehaviour
         // 不需要烹饪, 或者已经烹饪过
         if (itemSO == null || itemSO.cookedVersion == null || !itemSO.cookNeeded)
         {
-            Debug.Log($"Cook Failed. The item cannot be cooked or is already cooked.");
+            Debug.Log($"[InventoryManager] Cook Failed. The item cannot be cooked or is already cooked.");
             return false;
         }
 
         DecreaseItemQuantity(slotIndex);
         AddItem(itemSO.cookedVersion.itemID, itemSO.stackAfterCook);
-        Debug.Log($"Cook Succeed. Consume 1 {itemSO.itemName} and recieve {itemSO.cookedVersion.stackAfterCook} {itemSO.cookedVersion.itemName}");
+        Debug.Log($"<color=green>[InventoryManager] Cook Succeed. Consume 1 {itemSO.itemName} and recieve {itemSO.cookedVersion.stackAfterCook} {itemSO.cookedVersion.itemName}</color>");
         return true;
     }
 
@@ -192,8 +195,10 @@ public class InventoryManager : MonoBehaviour
             var itemSO = ItemDatabase.Instance.GetItemSO(item.itemID);
             if (itemSO.itemType == ItemType.Medicine)
             {
-                item.quantity++;
+                AddItem(itemSO.itemID, 1);
                 UpdateCurrentWeight(itemSO.weight);
+                RefreshSlotUIRequest(new List<int> { itemIDtoSlotIndexMap[itemSO.itemID] });
+                Debug.Log($"<color=green>[InventoryManager] Medicine has been added: {itemSO.itemName}, Quantity: {item.quantity}</color>");
             }
         }
     }
@@ -202,6 +207,7 @@ public class InventoryManager : MonoBehaviour
     public void ModifyMaxWeightCapacity(float amount)
     {
         maxWeightCapacity += amount;
+        Debug.Log($"<color=green>[InventoryManager] Current weight capacity: {maxWeightCapacity}</color>");
     }
 
     #endregion  --------- End ----------
@@ -229,7 +235,7 @@ public class InventoryManager : MonoBehaviour
         slot.quantity -= amount;
         if (slot.quantity <= 0)
         {
-            slot.Clear();
+            slot.Reset();
         }
 
         UpdateCurrentWeight(-(itemSO.weight * amount));
@@ -280,7 +286,8 @@ public class InventoryManager : MonoBehaviour
 
             if (slot.currentFreshness <= 0)
             {
-                slot.Clear();
+                slot.Reset();
+                UpdateCurrentWeight(-(itemSO.weight * slot.quantity));
             }
         }
     }
@@ -300,6 +307,7 @@ public class InventoryManager : MonoBehaviour
             {
                 itemID = item.itemID,
                 quantity = 0,
+                currentFreshness = 0f
             };
             gameData.inventorySlots.Add(newSlot);
             itemIDtoSlotIndexMap[item.itemID] = i;

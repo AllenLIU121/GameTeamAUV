@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
 {
-    // public List<CharacterSO> charactersSO;
     private Dictionary<string, GameObject> characterGODict = new Dictionary<string, GameObject>();
     private Dictionary<string, CharacterSO> characterSODict = new Dictionary<string, CharacterSO>();
     private BuffManager buffManager;
@@ -14,9 +13,11 @@ public class CharacterManager : MonoBehaviour
     private void Awake()
     {
         GameStateManager.Instance.RegisterCharacterManager(this);
-
         EventManager.Instance.Subscribe<OnItemUseRequest>(HandleItemUseRequest);
+    }
 
+    private void Start()
+    {
         buffManager = GameStateManager.Instance.Buff;
     }
 
@@ -78,10 +79,6 @@ public class CharacterManager : MonoBehaviour
         }
 
         // 应用效果
-        if (eventData.itemFreshness < 20f)
-        {
-
-        }
         foreach (var effect in itemSO.effects)
         {
             var buffManager = GameStateManager.Instance.Buff;
@@ -123,13 +120,6 @@ public class CharacterManager : MonoBehaviour
         {
             skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
         }
-
-        // 发布角色注册事件
-        EventManager.Instance.Publish(new OnCharacterRegistered
-        {
-            characterSO = characterSO,
-            characterGO = characterGO
-        });
     }
 
     public void UnregisterCharacter(CharacterSO characterSO)
@@ -140,6 +130,13 @@ public class CharacterManager : MonoBehaviour
         {
             characterGODict.Remove(characterSO.characterID);
         }
+    }
+
+    // 获取单个角色运行时数据
+    public CharacterRuntimeData GetCharacterData(string characterID)
+    {
+        GameStateManager.Instance.currentData.characters.TryGetValue(characterID, out CharacterRuntimeData characterData);
+        return characterData;
     }
 
     public List<CharacterSO> GetAllAliveCharacterSOs()
@@ -154,6 +151,11 @@ public class CharacterManager : MonoBehaviour
             }
         }
         return aliveCharacters;
+    }
+
+    public List<CharacterSO> GetAllCharacterSOs()
+    {
+        return characterSODict.Values.ToList();
     }
 
     public CharacterSO GetCharacterSO(string characterID)
@@ -172,15 +174,4 @@ public class CharacterManager : MonoBehaviour
     {
         return characterGODict.Values;
     }
-    
-    public void ContractDisease(CharacterSO characterSO,BuffSO.DiseaseType diseaseType)
-    {
-        // 通过Buff系统应用疾病
-        BuffSO diseaseBuff = buffManager.BuffDatabase.GetBuff(diseaseType);
-        if (diseaseBuff != null)
-        {
-            buffManager.ApplyBuff(characterSO, diseaseBuff);
-        }
-    }
-
 }

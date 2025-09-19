@@ -5,11 +5,11 @@ public class Father_CapacitySkillSO : SkillSO
 {
     public override void OnActivate(CharacterSO owner)
     {
-        GameStateManager.Instance.Inventory?.ModifyMaxWeightCapacity(value);
+        GameStateManager.Instance.Inventory.ModifyMaxWeightCapacity(value);
     }
 
     public override void OnDeactivate(CharacterSO owner)
     {
-        GameStateManager.Instance.Inventory?.ModifyMaxWeightCapacity(-value);
+        GameStateManager.Instance.Inventory.ModifyMaxWeightCapacity(-value);
     }
 }

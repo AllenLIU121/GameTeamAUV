@@ -47,10 +47,9 @@ public class CharacterRuntimeData
 {
     public string characterID;
     public bool isAlive;
-    public float maxStamina;
-    public float maxHunger;
     public float currentStamina;
     public float currentHunger;
+    public float directMaxStaminaModifier;
 }
 
 // 物品栏数据
@@ -63,9 +62,8 @@ public class InventorySlot
 
     public bool IsEmpty() => string.IsNullOrEmpty(itemID) || quantity <= 0;
 
-    public void Clear()
+    public void Reset()
     {
-        itemID = string.Empty;
         quantity = 0;
         currentFreshness = 0f;
     }

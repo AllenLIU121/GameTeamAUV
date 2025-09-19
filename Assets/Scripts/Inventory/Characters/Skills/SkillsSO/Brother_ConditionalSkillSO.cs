@@ -4,32 +4,23 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Brother_ConditionalSkill", menuName = "Family Survival/Skills/Brother_ConditionalSkills")]
 public class BrotherConditionalSkillSO : SkillSO
 {
-    [Header("条件Buff")]
-    public BuffSO aliveBuff; // 存活时给全队施加的Buff
-    public BuffSO deadBuff;  // 死亡时给全队施加的Debuff
-
     public override void OnActivate(CharacterSO owner)
     {
-        var buffManager = GameStateManager.Instance.Buff;
-        var aliveCharacters = GameStateManager.Instance.Character.GetAllAliveCharacterSOs();
-        foreach (var character in aliveCharacters)
+        var aliveCharacters = GameStateManager.Instance.Character.GetAllCharacterGOs();
+        foreach (var characterGO in aliveCharacters)
         {
-            if (character.characterID != owner.characterID)
-            {
-                buffManager.RemoveBuff(character, deadBuff);
-                buffManager.ApplyBuff(character, aliveBuff);
-            }
+            characterGO.GetComponent<CharacterStatus>().ModifyMaxStamina(5f);
         }
+        Debug.Log($"<color=green> Brother passive skill activated! All characters' MaxStamina +5.</color>");
     }
 
     public override void OnDeactivate(CharacterSO owner)
     {
-        var buffManager = GameStateManager.Instance.Buff;
-        var aliveCharacters = GameStateManager.Instance.Character.GetAllAliveCharacterSOs();
-        foreach (var character in aliveCharacters)
+        var aliveCharacters = GameStateManager.Instance.Character.GetAllCharacterGOs();
+        foreach (var characterGO in aliveCharacters)
         {
-            buffManager.RemoveBuff(character, aliveBuff);
-            buffManager.ApplyBuff(character, deadBuff);
+            characterGO.GetComponent<CharacterStatus>().ModifyMaxStamina(-15f);
         }
+        Debug.Log($"<color=green> Brother passive skill activated! All characters' MaxStamina -10.</color>");
     }
 }

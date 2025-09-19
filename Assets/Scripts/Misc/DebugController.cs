@@ -7,16 +7,9 @@ public class DebugController : Singleton<DebugController>
     public string sceneToLoad;
     public string assetLabel;
 
-    [Header("游戏状态切换测试")]
-    public GameState gameState;
-
-    [Header("播放音效测试")]
-    public string sfxKey;
-
-    [Header("角色状态改变测试")]
-    public string characterID;
-    public float staminaChangedAmount;
-    public float hungerChangedAmount;
+    [Header("向物品栏中加物品")]
+    public string itemID;
+    public int quantity;
 
     protected override void Awake()
     {
@@ -45,70 +38,10 @@ public class DebugController : Singleton<DebugController>
         }
     }
 
-    [ContextMenu("执行游戏状态切换")]
-    public void TriggerGameStateChange()
+    [ContextMenu("加特定物品")]
+    public void AddItemToInventory()
     {
-        if (GameManager.Instance != null && EventManager.Instance != null)
-        {
-            GameManager.Instance.ChangeGameState(gameState);
-        }
-        else
-        {
-            Debug.LogError("GameManager or EventManager not found! Please make sure all managers are initialized correctly.");
-        }
+        GameStateManager.Instance.Inventory.AddItem(itemID, quantity);
     }
-
-    [ContextMenu("执行播放音效")]
-    public void TriggerPlaySFX()
-    {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlaySFX(sfxKey);
-        }
-        else
-        {
-            Debug.LogError("AudioManager not found! Please make sure all managers are initialized correctly.");
-        }
-    }
-
-    [ContextMenu("执行存储数据")]
-    public void TriggerSaveData()
-    {
-        if (GameStateManager.Instance != null)
-        {
-            _ = GameStateManager.Instance.SaveGameAsync();
-        }
-        else
-        {
-            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
-        }
-    }
-
-    [ContextMenu("执行读取数据")]
-    public void TriggerRollbackData()
-    {
-        if (GameStateManager.Instance != null)
-        {
-            _ = GameStateManager.Instance.LoadGameAsync();
-        }
-        else
-        {
-            Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
-        }
-    }
-
-    // [ContextMenu("改变角色状态")]
-    // public void TriggerChangeCharacterStats()
-    // {
-    //     if (GameStateManager.Instance != null)
-    //     {
-    //         GameStateManager.Instance.UpdateHunger(characterID, hungerChangedAmount);
-    //         GameStateManager.Instance.UpdateStamina(characterID, staminaChangedAmount);
-    //     }
-    //     else
-    //     {
-    //         Debug.LogError("GameStateManager not found! Please make sure all managers are initialized correctly.");
-    //     }
-    // }
 }
 #endif
