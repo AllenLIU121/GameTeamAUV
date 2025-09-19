@@ -10,6 +10,7 @@ public class BuffManager : MonoBehaviour
     // 存储所有活动Buff的字典
     // Key: 目标游戏对象，Value: 该对象身上的所有ActiveBuff列表
     public Dictionary<CharacterSO, List<ActiveBuff>> activeBuffs = new Dictionary<CharacterSO, List<ActiveBuff>>();
+    public BuffDatabase BuffDatabase { get; private set; }
     
     private GameStateManager gameStateManager;
     
@@ -21,7 +22,7 @@ public class BuffManager : MonoBehaviour
         public BuffSO buff;           // Buff的数据脚本able object
         public float remainingTime;   // Buff剩余持续时间
         public CharacterSO source;     // Buff来源对象（谁施加的这个Buff）
-        
+
         /// <summary>
         /// ActiveBuff构造函数
         /// </summary>
@@ -35,13 +36,14 @@ public class BuffManager : MonoBehaviour
             this.remainingTime = buff.isPermanent ? float.MaxValue : buff.duration;
         }
     }
-    
+
     private void Awake()
     {
         // 获取游戏状态管理器的单例实例
         gameStateManager = GameStateManager.Instance;
         // 注册到游戏状态管理器
         gameStateManager?.RegisterBuffManager(this);
+        BuffDatabase.Initialize();
     }
     
     private void OnDestroy()
@@ -205,6 +207,48 @@ public class BuffManager : MonoBehaviour
     }
     
     /// <summary>
+    /// 计算目标对象指定属性的总修正值
+    /// 处理加法和乘法修正的叠加
+    /// </summary>
+    /// <param name="target">目标对象</param>
+    /// <param name="statType">要计算的属性类型</param>
+    /// <returns>总修正值（加法修正 + 乘法修正）</returns>
+    public float GetStatModifier(CharacterSO target, BuffSO.StatType statType, float baseValue)
+    {
+        float additiveModifier = 0f;      // 加法修正总和
+        float multiplicativeModifier = 1f; // 乘法修正乘积（初始为1）
+        
+        if (target != null && activeBuffs.ContainsKey(target))
+        {
+            // 遍历所有Buff，计算属性修正
+            foreach (var activeBuff in activeBuffs[target])
+            {
+                // 遍历Buff影响的所有属性
+                foreach (var modifier in activeBuff.buff.statModifiers)
+                {
+                    if (modifier.statType == statType)
+                    {
+                        if (modifier.isMultiplicative)
+                        {
+                            // 乘法修正：各个修正值相乘
+                            multiplicativeModifier *= 1 + modifier.value;
+                        }
+                        else
+                        {
+                            // 加法修正：考虑叠加层数
+                            additiveModifier += modifier.value;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 返回总修正值：加法修正 + (乘法修正 - 1)
+        // 例如：乘法修正为1.2时，返回0.2（表示增加20%）
+        return (baseValue + additiveModifier) * multiplicativeModifier;
+    }
+
+    /// <summary>
     /// 移除目标对象身上的特定类型疾病
     /// </summary>
     /// <param name="target">目标对象</param>
@@ -214,17 +258,17 @@ public class BuffManager : MonoBehaviour
     {
         // 安全检查
         if (target == null || !activeBuffs.ContainsKey(target)) return false;
-        
+
         // 查找指定类型的疾病Buff
-        var diseaseBuff = activeBuffs[target].Find(b => 
+        var diseaseBuff = activeBuffs[target].Find(b =>
             b.buff.buffType == BuffSO.BuffType.Disease && b.buff.diseaseType == diseaseType);
-        
+
         // 如果找到疾病Buff，移除它
         if (diseaseBuff != null)
         {
             return RemoveBuff(target, diseaseBuff.buff);
         }
-        
+
         return false; // 未找到指定类型的疾病
     }
     

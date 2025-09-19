@@ -8,12 +8,6 @@ public enum ItemType
     Medicine
 }
 
-public enum FoodState
-{
-    Raw,
-    Cooked
-}
-
 public enum EffectType
 {
     RestoreStamina,
@@ -50,9 +44,9 @@ public class ItemSO : ScriptableObject
 
 
     [Header("食物相关属性")]
-    public bool isFood = false;
     public float maxFreshness;
-    public FoodState foodState = FoodState.Raw;
+    public float decayRate;
+    public bool cookNeeded = false;
     public ItemSO cookedVersion;
     public int stackAfterCook;
 

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -32,6 +33,11 @@ public class InventoryManager : MonoBehaviour
 
         // 初始化物品栏位
         InitializeInventorySlots();
+    }
+
+    private void Update()
+    {
+        StartCoroutine(FreshnessDecayCoroutine());
     }
 
     private void OnDestroy()
@@ -113,7 +119,8 @@ public class InventoryManager : MonoBehaviour
         EventManager.Instance.Publish(new OnItemUseRequest
         {
             itemSO = ItemDatabase.Instance.GetItemSO(slot.itemID),
-            targetCharacterID = targetCharacterID
+            targetCharacterID = targetCharacterID,
+            itemFreshness = slot.currentFreshness
         });
 
         DecreaseItemQuantity(slotIndex);
@@ -143,12 +150,10 @@ public class InventoryManager : MonoBehaviour
         if (slot.IsEmpty()) return false;
 
         var itemSO = ItemDatabase.Instance.GetItemSO(slot.itemID);
-        // 不是食物，或者食物本身不会变质
-        if (itemSO == null || !itemSO.isFood || itemSO.maxFreshness <= 0) return false;
 
         // 恢复到最大新鲜度
         slot.currentFreshness = itemSO.maxFreshness;
-        Debug.Log($"Item: <color=green>{itemSO.itemName}<></color> has been refreshed!");
+        Debug.Log($"Item: <color=green>{itemSO.itemName}</color> has been refreshed!");
 
         RefreshSlotUIRequest(new List<int> { slotIndex });
         return true;
@@ -163,8 +168,8 @@ public class InventoryManager : MonoBehaviour
         if (slot.IsEmpty()) return false;
 
         var itemSO = GetItemSO(slotIndex);
-        // 不是食物, 或者不需要烹饪, 或者已经烹饪过
-        if (itemSO == null || !itemSO.isFood || itemSO.cookedVersion == null || itemSO.foodState != FoodState.Raw)
+        // 不需要烹饪, 或者已经烹饪过
+        if (itemSO == null || itemSO.cookedVersion == null || !itemSO.cookNeeded)
         {
             Debug.Log($"Cook Failed. The item cannot be cooked or is already cooked.");
             return false;
@@ -176,12 +181,26 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
-    // 妈妈技能 提供各个药品*1
-    public bool AddEachMedicine()
+    // 妈妈增加每个药品*1技能
+    public void AddEachMedicine()
     {
-
-        return true;
+        foreach (var item in gameData.inventorySlots)
+        {
+            var itemSO = ItemDatabase.Instance.GetItemSO(item.itemID);
+            if (itemSO.itemType == ItemType.Medicine)
+            {
+                item.quantity++;
+                UpdateCurrentWeight(itemSO.weight);
+            }
+        }
     }
+
+    // 爸爸增加负重技能
+    public void ModifyMaxWeightCapacity(float amount)
+    {
+        maxWeightCapacity += amount;
+    }
+
     #endregion  --------- End ----------
 
     // 获取指定栏位的物品SO
@@ -228,6 +247,39 @@ public class InventoryManager : MonoBehaviour
     private void UpdateCurrentWeight(float weightDelta)
     {
         gameData.currentWeight += weightDelta;
+    }
+
+    // 物品栏新鲜值持续衰减协程
+    private IEnumerator FreshnessDecayCoroutine()
+    {
+        var waitForOneSecond = new WaitForSeconds(1.0f);
+        while (true)
+        {
+            yield return waitForOneSecond;
+            ProcessFreshnessDecay(1.0f);
+        }
+    }
+
+    // 物品栏新鲜值持续衰减
+    private void ProcessFreshnessDecay(float deltaTime)
+    {
+        if (gameData == null || gameData.inventorySlots == null) return;
+
+        for (int i = 0; i < gameData.inventorySlots.Count; i++)
+        {
+            var slot = gameData.inventorySlots[i];
+            if (slot.IsEmpty()) continue;
+
+            var itemSO = GetItemSO(i);
+            if (itemSO == null || itemSO.decayRate <= 0) continue;
+
+            slot.currentFreshness -= itemSO.decayRate * deltaTime;
+
+            if (slot.currentFreshness <= 0)
+            {
+                slot.Clear();
+            }
+        }
     }
 
     // 初始化所有物品栏位

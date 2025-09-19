@@ -7,10 +7,12 @@ public class CharacterStatus : MonoBehaviour
     public CharacterSO characterSO;
 
     private BuffManager buffManager;
+    private BuffDatabase buffDatabase;
     private CharacterManager characterManager;
 
     // Runtime
     public bool IsAlive { get; private set; }
+    public float CurrentStamina => currentStamina;
     private float currentStamina;
     private float currentHunger;
 
@@ -18,11 +20,27 @@ public class CharacterStatus : MonoBehaviour
     private float randomDiseaseCheckInterval = 5f; // 每5s跑一次随机患病概率
 
     public string CharacterID => characterSO.characterID;
+    // public float MaxStamina => buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxStamina, characterSO.maxStamina);
+    // public float MaxHunger => buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxHunger, characterSO.maxHunger);
+    // public float StaminaDecayRate => buffManager.GetStatModifier(characterSO, BuffSO.StatType.StaminaDecayRate, characterSO.staminaDecayRate);
+    // public float HungerDecayRate => buffManager.GetStatModifier(characterSO, BuffSO.StatType.HungerDecayRate, characterSO.hungerDecayRate);
+    public float MaxStamina { get; private set; }
+    public float MaxHunger { get; private set; }
+    public float StaminaDecayRate { get; private set; }
+    public float HungerDecayRate { get; private set; }
+
 
     private void Awake()
     {
         characterManager = GameStateManager.Instance.Character;
         buffManager = GameStateManager.Instance.Buff;
+        if (buffManager != null)
+        {
+            buffDatabase = buffManager.BuffDatabase;
+        }
+
+        EventManager.Instance.Subscribe<OnBuffApplied>(HandleBuffApplied);
+        EventManager.Instance.Subscribe<OnBuffRemoved>(HandleBuffRemoved);
     }
 
     private void Start()
@@ -42,6 +60,9 @@ public class CharacterStatus : MonoBehaviour
         {
             characterManager.UnregisterCharacter(characterSO);
         }
+        
+        EventManager.Instance.Unsubscribe<OnBuffApplied>(HandleBuffApplied);
+        EventManager.Instance.Unsubscribe<OnBuffRemoved>(HandleBuffRemoved);
     }
 
     private void Update()
@@ -49,34 +70,28 @@ public class CharacterStatus : MonoBehaviour
         if (IsAlive)
             UpdateContinuousStats(Time.deltaTime);
     }
-
+    
     // 统一更新所有持续性状态变化: Buff衰减, 饥饿/体力惩罚
     private void UpdateContinuousStats(float deltaTime)
     {
-        // --- 1.由于Buff引起的属性衰减 ---
-        float staminaDecayModifier = buffManager.GetStatModifier(gameObject, BuffSO.StatType.StaminaDecayRate);  // 0f
-        float hungerDecayModifier = buffManager.GetStatModifier(gameObject, BuffSO.StatType.HungerDecayRate);
-
-        float finalStaminaDecay = characterSO.staminaDecayRate * (1 + staminaDecayModifier) * deltaTime; // 0f
-        float finalHungerDecay = characterSO.hungerDecayRate * (1 + hungerDecayModifier) * deltaTime;
-
-        // 应用修正后的衰减率
-        // currentStamina -= baseDecay * staminaDecayModifier * Time.deltaTime;
-
-        ModifyStamina(-finalStaminaDecay, false);
-        ModifyHunger(-finalHungerDecay, false);
+        ModifyStamina(-StaminaDecayRate * deltaTime, false);
+        ModifyHunger(-HungerDecayRate * deltaTime, false);
 
         // --- 2.饥饿值过低引起的体力流失 ---
-        float hungerPercent = currentHunger / characterSO.maxHunger;
-        float staminaPercent = currentStamina / characterSO.maxStamina;
+        float hungerPercent = currentHunger / MaxHunger;
+        float staminaPercent = currentStamina / MaxStamina;
 
-        if (hungerPercent < 0.2f && staminaPercent > 0.1f)       // 饥饿值<20% 体力值>10%时 体力流失(速率6/min)
+        if (hungerPercent <= 0f)            // 饥饿值为0时 体力流失(速率0.13/s)
         {
-            ModifyStamina(-(6f / 60f) * deltaTime, false);
+            ModifyStamina(-0.13f * deltaTime, false); 
         }
-        else if (hungerPercent < 0.5f)       // 饥饿值<50%时 体力流失(速率5/min)
+        else if (hungerPercent < 0.2f && staminaPercent > 0.1f)       // 饥饿值<20% 体力值>10%时 体力流失(速率0.1/s)
         {
-            ModifyStamina(-(5f / 60f) * deltaTime, false);
+            ModifyStamina(-0.1f * deltaTime, false);
+        }
+        else if (hungerPercent < 0.5f)       // 饥饿值<50%时 体力流失(速率0.08/s) 
+        {
+            ModifyStamina(-0.08f * deltaTime, false);
         }
 
         // --- 3.体力值低于30%时 有20%几率获取随机疾病Debuff ---
@@ -90,11 +105,41 @@ public class CharacterStatus : MonoBehaviour
                 {
                     var diseases = new List<BuffSO.DiseaseType> { BuffSO.DiseaseType.Cold, BuffSO.DiseaseType.Diarrhea, BuffSO.DiseaseType.Pneumonia };
                     var randomDisease = diseases[Random.Range(0, diseases.Count)];
-                    ContractDisease(randomDisease);
+                    characterManager.ContractDisease(characterSO, randomDisease);
                     Debug.Log($"<color=orange>'{characterSO.characterName}' has caught '{randomDisease}' because of low stamina.</color>");
                 }
             }
         }
+    }
+
+    private void HandleBuffApplied(OnBuffApplied eventData)
+    {
+        string eventCharacterID = eventData.target.characterID;
+        if (eventCharacterID == characterSO.characterID)
+        {
+            RecalculateStats();
+        }
+    }
+
+    private void HandleBuffRemoved(OnBuffRemoved eventData)
+    {
+        string eventCharacterID = eventData.target.characterID;
+        if (eventCharacterID == characterSO.characterID)
+        {
+            RecalculateStats();
+        }
+    }
+
+    public void RecalculateStats()
+    {
+        if (buffManager != null) return;
+        MaxStamina = buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxStamina, characterSO.maxStamina);
+        MaxHunger = buffManager.GetStatModifier(characterSO, BuffSO.StatType.MaxHunger, characterSO.maxHunger);
+        StaminaDecayRate = buffManager.GetStatModifier(characterSO, BuffSO.StatType.StaminaDecayRate, characterSO.staminaDecayRate);
+        HungerDecayRate = buffManager.GetStatModifier(characterSO, BuffSO.StatType.HungerDecayRate, characterSO.hungerDecayRate);
+
+        currentStamina = Mathf.Min(currentStamina, MaxStamina);
+        currentHunger = Mathf.Min(currentHunger, MaxHunger);
     }
 
     public void ModifyStamina(float amount, bool publishEvent = true)
@@ -102,7 +147,7 @@ public class CharacterStatus : MonoBehaviour
         if (!IsAlive) return;
 
         float oldValue = currentStamina;
-        currentStamina = Mathf.Clamp(currentStamina + amount, 0, characterSO.maxStamina);
+        currentStamina = Mathf.Clamp(currentStamina + amount, 0, MaxStamina);
 
         if (publishEvent && Mathf.Abs(currentStamina - oldValue) > 0.01f)
         {
@@ -124,7 +169,7 @@ public class CharacterStatus : MonoBehaviour
     public void ModifyHunger(float amount, bool publishEvent = true)
     {
         float oldValue = currentHunger;
-        currentHunger = Mathf.Clamp(currentHunger + amount, 0, characterSO.maxHunger);
+        currentHunger = Mathf.Clamp(currentHunger + amount, 0, MaxHunger);
 
         if (publishEvent && Mathf.Abs(currentHunger - oldValue) > 0.01f)
         {
@@ -138,25 +183,10 @@ public class CharacterStatus : MonoBehaviour
         }
     }
 
-    public void ContractDisease(BuffSO.DiseaseType diseaseType)
-    {
-        // 通过Buff系统应用疾病
-        BuffSO diseaseBuff = GetDiseaseBuff(diseaseType);
-        if (diseaseBuff != null)
-        {
-            buffManager.ApplyBuff(Target, diseaseBuff);
-        }
-    }
-
-    private BuffSO GetDiseaseBuff(BuffSO.DiseaseType diseaseType)
-    {
-        // 根据疾病类型返回对应的BuffSO
-        return null;
-    }
-
     public void InitializeStats()
     {
         IsAlive = true;
+        RecalculateStats();
         currentStamina = characterSO.maxStamina;
         currentHunger = characterSO.maxHunger;
     }
@@ -184,11 +214,18 @@ public class CharacterStatus : MonoBehaviour
     // 角色死亡逻辑 
     public void Die()
     {
+        if (!IsAlive) return;
+
         IsAlive = false;
         currentHunger = currentStamina = 0;
 
         // 清除所有Buff
-        buffManager.ClearAllBuffs(gameObject);
+        buffManager.ClearAllBuffs(characterSO);
+
+        EventManager.Instance.Publish(new OnCharacterDied
+        {
+            characterSO = characterSO
+        });
         Debug.Log($"<color=red>Character '{characterSO.characterID}' has died.</color>");
     }
 

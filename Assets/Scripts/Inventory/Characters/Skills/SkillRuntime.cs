@@ -6,7 +6,6 @@ public class SkillRuntime
     public SkillSO SkillData { get; private set; }
     public float CurrentCooldown { get; private set; }
     public bool IsReady => CurrentCooldown <= 0;
-    public bool IsPassive => SkillData.isPassive;
 
     public SkillRuntime(SkillSO skillData)
     {

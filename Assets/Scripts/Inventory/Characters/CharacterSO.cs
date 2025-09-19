@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New CharacterData", menuName = "Game Data/Character Data")]
@@ -7,7 +8,7 @@ public class CharacterSO : ScriptableObject
     public string characterID;
     public string characterName;
     public Sprite characterPortrait;
-    public string characterTag; // 角色专属标签 (除了婴儿角色外留空)
+    public string characterTag; // 角色专属标签
 
     [Header("角色属性")]
     public float maxStamina = 100f;
@@ -17,7 +18,6 @@ public class CharacterSO : ScriptableObject
 
     [Header("角色技能")]
     public SkillSO skill;
-    
 }
 
 // public class Player : CharacterSO

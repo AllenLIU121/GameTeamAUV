@@ -10,6 +10,17 @@ public struct OnSceneLoaded { }    // 场景加载完毕时发布
 
 public struct OnGameDataLoaded { }    // 游戏回滚时发布
 
+public struct OnCharacterRegistered     // 角色注册时发布
+{
+    public CharacterSO characterSO;
+    public GameObject characterGO;
+}
+
+public struct OnCharacterDied       // 角色死亡时发布
+{
+    public CharacterSO characterSO;
+}
+
 public struct OnCharacterStatChanged     // 角色属性改变时发布
 {
     public string characterID;
@@ -27,6 +38,7 @@ public struct OnItemUseRequest     // 角色使用物品时发布
 {
     public ItemSO itemSO;
     public string targetCharacterID;
+    public float itemFreshness;
 }
 
 public struct OnSkillActivated //角色技能激活 

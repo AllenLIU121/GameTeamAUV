@@ -9,6 +9,9 @@ public class SkillManager : MonoBehaviour
     private void Awake()
     {
         GameStateManager.Instance.RegisterSkillManager(this);
+
+        EventManager.Instance.Subscribe<OnCharacterRegistered>(HandleCharacterRegistered);
+        EventManager.Instance.Subscribe<OnCharacterDied>(HandleCharacterDied);
     }
 
     private void Update()
@@ -30,11 +33,28 @@ public class SkillManager : MonoBehaviour
     private void OnDestroy()
     {
         GameStateManager.Instance.UnregisterSkillManager();
+        
+        EventManager.Instance.Unsubscribe<OnCharacterRegistered>(HandleCharacterRegistered);
+        EventManager.Instance.Unsubscribe<OnCharacterDied>(HandleCharacterDied);
     }
 
-    // 注册角色技能并创建SkillRuntime实例
+    private void HandleCharacterRegistered(OnCharacterRegistered eventData)
+    {
+        Debug.Log($"[SkillManager] Activating passive skills for {eventData.characterSO.characterName}.");
+        eventData.characterSO.skill.OnActivate(eventData.characterSO);
+    }
+
+    private void HandleCharacterDied(OnCharacterDied eventData)
+    {
+        Debug.Log($"[SkillManager] Deactivating passive skills for {eventData.characterSO.characterName}.");
+        eventData.characterSO.skill.OnDeactivate(eventData.characterSO);
+    }
+
+    // 只注册主动技能并创建SkillRuntime实例
     public void RegisterCharacterSkill(string characterID, SkillSO skill)
     {
+        if (skill.cooldownTime == 0) return;
+
         if (!characterSkillsData.ContainsKey(characterID))
         {
             characterSkillsData[characterID] = new Dictionary<string, SkillRuntime>();
@@ -64,12 +84,9 @@ public class SkillManager : MonoBehaviour
             if (!skillRuntime.IsReady) return false;
 
             // 开始冷却
-            if (!skillRuntime.IsPassive)
-            {
-                skillRuntime.StartCooldown();
-            }
+            skillRuntime.StartCooldown();
 
-            PublishSkillActivatedEvent(characterID, skillID);
+            // PublishSkillActivatedEvent(characterID, skillID);
             return true;
         }
         else
@@ -104,11 +121,7 @@ public class SkillManager : MonoBehaviour
             if (success)
             {
                 // 开始冷却
-                if (!skillRuntime.IsPassive)
-                {
-                    skillRuntime.StartCooldown();
-                }
-                // PublishSkillActivatedEvent(characterID, skillID);
+                skillRuntime.StartCooldown();
                 return true;
             }
             else
@@ -124,15 +137,6 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    private void PublishSkillActivatedEvent(string characterID, string skillID)
-    {
-        EventManager.Instance.Publish(new OnSkillActivated
-        {
-            characterID = characterID,
-            skillID = skillID,
-        });
-    }
-
     // 重置所有技能冷却
     public void ResetAllCooldowns()
     {
@@ -143,5 +147,14 @@ public class SkillManager : MonoBehaviour
                 skillRuntime.ResetCooldown();
             }
         }
+    }
+
+    private void PublishSkillActivatedEvent(string characterID, string skillID)
+    {
+        EventManager.Instance.Publish(new OnSkillActivated
+        {
+            characterID = characterID,
+            skillID = skillID,
+        });
     }
 }

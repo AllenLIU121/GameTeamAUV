@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
@@ -7,18 +8,17 @@ public class CharacterManager : MonoBehaviour
     // public List<CharacterSO> charactersSO;
     private Dictionary<string, GameObject> characterGODict = new Dictionary<string, GameObject>();
     private Dictionary<string, CharacterSO> characterSODict = new Dictionary<string, CharacterSO>();
+    private BuffManager buffManager;
+
 
     private void Awake()
     {
         GameStateManager.Instance.RegisterCharacterManager(this);
 
         EventManager.Instance.Subscribe<OnItemUseRequest>(HandleItemUseRequest);
-    }
 
-    // private void Start()
-    // {
-    //     InitializeCharacters();
-    // }
+        buffManager = GameStateManager.Instance.Buff;
+    }
 
     private void OnDestroy()
     {
@@ -36,6 +36,8 @@ public class CharacterManager : MonoBehaviour
     // 当角色使用物品时
     private void HandleItemUseRequest(OnItemUseRequest eventData)
     {
+        if (eventData.itemFreshness <= 0f) return;
+
         var itemSO = eventData.itemSO;
         var targetCharacterID = eventData.targetCharacterID;
 
@@ -55,6 +57,19 @@ public class CharacterManager : MonoBehaviour
             return;
         }
 
+        // 妈妈存活时 黄桃罐头对弟弟妹妹加成效果
+        if (itemSO.itemID == "canned_yellow_peach" && characterSO.characterTag == "child")
+        {
+            var momGO = GetCharacterGameObject("mom");
+            if (momGO != null && momGO.GetComponent<CharacterStatus>().IsAlive)
+            {
+                characterStatus.ModifyStamina(characterSO.maxStamina, true);
+                characterStatus.ModifyHunger(characterSO.maxHunger, true);
+                Debug.Log($"Mom's passive skill activated! {characterSO.characterID}'s stamina and hunger have been fully recovered.");
+                return;
+            }
+        }
+
         // 专属物品
         if (!string.IsNullOrEmpty(itemSO.requiredCharacterTag) && characterSO.characterTag != itemSO.requiredCharacterTag)
         {
@@ -63,23 +78,27 @@ public class CharacterManager : MonoBehaviour
         }
 
         // 应用效果
+        if (eventData.itemFreshness < 20f)
+        {
+
+        }
         foreach (var effect in itemSO.effects)
         {
             var buffManager = GameStateManager.Instance.Buff;
             switch (effect.type)
             {
                 case EffectType.RestoreStamina:
-                    characterStatus.ModifyStamina(effect.value);
+                    characterStatus.ModifyStamina(eventData.itemFreshness < 20f? effect.value/2 : effect.value);
                     break;
                 case EffectType.RestoreHunger:
-                    characterStatus.ModifyHunger(effect.value);
+                    characterStatus.ModifyHunger(eventData.itemFreshness < 20f? effect.value/2 : effect.value);
                     break;
                 case EffectType.ApplyBuff:
                     if (effect.buffToApply != null)
-                        buffManager.ApplyBuff(targetObject, effect.buffToApply);
+                        buffManager.ApplyBuff(characterSO, effect.buffToApply);
                     break;
                 case EffectType.CureDisease:
-                    buffManager.RemoveDisease(targetObject, effect.diseaseToCure);
+                    buffManager.RemoveDisease(characterSO, effect.diseaseToCure);
                     break;
             }
         }
@@ -104,6 +123,13 @@ public class CharacterManager : MonoBehaviour
         {
             skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
         }
+
+        // 发布角色注册事件
+        EventManager.Instance.Publish(new OnCharacterRegistered
+        {
+            characterSO = characterSO,
+            characterGO = characterGO
+        });
     }
 
     public void UnregisterCharacter(CharacterSO characterSO)
@@ -111,43 +137,24 @@ public class CharacterManager : MonoBehaviour
         if (characterSO == null) return;
 
         if (characterGODict.ContainsKey(characterSO.characterID))
+        {
             characterGODict.Remove(characterSO.characterID);
+        }
     }
 
-    // private void InitializeCharacters()
-    // {
-    //     if (GameStateManager.Instance.GetCharacterData(charactersSO[0].characterID) == null)
-    //     {
-    //         var skillManager = GameStateManager.Instance.Skill;
-    //         if (skillManager == null)
-    //         {
-    //             Debug.LogError("[CharacterManager] SkillManager is null");
-    //             return;
-    //         }
-
-    //         foreach (var characterSO in charactersSO)
-    //         {
-    //             // 初始化并注册角色
-    //             var newCharacterData = new CharacterRuntimeData
-    //             {
-    //                 characterID = characterSO.characterID,
-    //                 maxStamina = characterSO.maxStamina,
-    //                 maxHunger = characterSO.maxHunger,
-    //                 currentStamina = characterSO.maxStamina,
-    //                 currentHunger = characterSO.maxHunger
-    //             };
-    //             GameStateManager.Instance.RegisterNewCharacter(newCharacterData);
-
-    //             // 初始化并注册角色技能
-    //             if (characterSO.skill != null)
-    //             {
-    //                 skillManager.RegisterCharacterSkill(characterSO.characterID, characterSO.skill);
-    //             }
-    //         }
-
-    //         GameStateManager.Instance.PublishCharacterDataForSync();
-    //     }
-    // }
+    public List<CharacterSO> GetAllAliveCharacterSOs()
+    {
+        List<CharacterSO> aliveCharacters = new List<CharacterSO>();
+        foreach (var entry in characterGODict)
+        {
+            CharacterStatus status = entry.Value.GetComponent<CharacterStatus>();
+            if (status != null && status.IsAlive)
+            {
+                aliveCharacters.Add(status.characterSO);
+            }
+        }
+        return aliveCharacters;
+    }
 
     public CharacterSO GetCharacterSO(string characterID)
     {
@@ -165,4 +172,15 @@ public class CharacterManager : MonoBehaviour
     {
         return characterGODict.Values;
     }
+    
+    public void ContractDisease(CharacterSO characterSO,BuffSO.DiseaseType diseaseType)
+    {
+        // 通过Buff系统应用疾病
+        BuffSO diseaseBuff = buffManager.BuffDatabase.GetBuff(diseaseType);
+        if (diseaseBuff != null)
+        {
+            buffManager.ApplyBuff(characterSO, diseaseBuff);
+        }
+    }
+
 }
