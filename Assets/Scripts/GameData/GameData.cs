@@ -46,10 +46,10 @@ public class GameData : ISerializationCallbackReceiver  // Runtime数据仓库
 public class CharacterRuntimeData
 {
     public string characterID;
-    public float maxStamina;
-    public float maxHunger;
+    public bool isAlive;
     public float currentStamina;
     public float currentHunger;
+    public float directMaxStaminaModifier;
 }
 
 // 物品栏数据
@@ -58,7 +58,20 @@ public class InventorySlot
 {
     public string itemID;
     public int quantity;
-    public InventorySlot() { Clear(); }
-    public void Clear() { itemID = string.Empty; quantity = 0; }
+    public float currentFreshness;
+
     public bool IsEmpty() => string.IsNullOrEmpty(itemID) || quantity <= 0;
+
+    public void Reset()
+    {
+        quantity = 0;
+        currentFreshness = 0f;
+    }
+
+    public void SetItem(ItemSO item, int quantity)
+    {
+        itemID = item.itemID;
+        this.quantity = quantity;
+        currentFreshness = item.maxFreshness;
+    }
 }

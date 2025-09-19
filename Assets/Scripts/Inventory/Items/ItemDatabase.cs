@@ -3,6 +3,7 @@ using System.Collections.Generic;
 public class ItemDatabase : Singleton<ItemDatabase>
 {
     public List<ItemSO> allItems;
+    
     private Dictionary<string, ItemSO> itemDict = new Dictionary<string, ItemSO>();
 
     protected override void Awake()
@@ -20,4 +21,6 @@ public class ItemDatabase : Singleton<ItemDatabase>
         itemDict.TryGetValue(itemID, out ItemSO itemSO);
         return itemSO;
     }
+
+    public List<ItemSO> GetAllItemSOs() => allItems;
 }

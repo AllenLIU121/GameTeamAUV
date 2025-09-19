@@ -75,7 +75,7 @@ public class CharacterSlot : MonoBehaviour
     /// </summary>
     /// <param name="newHunger">新的饥饿值</param>
     /// <param name="newStamina">新的体力值</param>
-    public void UpdateSlot(float newHunger, float newStamina)
+    public void UpdateSlot(BuffSO.StatType statType, float newValue)
     {
         // 首先检查UI组件是否为空
         if (hungerBar == null)
@@ -90,14 +90,22 @@ public class CharacterSlot : MonoBehaviour
         }
 
         // 确保数值在有效范围内
-        newHunger = Mathf.Clamp(newHunger, 0, hungerBar.maxValue);
-        newStamina = Mathf.Clamp(newStamina, 0, staminaBar.maxValue);
+        if (statType == BuffSO.StatType.Hunger)
+        {
+            newValue = Mathf.Clamp(newValue, 0, hungerBar.maxValue);
+            hungerBar.value = newValue;
+        }
+        else if (statType == BuffSO.StatType.Stamina)
+        {
+            newValue = Mathf.Clamp(newValue, 0, staminaBar.maxValue);
+            staminaBar.value = newValue;
+        }
+        else if (statType == BuffSO.StatType.MaxStamina)
+        {
+            staminaBar.maxValue = newValue;
+        }
 
-        // 更新UI值
-        hungerBar.value = newHunger;
-        staminaBar.value = newStamina;
-
-        Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - 饥饿：{newHunger}，体力：{newStamina}");
+        // Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - {statType}：{newValue}");
     }
 
     public string GetCharacterID() => _characterID;

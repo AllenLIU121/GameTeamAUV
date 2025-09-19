@@ -54,11 +54,11 @@
 //         {
 //             switch (eventData.statType)
 //             {
-//                 case StatType.Stamina:
+//                 case BuffSO.StatType.Stamina:
 //                     characterPanel.UpdateCharacterStamina(eventData.newValue);
 //                     break;
-
-//                 case StatType.Hunger:
+                    
+//                 case BuffSO.StatType.Hunger:
 //                     characterPanel.UpdateCharacterHunger(eventData.newValue);
 //                     break;
 //             }

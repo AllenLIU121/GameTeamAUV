@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class UI_InventoryPanel : MonoBehaviour
 {
     [Header("物品栏配置")]
-    public SingleSlotPanel[] slots; // 使用SingleSlotPanel代替ItemSlot
+    private SingleSlotPanel[] slots; // 使用SingleSlotPanel代替ItemSlot
     private InventoryManager inventory;
 
     private void Start()
@@ -41,6 +41,8 @@ public class UI_InventoryPanel : MonoBehaviour
     // 初始化所有物品槽
     private void InitializeSlots()
     {
+        slots = GetComponentsInChildren<SingleSlotPanel>();
+
         if (slots == null || slots.Length == 0)
         {
             Debug.LogWarning("[UI_InventoryPanel] No slots assigned");

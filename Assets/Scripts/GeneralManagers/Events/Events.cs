@@ -10,6 +10,17 @@ public struct OnSceneLoaded { }    // 场景加载完毕时发布
 
 public struct OnGameDataLoaded { }    // 游戏回滚时发布
 
+// public struct OnCharacterRegistered     // 角色注册时发布
+// {
+//     public CharacterSO characterSO;
+//     public GameObject characterGO;
+// }
+
+public struct OnCharacterDied       // 角色死亡时发布
+{
+    public CharacterSO characterSO;
+}
+
 public struct OnCharacterStatChanged     // 角色属性改变时发布
 {
     public string characterID;
@@ -27,6 +38,7 @@ public struct OnItemUseRequest     // 角色使用物品时发布
 {
     public ItemSO itemSO;
     public string targetCharacterID;
+    public float itemFreshness;
 }
 
 public struct OnSkillActivated //角色技能激活 
@@ -44,32 +56,32 @@ public struct OnSkillCooldownUpdated //角色技能冷却
 // BuffEvents.cs
 public struct OnBuffApplied
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO buff;
-    public GameObject source;
+    public CharacterSO source;
 }
 
 public struct OnBuffRemoved
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO buff;
 }
 
 public struct OnBuffUpdated
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO buff;
     public  float remainingTime;
 }
 
 public struct OnDiseaseContracted
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO.DiseaseType diseaseType;
 }
 
 public struct OnDiseaseCured
 {
-    public GameObject target;
+    public CharacterSO target;
     public BuffSO.DiseaseType diseaseType;
 }

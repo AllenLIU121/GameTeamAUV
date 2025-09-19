@@ -37,7 +37,7 @@ public class SingleSlotPanel : MonoBehaviour
 
     public void UpdateSlot(InventorySlot slotData)
     {
-        if (slotData == null || slotData.IsEmpty())
+        if (slotData == null)
         {
             // 保留原有的物品图片状态，但更新数据
             itemData = null;
@@ -54,7 +54,7 @@ public class SingleSlotPanel : MonoBehaviour
                 itemImage.sprite = itemData.itemIcon;
             }
 
-            if (slotData.quantity > 1)
+            if (slotData.quantity >= 1)
             {
                 stackNum.text = slotData.quantity.ToString();
                 stackNum.enabled = true;
