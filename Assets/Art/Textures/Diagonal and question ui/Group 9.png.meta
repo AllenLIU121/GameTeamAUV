@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7569160f7b63a8542bda4de03a108285
+guid: 1296871c11f1349498a784602240d9aa
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -53,7 +53,7 @@ TextureImporter:
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationDetail: 0
+  spriteTessellationDetail: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -95,87 +95,106 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
-    outline:
-    - - {x: -831, y: -600.5}
-      - {x: -831, y: 600.5}
-      - {x: 831, y: 600.5}
-      - {x: 831, y: -600.5}
-    physicsShape:
-    - - {x: 207, y: 161.5}
-      - {x: 86, y: 233.5}
-      - {x: 167, y: 274.5}
-      - {x: 377, y: 167.5}
-      - {x: 523, y: 258.5}
-      - {x: 659, y: 181.5}
-      - {x: 513, y: 96.5}
-      - {x: 675, y: 7.5}
-      - {x: 822, y: 303.5}
-      - {x: 538, y: 467.5}
-      - {x: 324, y: 592.5}
-      - {x: -831, y: 440.5}
-      - {x: -831, y: 204.5}
-      - {x: -700, y: 282.5}
-      - {x: -264, y: 21.5}
-      - {x: 0, y: -118.5}
-      - {x: 204, y: -1.5}
-    - - {x: -97, y: -312.5}
-      - {x: -138, y: -288.5}
-      - {x: -222, y: -240.5}
-      - {x: -249, y: -224.5}
-      - {x: -263, y: -217.5}
-      - {x: -269, y: -213.5}
-      - {x: -271, y: -213.5}
-      - {x: -275, y: -209.5}
-      - {x: -287, y: -203.5}
-      - {x: -289, y: -201.5}
-      - {x: -292, y: -200.5}
-      - {x: -295, y: -198.5}
-      - {x: -297, y: -198.5}
-      - {x: -301, y: -194.5}
-      - {x: -336, y: -174.5}
-      - {x: -344, y: -170.5}
-      - {x: -343, y: -168.5}
-      - {x: -346, y: -165.5}
-      - {x: -347, y: -165.5}
-      - {x: -349, y: -168.5}
-      - {x: -347, y: -167.5}
-      - {x: -345, y: -168.5}
-      - {x: -343, y: -170.5}
-      - {x: -338, y: -173.5}
-      - {x: -326, y: -180.5}
-      - {x: -299, y: -196.5}
-      - {x: -296, y: -197.5}
-      - {x: -294, y: -199.5}
-      - {x: -289, y: -201.5}
-      - {x: -287, y: -203.5}
-      - {x: -282, y: -206.5}
-      - {x: -279, y: -207.5}
-      - {x: -277, y: -209.5}
-      - {x: -274, y: -210.5}
-      - {x: -272, y: -212.5}
-      - {x: -267, y: -214.5}
-      - {x: -265, y: -216.5}
-      - {x: -260, y: -219.5}
-      - {x: -257, y: -220.5}
-      - {x: -255, y: -222.5}
-      - {x: -248, y: -233.5}
-      - {x: -73, y: -329.5}
-      - {x: -78, y: -323.5}
-    - - {x: -385, y: -174.5}
-      - {x: -384, y: -170.5}
-      - {x: -399, y: -178.5}
-      - {x: -399, y: -180.5}
-      - {x: -397, y: -181.5}
+    sprites:
+    - serializedVersion: 2
+      name: Group 9_0
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 520
+        width: 250
+        height: 246
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99d38612279c305439c0b5054273886e
+      internalID: 1205020124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Group 9_1
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 405
+        width: 379
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 259cae9d6c2bc04429ca6ca66b2b0900
+      internalID: 636446496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Group 9_2
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 336
+        width: 173
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a590635b7c06274e9f97baadca24bb5
+      internalID: -1396407816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Group 9_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 990
+        height: 251
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7457d0ff1b3915145802ada111047a33
+      internalID: -325917846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Group 9_0: 1205020124
+      Group 9_1: 636446496
+      Group 9_2: -1396407816
+      Group 9_3: -325917846
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
