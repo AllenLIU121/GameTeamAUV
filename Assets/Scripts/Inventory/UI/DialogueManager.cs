@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using System.IO;
 using UnityEngine.Events;
 
@@ -23,7 +22,7 @@ public class DialogueEntry
     public bool hasChoices;
     public List<Choice> choices = new List<Choice>();
     public int characterExpression = 0;
-    public bool isReturnPoint; // ����Ƿ�Ϊ���ص�
+    public bool isReturnPoint; // 标记是否为返回点
 }
 
 [System.Serializable]
@@ -31,29 +30,39 @@ public class Choice
 {
     public string choiceText;
     public int nextDialogueIndex;
-    public bool isSelected; // ����Ƿ���ѡ��
+    public bool isSelected; // 标记是否已选择
 }
 
 public class DialogueManager : MonoBehaviour
 {
-    [Header("UI References")]
-    public TextMeshProUGUI dialogueText;
-    public TextMeshProUGUI characterNameText;
-    public GameObject dialogueBox;
-    public GameObject choiceButtonPrefab;
-    public Transform choiceContainer;
-    public Button continueButton;
-
-    [Header("Character System")]
-    public List<CharacterData> characters = new List<CharacterData>();
-    public float characterFadeTime = 0.5f;
-
-    [Header("Dialogue Settings")]
+    [Header("通用设置")]
     public float typingSpeed = 0.05f;
     public string csvFileName = "soldier_dialogue.csv";
 
+    [Header("对话类型")]
+    // 当前对话类型
+    public bool isCurrentDialogueChoiceType = true;
+
+    [Header("选择类型UI")]
+    public GameObject choiceTypeDialogueUI;
+    public Text choiceTypeDialogueText;
+    public Text choiceTypeCharacterNameText;
+    public GameObject choiceTypeDialogueBox;
+    public GameObject choiceButtonPrefab;
+    public Transform choiceContainer;
+
+    [Header("提示类型UI")]
+    public GameObject hintTypeDialogueUI;
+    public Text hintTypeDialogueText;
+    public Text hintTypeCharacterNameText;
+    public GameObject hintTypeDialogueBox;
+
+    [Header("角色系统")]
+    public List<CharacterData> characters = new List<CharacterData>();
+    public float characterFadeTime = 0.5f;
+
     [Header("End of Dialogue")]
-    public UnityEvent onDialogueEnd; // �Ի�����ʱ�Ļص�
+    public UnityEvent onDialogueEnd; // 对话结束时的回调
 
     [Header("Debug")]
     public bool loadFromCSV = true;
@@ -66,17 +75,32 @@ public class DialogueManager : MonoBehaviour
     private bool isChangingCharacter = false;
     private Coroutine typingCoroutine;
     private string currentCharacterName = "";
-    private Dictionary<int, List<Choice>> availableChoices = new Dictionary<int, List<Choice>>(); // �洢ÿ��ѡ���Ŀ���ѡ��
+    private Dictionary<int, List<Choice>> availableChoices = new Dictionary<int, List<Choice>>(); // 存储每个选择点的原始选择
 
     void Start()
     {
         InitializeCharacters();
         LoadDialogues();
-        StartDialogue();
+        HideAllDialogueUI();
+    }
+
+    private void HideAllDialogueUI()
+    {
+        if (choiceTypeDialogueUI != null)
+        {
+            choiceTypeDialogueUI.SetActive(false);
+        }
+
+        if (hintTypeDialogueUI != null)
+        {
+            hintTypeDialogueUI.SetActive(false);
+        }
     }
 
     void Update()
     {
+        if (!IsDialogueActive()) return;
+
         if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
             && !isWaitingForChoice && !isChangingCharacter)
         {
@@ -106,6 +130,79 @@ public class DialogueManager : MonoBehaviour
         {
             dialogues = fallbackDialogues;
         }
+    }
+
+    /// <summary>
+    /// 设置对话CSV文件
+    /// </summary>
+    /// <param name="newCSVFileName">新的CSV文件名</param>
+    public void SetDialogueCSVFile(string newCSVFileName)
+    {
+        if (csvFileName != newCSVFileName)
+        {
+            csvFileName = newCSVFileName;
+            LoadDialogues();
+            Debug.Log("对话文件已更改为: " + newCSVFileName);
+        }
+    }
+
+    // 设置对话类型（选择类型或提示类型）
+    public void SetDialogueType(bool isChoiceType)
+    {
+        isCurrentDialogueChoiceType = isChoiceType;
+        UpdateDialogueUI();
+    }
+
+    // 更新对话UI显示
+    private void UpdateDialogueUI()
+    {
+        // 激活对应的UI容器
+        if (choiceTypeDialogueUI != null)
+        {
+            choiceTypeDialogueUI.SetActive(isCurrentDialogueChoiceType);
+        }
+
+        if (hintTypeDialogueUI != null)
+        {
+            hintTypeDialogueUI.SetActive(!isCurrentDialogueChoiceType);
+        }
+
+        // 更新对话框显示状态
+        if (choiceTypeDialogueBox != null)
+        {
+            choiceTypeDialogueBox.SetActive(isCurrentDialogueChoiceType);
+        }
+
+        if (hintTypeDialogueBox != null)
+        {
+            hintTypeDialogueBox.SetActive(!isCurrentDialogueChoiceType);
+        }
+    }
+
+    // 获取当前使用的对话文本组件
+    private Text GetCurrentDialogueText()
+    {
+        return isCurrentDialogueChoiceType ? choiceTypeDialogueText : hintTypeDialogueText;
+    }
+
+    // 获取当前使用的角色名称文本组件
+    private Text GetCurrentCharacterNameText()
+    {
+        return isCurrentDialogueChoiceType ? choiceTypeCharacterNameText : hintTypeCharacterNameText;
+    }
+
+    // 检查对话是否正在进行
+    public bool IsDialogueActive()
+    {
+        bool choiceTypeActive = isCurrentDialogueChoiceType &&
+                                choiceTypeDialogueBox != null &&
+                                choiceTypeDialogueBox.activeSelf;
+
+        bool hintTypeActive = !isCurrentDialogueChoiceType &&
+                              hintTypeDialogueBox != null &&
+                              hintTypeDialogueBox.activeSelf;
+
+        return choiceTypeActive || hintTypeActive;
     }
 
     void LoadDialoguesFromCSV()
@@ -155,7 +252,7 @@ public class DialogueManager : MonoBehaviour
                                 entry.choices.Add(choice2);
                             }
 
-                            // �洢���ѡ��������ѡ��
+                            // 存储每个选择点的原始选择
                             availableChoices[i] = new List<Choice>(entry.choices);
                         }
 
@@ -164,7 +261,7 @@ public class DialogueManager : MonoBehaviour
                             entry.characterExpression = expression;
                         }
 
-                        // ����Ƿ�Ϊ���ص㣨���Ϊ-1��
+                        // 标记是否为返回点(值为-1时)
                         if (values.Length >= 9 && int.TryParse(values[8], out int isReturn) && isReturn == -1)
                         {
                             entry.isReturnPoint = true;
@@ -174,17 +271,17 @@ public class DialogueManager : MonoBehaviour
                     }
                 }
 
-                Debug.Log($"�ɹ����� {dialogues.Count} ���Ի�");
+                Debug.Log($"成功加载 {dialogues.Count} 条对话");
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"����CSV�ļ�ʧ��: {e.Message}");
+                Debug.LogError($"加载CSV文件失败: {e.Message}");
                 dialogues = fallbackDialogues;
             }
         }
         else
         {
-            Debug.LogWarning($"CSV�ļ�������: {filePath}");
+            Debug.LogWarning($"CSV文件不存在: {filePath}");
             dialogues = fallbackDialogues;
         }
     }
@@ -218,11 +315,11 @@ public class DialogueManager : MonoBehaviour
         return result.ToArray();
     }
 
-    [ContextMenu("���¼���CSV�ļ�")]
+    [ContextMenu("重新加载CSV文件")]
     public void ReloadCSV()
     {
         LoadDialogues();
-        Debug.Log("CSV�ļ������¼���");
+        Debug.Log("CSV文件已重新加载");
     }
 
     void InitializeCharacters()
@@ -240,17 +337,20 @@ public class DialogueManager : MonoBehaviour
     {
         StartDialogueAt(0);
     }
-    
-    /// <summary>
-    /// 从指定索引开始对话
-    /// </summary>
-    /// <param name="index">对话的起始索引</param>
+
+    // 从指定索引开始对话
     public void StartDialogueAt(int index)
     {
+        if (dialogues == null || dialogues.Count == 0)
+        {
+            Debug.LogWarning("[DialogueManager] 对话数据为空，无法开始对话！");
+            return;
+        }
+
         if (index >= 0 && index < dialogues.Count)
         {
             currentDialogueIndex = index;
-            dialogueBox.SetActive(true);
+            UpdateDialogueUI();
             ShowDialogue();
         }
         else
@@ -258,9 +358,9 @@ public class DialogueManager : MonoBehaviour
             Debug.LogWarning("[DialogueManager] 尝试从无效索引开始对话: " + index);
             // 索引无效时使用默认起始点
             currentDialogueIndex = 0;
-            dialogueBox.SetActive(true);
+            UpdateDialogueUI();
             ShowDialogue();
-            
+
             Debug.LogWarning("[DialogueManager] 使用默认对话起点: 0");
         }
     }
@@ -275,10 +375,12 @@ public class DialogueManager : MonoBehaviour
 
         DialogueEntry currentEntry = dialogues[currentDialogueIndex];
 
-        StartCoroutine(ChangeCharacter(currentEntry.characterName, () => {
-            if (characterNameText != null)
+        StartCoroutine(ChangeCharacter(currentEntry.characterName, () =>
+        {
+            Text nameText = GetCurrentCharacterNameText();
+            if (nameText != null)
             {
-                characterNameText.text = currentEntry.characterName;
+                nameText.text = currentEntry.characterName;
             }
 
             ClearChoiceButtons();
@@ -308,16 +410,20 @@ public class DialogueManager : MonoBehaviour
             StopCoroutine(typingCoroutine);
         }
 
-        dialogueText.text = dialogues[currentDialogueIndex].dialogueText;
+        Text currentText = GetCurrentDialogueText();
+        if (currentText != null)
+        {
+            currentText.text = dialogues[currentDialogueIndex].dialogueText;
+        }
         isTyping = false;
     }
 
     public void NextDialogue()
     {
-        // ����Ƿ��Ƿ��ص�
+        // 检查是否是返回点
         if (currentDialogueIndex < dialogues.Count && dialogues[currentDialogueIndex].isReturnPoint)
         {
-            // ���ص�ѡ��㲢��ʾδѡ���ѡ��
+            // 返回到选择点并显示未选择的选项
             ReturnToChoicePoint();
             return;
         }
@@ -328,7 +434,7 @@ public class DialogueManager : MonoBehaviour
 
     void ReturnToChoicePoint()
     {
-        // ���������ѡ���
+        // 查找最近的选择点
         int choicePointIndex = -1;
         for (int i = currentDialogueIndex; i >= 0; i--)
         {
@@ -341,7 +447,7 @@ public class DialogueManager : MonoBehaviour
 
         if (choicePointIndex != -1 && availableChoices.ContainsKey(choicePointIndex))
         {
-            // ��ȡδѡ���ѡ��
+            // 获取未选择的选项
             List<Choice> remainingChoices = new List<Choice>();
             foreach (Choice choice in availableChoices[choicePointIndex])
             {
@@ -353,21 +459,21 @@ public class DialogueManager : MonoBehaviour
 
             if (remainingChoices.Count > 0)
             {
-                // �ص�ѡ��㲢��ʾʣ��ѡ��
+                // 返回到选择点并显示剩余选项
                 currentDialogueIndex = choicePointIndex;
                 dialogues[currentDialogueIndex].choices = remainingChoices;
                 ShowDialogue();
             }
             else
             {
-                // ����ѡ���ѡ�񣬼�����һ���Ի�
+                // 所有选项都已选择，继续下一段对话
                 currentDialogueIndex++;
                 ShowDialogue();
             }
         }
         else
         {
-            // û���ҵ�ѡ��㣬������һ���Ի�
+            // 没有找到选择点，继续下一段对话
             currentDialogueIndex++;
             ShowDialogue();
         }
@@ -375,7 +481,18 @@ public class DialogueManager : MonoBehaviour
 
     void EndDialogue()
     {
-        dialogueBox.SetActive(false);
+        // 清除所有选项按钮
+        ClearChoiceButtons();
+
+        // 禁用整个对话UI（包括对话框和遮罩）
+        if (isCurrentDialogueChoiceType && choiceTypeDialogueUI != null)
+        {
+            choiceTypeDialogueUI.SetActive(false);
+        }
+        else if (!isCurrentDialogueChoiceType && hintTypeDialogueUI != null)
+        {
+            hintTypeDialogueUI.SetActive(false);
+        }
 
         if (!string.IsNullOrEmpty(currentCharacterName))
         {
@@ -386,8 +503,8 @@ public class DialogueManager : MonoBehaviour
             }
         }
 
-        Debug.Log("�Ի�����");
-        // �����Ի������¼�
+        Debug.Log("对话结束");
+        // 触发对话结束事件
         onDialogueEnd.Invoke();
     }
 
@@ -485,12 +602,17 @@ public class DialogueManager : MonoBehaviour
     IEnumerator TypeText(string text)
     {
         isTyping = true;
-        dialogueText.text = "";
 
-        foreach (char letter in text.ToCharArray())
+        Text currentText = GetCurrentDialogueText();
+        if (currentText != null)
         {
-            dialogueText.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
+            currentText.text = "";
+
+            foreach (char letter in text.ToCharArray())
+            {
+                currentText.text += letter;
+                yield return new WaitForSeconds(typingSpeed);
+            }
         }
 
         isTyping = false;
@@ -506,7 +628,7 @@ public class DialogueManager : MonoBehaviour
         foreach (Choice choice in choices)
         {
             GameObject choiceButton = Instantiate(choiceButtonPrefab, choiceContainer);
-            TextMeshProUGUI buttonText = choiceButton.GetComponentInChildren<TextMeshProUGUI>();
+            Text buttonText = choiceButton.GetComponentInChildren<Text>();
             if (buttonText != null)
             {
                 buttonText.text = choice.choiceText;
@@ -520,7 +642,7 @@ public class DialogueManager : MonoBehaviour
 
     public void OnChoiceSelected(int nextDialogueIndex, Choice selectedChoice)
     {
-        // ���ѡ��Ϊ��ѡ��
+        // 标记选择为已选择
         selectedChoice.isSelected = true;
 
         ClearChoiceButtons();
