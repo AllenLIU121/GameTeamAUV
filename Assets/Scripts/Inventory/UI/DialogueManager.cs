@@ -260,6 +260,8 @@ public class DialogueManager : MonoBehaviour
             currentDialogueIndex = 0;
             dialogueBox.SetActive(true);
             ShowDialogue();
+            
+            Debug.LogWarning("[DialogueManager] 使用默认对话起点: 0");
         }
     }
 
