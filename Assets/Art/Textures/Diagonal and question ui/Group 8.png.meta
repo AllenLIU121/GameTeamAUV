@@ -121,7 +121,7 @@ TextureImporter:
       name: Group 8_1
       rect:
         serializedVersion: 2
-        x: 913
+        x: 878
         y: 613
         width: 29
         height: 29
@@ -142,7 +142,7 @@ TextureImporter:
       name: Group 8_2
       rect:
         serializedVersion: 2
-        x: 967
+        x: 913
         y: 613
         width: 29
         height: 29
@@ -163,10 +163,10 @@ TextureImporter:
       name: Group 8_3
       rect:
         serializedVersion: 2
-        x: 913
-        y: 514
-        width: 488
-        height: 69
+        x: 967
+        y: 613
+        width: 29
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -184,6 +184,27 @@ TextureImporter:
       name: Group 8_4
       rect:
         serializedVersion: 2
+        x: 913
+        y: 514
+        width: 488
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e489398d0cb0e6243ab23c373337e585
+      internalID: -129817910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Group 8_5
+      rect:
+        serializedVersion: 2
         x: 910
         y: 385
         width: 488
@@ -195,8 +216,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e489398d0cb0e6243ab23c373337e585
-      internalID: -129817910
+      spriteID: 0a8c20b7776e09d4e9a8a699ae734686
+      internalID: -1032516453
       vertices: []
       indices: 
       edges: []
@@ -217,6 +238,7 @@ TextureImporter:
       Group 8_2: -488787682
       Group 8_3: -1040602107
       Group 8_4: -129817910
+      Group 8_5: -1032516453
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
