@@ -10,7 +10,7 @@ public class SkillRuntime
     public SkillRuntime(SkillSO skillData)
     {
         SkillData = skillData;
-        CurrentCooldown = 0f;
+        CurrentCooldown = skillData.cooldownTime;
     }
 
     public void UpdateCooldown(float deltaTime)

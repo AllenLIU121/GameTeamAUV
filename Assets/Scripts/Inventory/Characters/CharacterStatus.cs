@@ -182,11 +182,9 @@ public class CharacterStatus : MonoBehaviour
         
         float oldValue = currentHunger;
         currentHunger = Mathf.Clamp(currentHunger + amount, 0, MaxHunger);
-        // Debug.Log($"{characterSO.characterID} currentHunger: {currentHunger}");
 
         if (publishEvent && Mathf.Abs(currentHunger - oldValue) > 0f)
         {
-            // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Hunger)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
                 characterID = this.CharacterID,

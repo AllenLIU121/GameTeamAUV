@@ -7,13 +7,19 @@ public class Cat_SkillSO : SkillSO
     // 角色存活时: 增加幸运值
     public override void OnActivate(CharacterSO owner)
     {
-
+        if (StoreManager.Instance != null)
+        {
+            StoreManager.Instance.ModifyLuck(0.15f);  // 增加特殊物品刷新率15%
+        }
     }
 
     // 角色死亡时: 恢复幸运值
     public override void OnDeactivate(CharacterSO owner)
     {
-
+        if (StoreManager.Instance != null)
+        {
+            StoreManager.Instance.ModifyLuck(-0.15f);  // 减少特殊物品刷新率15%
+        }
     }
 
     // 恢复弟弟体力值
