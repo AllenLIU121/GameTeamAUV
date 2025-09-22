@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class CharacterSlot : MonoBehaviour
@@ -8,9 +9,57 @@ public class CharacterSlot : MonoBehaviour
     public Image avatar;     // 角色头像
     public Slider hungerBar; // 饥饿值条
     public Slider staminaBar;  // 体力值条
-
+    public Image cooldownImage;  //角色冷却头像
+    public Image normalAvatar;//冷却完毕头像
+    public Color cooldownColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
+    private Color originalColor;
     private string _characterID; // 角色唯一ID
-
+    private CharacterSO curCharacterSO;
+    private SkillManager skillManager;
+    //冷却比例
+    private float cooldownpercent;
+    private float currentCooldown;
+    // void Start()
+    // {
+    //     skillManager= GameStateManager.Instance.Skill;
+    //     normalAvatar = avatar;
+    //     skillManager.ActivateSkill(curCharacterSO.characterID, curCharacterSO.skill.skillID, 0);
+    //     InitializeUI();
+    // }
+    //
+    // void Update()
+    // {
+    //     currentCooldown = skillManager.GetRemainingCooldown(curCharacterSO.characterID, curCharacterSO.skill.skillID);
+    //     Debug.Log("currentCooldown " +currentCooldown);
+    //     cooldownpercent = skillManager.GetCooldownPercent(curCharacterSO.characterID, curCharacterSO.skill.skillID);
+    //     Debug.Log("cooldownpercent "+cooldownpercent);
+    //     if (cooldownpercent > 0f)
+    //     {
+    //         avatar = cooldownImage;
+    //         // cooldownImage.gameObject.SetActive(true);
+    //         // cooldownImage.fillAmount = 1f-cooldownpercent;
+    //     }
+    //     else
+    //     {
+    //         avatar = normalAvatar;
+    //         // cooldownImage.gameObject.SetActive(false);
+    //     }
+    // }
+    //
+    // private void InitializeUI()
+    // {
+    //     originalColor = avatar.color;
+    //     if (cooldownImage != null)
+    //     {
+    //         cooldownImage.type = Image.Type.Filled;
+    //         cooldownImage.fillMethod = Image.FillMethod.Radial360;
+    //         cooldownImage.fillOrigin = (int)Image.Origin360.Top;
+    //         cooldownImage.fillClockwise = false;
+    //         cooldownImage.color = cooldownColor;
+    //         cooldownImage.fillAmount = 0f;
+    //         cooldownImage.gameObject.SetActive(false);
+    //     }
+    // }
     /// <summary>
     /// 初始化角色槽位
     /// </summary>
@@ -25,7 +74,10 @@ public class CharacterSlot : MonoBehaviour
             Debug.LogError("InitSlot: characterSO为空！");
             return;
         }
-
+        else
+        {
+            curCharacterSO = characterSO;
+        }
         if (string.IsNullOrEmpty(characterSO.characterID))
         {
             Debug.LogError("InitSlot: characterID为空！");

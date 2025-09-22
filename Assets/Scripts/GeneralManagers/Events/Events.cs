@@ -45,6 +45,8 @@ public struct OnSkillActivated //角色技能激活
 {
     public string characterID;
     public string skillID;
+    public float cooldownTime;
+    public float currentCooldown;
 }
 
 public struct OnSkillCooldownUpdated //角色技能冷却

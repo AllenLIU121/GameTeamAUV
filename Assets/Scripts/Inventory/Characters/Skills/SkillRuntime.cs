@@ -10,12 +10,15 @@ public class SkillRuntime
     public SkillRuntime(SkillSO skillData)
     {
         SkillData = skillData;
-        CurrentCooldown = 0f;
+        CurrentCooldown = skillData.cooldownTime;
     }
 
     public void UpdateCooldown(float deltaTime)
     {
-        if (CurrentCooldown > 0) CurrentCooldown = Mathf.Max(0, CurrentCooldown - deltaTime);
+        if (CurrentCooldown > 0)
+        {
+            CurrentCooldown = Mathf.Max(0, CurrentCooldown - deltaTime);
+        }
     }
 
     public void StartCooldown() => CurrentCooldown = SkillData.cooldownTime;

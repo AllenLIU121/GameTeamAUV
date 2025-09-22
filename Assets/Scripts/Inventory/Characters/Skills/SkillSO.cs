@@ -11,7 +11,7 @@ public class SkillSO : ScriptableObject
     public Sprite icon;
     
     [Header("技能设置")] 
-    public float cooldownTime = 10f;
+    public float cooldownTime = 120f;
     [Tooltip("一次性技能数值")]
     public float value;
     // public bool isPassive = false;

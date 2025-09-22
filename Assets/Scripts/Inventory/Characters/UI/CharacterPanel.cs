@@ -89,16 +89,15 @@ public class CharacterPanel : MonoBehaviour
         {
             CharacterSlot slot = characterSlots[i];
             CharacterSO characterSO = characterSOList[i];
-
-            // 获取角色运行时数据
-            CharacterStatus characterStatus = GameStateManager.Instance.Character.GetCharacterGameObject(characterSO.characterID).GetComponent<CharacterStatus>();
-            
-            // 如果没有运行时数据，使用默认值
-            float initHunger = characterStatus != null ? characterStatus.CurrentHunger : characterStatus.MaxHunger;
-            float initStamina = characterStatus != null ? characterStatus.CurrentStamina : characterStatus.MaxStamina;
-
-            // 初始化槽位
-            slot.InitSlot(characterSO, initHunger, initStamina);
+            // Debug.Log(GameStateManager.Instance.Character.GetCharacterGameObject(characterSO.characterID));
+            GameObject characterGO = GameStateManager.Instance.Character.GetCharacterGameObject(characterSO.characterID);
+            if (characterGO == null)
+            {
+                // Debug.Log($"Character GameObject not found for ID: {characterSO.characterID}");
+                // 使用默认值初始化槽位
+                slot.InitSlot(characterSO, characterSO.maxHunger, characterSO.maxStamina);
+                continue;
+            }
             Debug.LogWarning($"绑定角色 {characterSO.characterID} 到 Slot[{i}]");
         }
     }

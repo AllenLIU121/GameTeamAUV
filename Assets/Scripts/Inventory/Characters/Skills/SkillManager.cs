@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SkillManager : MonoBehaviour
 {
-    private Dictionary<string, Dictionary<string, SkillRuntime>> characterSkillsData =
+    public Dictionary<string, Dictionary<string, SkillRuntime>> characterSkillsData =
         new Dictionary<string, Dictionary<string, SkillRuntime>>();
 
     private void Awake()
@@ -71,6 +71,7 @@ public class SkillManager : MonoBehaviour
     // 只注册主动技能并创建SkillRuntime实例
     public void RegisterCharacterSkill(string characterID, SkillSO skill)
     {
+        //被动技能不注册
         if (skill.cooldownTime == 0) return;
 
         if (!characterSkillsData.ContainsKey(characterID))
@@ -175,4 +176,37 @@ public class SkillManager : MonoBehaviour
             skillID = skillID,
         });
     }
+    //带物品的发布
+    private void PublishSkillActivatedEvent(string characterID, string skillID,int slotIndex)
+    {
+        var skillRuntime = characterSkillsData[characterID][skillID];
+        EventManager.Instance.Publish(new OnSkillActivated
+        {
+            characterID = characterID,
+            skillID = skillID,
+            cooldownTime = skillRuntime.SkillData.cooldownTime,
+            currentCooldown = skillRuntime.CurrentCooldown
+        });
+    }
+    public float GetRemainingCooldown(string characterID, string skillID)
+    {
+        if (characterSkillsData.ContainsKey(characterID) && 
+            characterSkillsData[characterID].ContainsKey(skillID))
+        {
+            return characterSkillsData[characterID][skillID].CurrentCooldown;
+        }
+        return 0f;
+    }
+
+    public float GetCooldownPercent(string characterID, string skillID)
+    {
+        if (characterSkillsData.ContainsKey(characterID) && 
+            characterSkillsData[characterID].ContainsKey(skillID))
+        {
+            var skillRuntime = characterSkillsData[characterID][skillID];
+            return skillRuntime.CurrentCooldown / skillRuntime.SkillData.cooldownTime;
+        }
+        return 0f;
+    }
+    
 }
