@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+using DialogueSystem;
 public class EarthquakeFlowManager : MonoBehaviour
 {
     public DialogueManager dialogueManager;
@@ -25,6 +25,7 @@ public class EarthquakeFlowManager : MonoBehaviour
     IEnumerator StartFirstDialogue()
     {
         yield return new WaitForSeconds(1f); // 短暂延迟确保场景加载完成
+        dialogueManager.SetDialogueType(false); // 设置为提示类型，与其他文件保持一致
         dialogueManager.StartDialogue("earthquake_first_encounter.csv");
         isFirstDialogueShown = true;
         StartCoroutine(WaitForSecondDialogue());
@@ -40,9 +41,10 @@ public class EarthquakeFlowManager : MonoBehaviour
 
         // 等待10秒后开启第二个文件对应的UI
         Debug.Log("第一个对话结束，10秒后开始自言自语对话");
-        yield return new WaitForSeconds(delayBetweenDialogues);
+        yield return new WaitForSeconds(5f);
 
         // 显示自言自语对话
+        dialogueManager.SetDialogueType(false); // 设置为提示类型，与其他文件保持一致
         dialogueManager.StartDialogue("earthquake_warning.csv");
 
         // 等待自言自语对话结束
@@ -54,6 +56,7 @@ public class EarthquakeFlowManager : MonoBehaviour
         // 等待3秒后显示广播对话
         Debug.Log("自言自语对话结束，3秒后开始广播对话");
         yield return new WaitForSeconds(3f);
+        dialogueManager.SetDialogueType(false); // 设置为提示类型，与其他文件保持一致
         dialogueManager.StartDialogue("earthquake_broadcast.csv");
         isSecondDialogueShown = true;
     }
@@ -81,6 +84,7 @@ public class EarthquakeFlowManager : MonoBehaviour
     IEnumerator TriggerThirdDialogueAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
+        dialogueManager.SetDialogueType(false); // 设置为提示类型，与其他文件保持一致
         dialogueManager.StartDialogue("earthquake_father_smoking.csv");
     }
 }

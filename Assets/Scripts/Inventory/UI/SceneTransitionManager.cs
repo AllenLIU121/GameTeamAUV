@@ -1,6 +1,7 @@
 using UnityEngine;
 using Inventory.Characters;
 using System.Collections.Generic;
+using DialogueSystem;
 
 /// <summary>
 /// 场景转换管理器 - 处理场景之间的转换逻辑
@@ -81,8 +82,26 @@ public class SceneTransitionManager : MonoBehaviour
     /// <returns>是否是逃离成功对话</returns>
     private bool IsEscapeSuccessDialogue()
     {
-        // 获取当前CSV文件
-        string currentCSVFile = dialogueManager.csvFileName;
+        // 获取当前CSV文件（使用反射获取私有字段）
+        string currentCSVFile = "";
+        try
+        {
+            System.Reflection.FieldInfo currentCsvPathField = typeof(DialogueSystem.DialogueManager).GetField("_currentCSVPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (currentCsvPathField != null)
+            {
+                currentCSVFile = currentCsvPathField.GetValue(dialogueManager) as string;
+                // 如果路径不为空，提取文件名
+                if (!string.IsNullOrEmpty(currentCSVFile))
+                {
+                    currentCSVFile = System.IO.Path.GetFileName(currentCSVFile);
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("SceneTransitionManager: 获取当前对话文件失败: " + ex.Message);
+        }
+        
         Debug.Log("SceneTransitionManager: 当前对话文件: " + currentCSVFile);
 
         // 首先检查是否是特定的几个文件
@@ -214,14 +233,11 @@ public class SceneTransitionManager : MonoBehaviour
                 // 直接调用DialogueManager的公开方法来设置和启动对话，避免使用反射
                 try
                 {
-                    dialogueManager.SetDialogueCSVFile(NEXT_SCENE_DIALOGUE_FILE);
-                    Debug.Log("SceneTransitionManager: 已设置对话文件为: " + NEXT_SCENE_DIALOGUE_FILE);
-                    
                     dialogueManager.SetDialogueType(false); // store_711.csv是提示类型对话
                     Debug.Log("SceneTransitionManager: 已设置对话类型为提示类型");
                     
-                    dialogueManager.StartDialogueAt(0);
-                    Debug.Log("SceneTransitionManager: 已启动对话");
+                    dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);
+                    Debug.Log("SceneTransitionManager: 已启动对话文件: " + NEXT_SCENE_DIALOGUE_FILE);
                 }
                 catch (System.Exception ex)
                 {
@@ -274,9 +290,8 @@ public class SceneTransitionManager : MonoBehaviour
         {
             Debug.Log("SceneTransitionManager: 延迟触发下一个场景对话: " + NEXT_SCENE_DIALOGUE_FILE);
             
-            dialogueManager.SetDialogueCSVFile(NEXT_SCENE_DIALOGUE_FILE);
             dialogueManager.SetDialogueType(false);
-            dialogueManager.StartDialogueAt(0);
+            dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);
         } else {
             Debug.LogError("SceneTransitionManager: 延迟触发对话失败，对话管理器仍在活跃状态");
         }

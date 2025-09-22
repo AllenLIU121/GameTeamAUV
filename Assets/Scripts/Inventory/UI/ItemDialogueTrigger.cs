@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using DialogueSystem;
 /// <summary>
 /// 物品对话触发器 - 当玩家靠近物品时触发对话系统
 /// 支持两种UI类型：选择类型和提示类型
@@ -12,41 +12,41 @@ public class ItemDialogueTrigger : MonoBehaviour
     [Header("对话配置")]
     // 要触发的对话CSV文件名
     public string dialogueCSVFileName = "dialogue_example.csv";
-    
+
     // 对话起始索引
     public int dialogueStartIndex = 0;
-    
+
     // 对话类型：true表示选择类型，false表示提示类型
     public bool isChoiceTypeDialogue = true;
 
     [Header("触发设置")]
     // 触发对话的范围
     public float triggerRange = 2f;
-    
+
     // 玩家标签
     public string playerTag = "Player";
-    
+
     [Tooltip("是否只触发一次")]
     public bool triggerOnce = false;
-    
+
     [Tooltip("是否需要按下交互键才能触发对话")]
     public bool requireInteractionKey = true;
-    
+
     [Tooltip("交互键")]
     public KeyCode interactionKey = KeyCode.E;
-    
+
     [Tooltip("对话触发冷却时间(秒)，防止过于频繁触发")]
     public float triggerCooldown = 1.0f;
 
     [Header("UI设置")]
     // 交互提示UI（可选）
     public GameObject interactionPromptUI;
-    
+
     // 注意：这些UI引用现在由DialogueManager直接管理
     // 选择类型对话UI（可选：如果需要在此处也可引用）
     [Tooltip("此引用是可选的，DialogueManager中已配置完整的UI引用")]
     public GameObject choiceTypeDialogueUI;
-    
+
     // 提示类型对话UI
     [Tooltip("此引用是可选的，DialogueManager中已配置完整的UI引用")]
     public GameObject hintTypeDialogueUI;
@@ -60,18 +60,18 @@ public class ItemDialogueTrigger : MonoBehaviour
     {
         // 查找对话管理器
         dialogueManager = FindObjectOfType<DialogueManager>();
-        
+
         if (dialogueManager == null)
         {
             Debug.LogError("在场景中找不到DialogueManager组件！请确保已添加对话管理器。");
         }
-        
+
         // 初始隐藏交互提示
         if (interactionPromptUI != null)
         {
             interactionPromptUI.SetActive(false);
         }
-        
+
         // UI元素的初始状态现在由DialogueManager的UpdateDialogueUI方法管理
         // 如果需要在此处初始化UI，可以保留下面的代码
         /*
@@ -94,19 +94,19 @@ public class ItemDialogueTrigger : MonoBehaviour
         {
             return;
         }
-        
+
         // 如果已经触发过且设置为只触发一次，则不执行后续逻辑
         if (triggerOnce && hasTriggered)
         {
             return;
         }
-        
+
         // 检查玩家是否在范围内
         CheckPlayerDistance();
-        
+
         // 更新对话活动状态 - 使用DialogueManager提供的IsDialogueActive方法
         isDialogueActive = dialogueManager.IsDialogueActive();
-        
+
         // 当玩家在范围内且满足触发条件时开始对话
         if (isPlayerInRange && CanTriggerDialogue() && !isDialogueActive)
         {
@@ -121,11 +121,11 @@ public class ItemDialogueTrigger : MonoBehaviour
     {
         // 查找玩家对象
         GameObject player = GameObject.FindGameObjectWithTag(playerTag);
-        
+
         if (player != null)
         {
             float distance = Vector3.Distance(transform.position, player.transform.position);
-            
+
             if (distance <= triggerRange)
             {
                 isPlayerInRange = true;
@@ -165,7 +165,7 @@ public class ItemDialogueTrigger : MonoBehaviour
         {
             return false;
         }
-        
+
         if (!requireInteractionKey)
         {
             // 不需要按键，但确保对话还没有在进行中
@@ -203,24 +203,27 @@ public class ItemDialogueTrigger : MonoBehaviour
                 Debug.LogWarning("[ItemDialogueTrigger] 对话已经在进行中，忽略触发: " + gameObject.name);
                 return;
             }
-            
+
             Debug.Log("触发物品对话: " + gameObject.name + "，文件: " + dialogueCSVFileName);
-            
-            // 设置对话文件
-            dialogueManager.SetDialogueCSVFile(dialogueCSVFileName);
-            
+
             // 设置对话类型
             dialogueManager.SetDialogueType(isChoiceTypeDialogue);
-            
-            // 从指定索引开始对话
-            dialogueManager.StartDialogueAt(dialogueStartIndex);
-            
+
+            // 加载指定CSV并启动对话
+            var newCsvPath = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, dialogueCSVFileName);
+            System.Reflection.FieldInfo currentCsvPathField = typeof(DialogueSystem.DialogueManager).GetField("_currentDialogueIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (currentCsvPathField != null)
+            {
+                currentCsvPathField.SetValue(dialogueManager, dialogueStartIndex);
+            }
+            dialogueManager.StartDialogue(dialogueCSVFileName);
+
             // 标记为已触发
             if (triggerOnce)
             {
                 hasTriggered = true;
             }
-            
+
             // 隐藏交互提示
             ShowInteractionPrompt(false);
         }
