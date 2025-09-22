@@ -56,7 +56,7 @@ public class ItemDialogueTrigger : MonoBehaviour
     private bool isDialogueActive = false;
     private float lastTriggerTime = -Mathf.Infinity;
 
-    void Start()
+    protected virtual void Start()
     {
         // 查找对话管理器
         dialogueManager = FindObjectOfType<DialogueManager>();
