@@ -22,19 +22,27 @@ public class SkillManager : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.Instance.CurrentState == GameState.Playing)
-            UpdateAllCooldowns(Time.deltaTime);
+        // Debug.Log(GameManager.Instance.CurrentState);
+        // if (GameManager.Instance.CurrentState == GameState.Playing)
+        // {
+        //     Debug.Log("触发更新");
+        //     UpdateAllCooldowns(Time.deltaTime);
+        // }
+        // UpdateAllCooldowns(Time.deltaTime);
     }
 
     private void UpdateAllCooldowns(float deltaTime)
     {
-        foreach (var SkillData in characterSkillsData.Values)
+        foreach (var characterId in characterSkillsData.Keys)
         {
-            foreach (var skillRuntime in SkillData.Values)
+            var skills = characterSkillsData[characterId];
+            foreach (var skillId in skills.Keys)
             {
-                skillRuntime.UpdateCooldown(deltaTime);
+                Debug.Log(characterId+"的cd还剩下:"+skills[skillId].GetCooldown());
+                skills[skillId].UpdateCooldown(deltaTime);
             }
         }
+        
     }
 
     private void OnDestroy()
@@ -76,9 +84,11 @@ public class SkillManager : MonoBehaviour
 
         if (!characterSkillsData.ContainsKey(characterID))
         {
+            Debug.Log("注册人的id：" + characterID);
             characterSkillsData[characterID] = new Dictionary<string, SkillRuntime>();
         }
         characterSkillsData[characterID][skill.skillID] = new SkillRuntime(skill);
+        Debug.Log("注册后的技能cd：" + characterSkillsData[characterID][skill.skillID].GetCooldown());
     }
 
     // 激活技能
@@ -127,20 +137,29 @@ public class SkillManager : MonoBehaviour
 
         // 检查角色是否死亡
         var characterObject = GameStateManager.Instance.Character.GetCharacterGameObject(characterID);
-        if (characterObject == null) return false;
+        if (characterObject == null)
+        {
+            Debug.Log("characterObject为null");
+            return false;
+        }
 
         var status = characterObject.GetComponent<CharacterStatus>();
         if (status != null && status.IsAlive)
         {
             // 检测技能是否在冷却
             var skillRuntime = characterSkillsData[characterID][skillID];
-            if (!skillRuntime.IsReady) return false;
+            if (!skillRuntime.IsReady)
+            {
+                Debug.Log("技能在冷却");
+                return false;
+            }
 
             bool success = skillRuntime.SkillData.ExecuteSkill(slotIndex);
             if (success)
             {
                 // 开始冷却
                 skillRuntime.StartCooldown();
+                Debug.Log("技能激活后，冷却时间为"+skillRuntime.GetCooldown());
                 return true;
             }
             else
@@ -159,6 +178,7 @@ public class SkillManager : MonoBehaviour
     // 重置所有技能冷却
     public void ResetAllCooldowns()
     {
+        Debug.Log("触发技能冷却重置");
         foreach (var SkillData in characterSkillsData.Values)
         { 
             foreach(var skillRuntime in SkillData.Values)
@@ -193,9 +213,13 @@ public class SkillManager : MonoBehaviour
         if (characterSkillsData.ContainsKey(characterID) && 
             characterSkillsData[characterID].ContainsKey(skillID))
         {
-            return characterSkillsData[characterID][skillID].CurrentCooldown;
+            return characterSkillsData[characterID][skillID].GetCooldown();
         }
-        return 0f;
+        else
+        {
+            return 1f;
+        }
+        
     }
 
     public float GetCooldownPercent(string characterID, string skillID)
