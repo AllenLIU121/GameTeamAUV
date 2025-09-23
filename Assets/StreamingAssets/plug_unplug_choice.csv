@@ -1,0 +1,5 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint,OnCompleteMethod,IsDeadly
+系统,你准备离家一段时间。虽然电器已经关闭了，但插头还留在插座上。待机状态下的电器仍然会消耗电量，而且在雷暴天气可能会有安全隐患。,True,"我会拔掉所有不必要的插头",1,"不拔了，太麻烦了",3,0,0,0,,0
+系统,你拔掉了所有不必要的插头，这样既安全又节能。预防措施总是值得的！,False,,,,-1,1,0,1,,0
+系统,你决定不拔插头。虽然现在看起来没问题，但长期待机不仅浪费电力，还可能在电压波动时损坏电器，甚至引发火灾。
+下次记得拔掉不用的插头！,False,,,,-1,2,0,1,,0
