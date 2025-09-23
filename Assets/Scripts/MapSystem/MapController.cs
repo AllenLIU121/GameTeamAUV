@@ -25,6 +25,16 @@ public class MapController : Singleton<MapController>
     private Node currentPlayerNode;
     private int turnCycle = 0;
 
+    public Node GetPlayerNode() => currentPlayerNode;
+    private Node currentShopNode;
+    private Node currentShelterNode;
+
+    private PlayerController playerController;
+    private bool isMoving = false;
+    public bool IsMoving => isMoving;
+    private WaitForSeconds waitForOneSecond;
+
+
     protected override void Awake()
     {
         base.Awake();
@@ -43,18 +53,36 @@ public class MapController : Singleton<MapController>
     private void Start()
     {
         // 玩家初始节点位置
-        currentPlayerNode = GetNodeAt(5, 0);
+        currentPlayerNode = GetNodeAt(6, 0);
+
+        if (PlayerController.Instance != null)
+        {
+            playerController = PlayerController.Instance;
+            Vector3 initalPos = new Vector3(currentPlayerNode.gridPosition.x, currentPlayerNode.gridPosition.y, 0);
+            playerController.transform.position = initalPos;
+        }
+
+        waitForOneSecond = new WaitForSeconds(1f);
+
         ProcessTurnCycle();
     }
 
     #region --------- 游戏核心流程 ---------
 
-    public void PlayerDidMove(Node newNode)
+    public IEnumerator PlayerDidMove(Node newNode)
     {
+        if (isMoving) yield break;
+        isMoving = true;
+
+        Vector3 targetPosition = new Vector3(newNode.gridPosition.x, newNode.gridPosition.y, 0);
+        playerController.MoveTo(targetPosition);
+        yield return waitForOneSecond;
+
         currentPlayerNode = newNode;
         Debug.Log($"Player moved to the new node: ({currentPlayerNode.gridPosition.x}, {currentPlayerNode.gridPosition.y})");
 
         ProcessTurnCycle();
+        isMoving = false;
     }
 
     private void ProcessTurnCycle()
@@ -95,6 +123,11 @@ public class MapController : Singleton<MapController>
         {
             case NodeType.Embassy:
                 // 胜利的逻辑
+                if (PlayerController.Instance != null)
+                {
+                    PlayerController.Instance.IsInSelectingMode = false;
+                    PlayerController.Instance.enabled = false;
+                }
                 break;
         }
 
@@ -102,11 +135,13 @@ public class MapController : Singleton<MapController>
         {
             // 到达商店后的逻辑
             node.isStore = false;
+            nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
         }
         else if (node.isSafeZone)
         {
             // 到达躲避点后的逻辑
             node.isSafeZone = false;
+            nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
         }
     }
 
@@ -114,7 +149,17 @@ public class MapController : Singleton<MapController>
     {
         Debug.Log($"[MapController] Refreshing world state...");
 
-        ClearDynamicObjects();
+        // 清理动态修改的节点数据
+        if (currentShopNode != null)
+        {
+            currentShopNode.isStore = false;
+            nodeViewGrid[currentShopNode.gridPosition.x, currentShopNode.gridPosition.y].UpdateVisuals();
+        }
+        if (currentShelterNode != null)
+        {
+            currentShelterNode.isSafeZone = false;
+            nodeViewGrid[currentShelterNode.gridPosition.x, currentShelterNode.gridPosition.y].UpdateVisuals();
+        }
 
         disasterSystem.TriggerNewDisaster(playerNode);
         SpawnShop(playerNode);
@@ -133,7 +178,7 @@ public class MapController : Singleton<MapController>
                 return playerNode.nodeType == currentDisaster.requiredNodeType;
             case SafeZoneCondition.AwayFromNode:
                 return playerNode.nodeType != currentDisaster.awayFromNodeType;
-                // return !IsNodeAdjacentToType(playerNode, currentDisaster.awayFromNodeType);
+            // return !IsNodeAdjacentToType(playerNode, currentDisaster.awayFromNodeType);
             case SafeZoneCondition.InShelter:
                 return playerNode.isSafeZone;
         }
@@ -144,7 +189,7 @@ public class MapController : Singleton<MapController>
     private void SpawnShop(Node playerNode)
     {
         Vector2Int playerPos = playerNode.gridPosition;
-        Vector2Int[] adjacents = {                                  
+        Vector2Int[] adjacents = {
             new Vector2Int(playerPos.x - 1, playerPos.y),
             new Vector2Int(playerPos.x + 1, playerPos.y),
             new Vector2Int(playerPos.x, playerPos.y - 1),
@@ -165,6 +210,7 @@ public class MapController : Singleton<MapController>
         {
             Node shopNode = validNodes[Random.Range(0, validNodes.Count)];
             shopNode.isStore = true;
+            currentShopNode = shopNode;
             nodeViewGrid[shopNode.gridPosition.x, shopNode.gridPosition.y].UpdateVisuals();
             Debug.Log($"[MapController] Spawned shop at ({shopNode.gridPosition.x}, {shopNode.gridPosition.y})");
         }
@@ -194,6 +240,7 @@ public class MapController : Singleton<MapController>
         {
             Node shelterNode = validNodes[Random.Range(0, validNodes.Count)];
             shelterNode.isSafeZone = true;
+            currentShelterNode = shelterNode;
             nodeViewGrid[shelterNode.gridPosition.x, shelterNode.gridPosition.y].UpdateVisuals();
             Debug.Log($"[MapController] Spawned shelter at ({shelterNode.gridPosition.x}, {shelterNode.gridPosition.y})");
         }
@@ -232,17 +279,6 @@ public class MapController : Singleton<MapController>
     //     }
     //     return adjacentNodes;
     // }
-
-    private void ClearDynamicObjects()
-    {
-        for (int x = 0; x < mapWidth; x++)
-        {
-            for (int y = 0; y < mapHeight; y++)
-            {
-                GetNodeAt(x, y)?.ClearDynamicStates();
-            }
-        }
-    }
 
     // 生成节点地图数据
     private void GenerateMapData()
@@ -300,6 +336,14 @@ public class MapController : Singleton<MapController>
         if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
             return grid[x, y];
         return null;
+    }
+
+    public bool IsAdjacent(Node node1, Node node2)
+    {
+        if (node1 == null || node2 == null) return false;
+
+         int distance = Mathf.Abs(node1.gridPosition.x - node2.gridPosition.x) + Mathf.Abs(node1.gridPosition.y - node2.gridPosition.y);
+         return distance == 1;
     }
 
     // // Test
