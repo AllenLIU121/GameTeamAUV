@@ -71,20 +71,6 @@ public class ItemDialogueTrigger : MonoBehaviour
         {
             interactionPromptUI.SetActive(false);
         }
-
-        // UI元素的初始状态现在由DialogueManager的UpdateDialogueUI方法管理
-        // 如果需要在此处初始化UI，可以保留下面的代码
-        /*
-        if (choiceTypeDialogueUI != null)
-        {
-            choiceTypeDialogueUI.SetActive(false);
-        }
-        
-        if (hintTypeDialogueUI != null)
-        {
-            hintTypeDialogueUI.SetActive(false);
-        }
-        */
     }
 
     void Update()
@@ -233,22 +219,12 @@ public class ItemDialogueTrigger : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 显示对应的对话UI
-    /// </summary>
-    private void ShowDialogueUI()
-    {
-        // 这个方法现在由DialogueManager中的UpdateDialogueUI方法处理
-        // 这里保留空方法，以防未来需要扩展
-    }
 
     /// <summary>
     /// 结束对话
     /// </summary>
     private void EndDialogue()
     {
-        // 这里可以根据需要添加结束对话的逻辑
-        // 例如，隐藏UI元素等
     }
 
     // 绘制触发范围的Gizmo

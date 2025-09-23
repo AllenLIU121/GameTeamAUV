@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.Animations;
 using Inventory.Characters;
 using System.Collections.Generic;
 using DialogueSystem;
+using System.Linq;
 
 /// <summary>
 /// 场景转换管理器 - 处理场景之间的转换逻辑
@@ -68,12 +70,77 @@ public class SceneTransitionManager : MonoBehaviour
             return;
         }
 
+        // 检查是否已触发死亡状态（存在死亡面板）
+        if (HasDeathPanelActive())
+        {
+            Debug.Log("SceneTransitionManager: 检测到死亡状态，取消场景转换");
+            return;
+        }
+
         // 检查当前对话是否包含逃离成功的标志性文本
         if (dialogueManager != null && IsEscapeSuccessDialogue())
         {
             // 执行场景转换
             ExecuteSceneTransition();
         }
+    }
+
+    /// <summary>
+    /// 检查是否有死亡面板在场景中激活
+    /// </summary>
+    /// <returns>是否有激活的死亡面板</returns>
+    private bool HasDeathPanelActive()
+    {
+        // 方法1：查找场景中的Final Canvas下是否有死亡面板
+        GameObject finalCanvas = GameObject.Find("Final Canvas");
+        if (finalCanvas != null)
+        {
+            // 检查Final Canvas下是否有激活的子对象（假设死亡面板是其子对象）
+            foreach (Transform child in finalCanvas.transform)
+            {
+                if (child.gameObject.activeInHierarchy &&
+                   (child.name.Contains("DeadPanel") || child.name.Contains("死亡")))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // 方法2：直接在场景中查找死亡面板对象
+        GameObject[] deadPanels = GameObject.FindGameObjectsWithTag("DeadPanel");
+        if (deadPanels.Length > 0)
+        {
+            foreach (GameObject panel in deadPanels)
+            {
+                if (panel.activeInHierarchy)
+                {
+                    return true;
+                }
+            }
+        }
+
+        // 方法3：检查GameStateManager中玩家的存活状态
+        try
+        {
+            GameStateManager gameStateManager = FindObjectOfType<GameStateManager>();
+            if (gameStateManager != null && gameStateManager.currentData != null)
+            {
+                foreach (var characterData in gameStateManager.currentData.characters.Values)
+                {
+                    // 假设玩家角色ID包含"Player"或类似标识
+                    if (characterData.characterID.Contains("Player") && !characterData.isAlive)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("SceneTransitionManager: 检查玩家存活状态时出错: " + ex.Message);
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -150,13 +217,10 @@ public class SceneTransitionManager : MonoBehaviour
                     Debug.LogWarning("SceneTransitionManager: 找不到dialogues字段");
                 }
 
-                // 如果无法通过反射获取，默认返回true（基于文件名的检查）
-                Debug.LogWarning("SceneTransitionManager: 无法获取对话内容，使用文件名进行检测");
                 return true;
             }
             catch (System.Exception ex)
             {
-                Debug.LogError("SceneTransitionManager: 检查对话内容时发生错误: " + ex.Message);
                 return true;
             }
         }
@@ -172,12 +236,9 @@ public class SceneTransitionManager : MonoBehaviour
         // 标记已转换
         hasTransitioned = true;
 
-        Debug.Log("SceneTransitionManager: 检测到玩家成功逃离当前场景，执行场景转换...");
+        // 重置地震计数，使场景切换后不再受之前地震次数的影响
+        ResetEarthquakeCount();
 
-        // 检查player和playerTransform的状态
-        Debug.Log("SceneTransitionManager: player = " + (player != null ? "存在" : "不存在"));
-        Debug.Log("SceneTransitionManager: playerTransform = " + (playerTransform != null ? "存在" : "不存在"));
-        Debug.Log("SceneTransitionManager: characterMove = " + (characterMove != null ? "存在" : "不存在"));
 
         // 直接设置玩家位置（瞬移效果）
         if (playerTransform != null)
@@ -287,6 +348,26 @@ public class SceneTransitionManager : MonoBehaviour
                 Invoke("TriggerNextSceneDialogueDelayed", 1f);
             }
         }
+    }
+
+    /// <summary>
+    /// 重置地震动画状态
+    /// </summary>
+    private void ResetEarthquakeCount()
+    {
+
+        // 查找场景中所有的AnimationTrigger组件
+        AnimationTrigger[] triggers = FindObjectsOfType<AnimationTrigger>();
+
+        foreach (AnimationTrigger trigger in triggers)
+        {
+            trigger.StopAnimationCycle();
+
+            trigger.SetEarthquakeCount(0);
+
+            trigger.enabled = false;
+        }
+
     }
 
     /// <summary>

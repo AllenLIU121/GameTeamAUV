@@ -77,7 +77,7 @@ namespace DialogueSystem
         public DialogueUIConfig uiConfig;
         public List<CharacterData> characters;
         public float typingSpeed = 0.05f;
-        public string defaultCSVFileName = "soldier_dialogue.csv";
+        public string defaultCSVFileName = "dialogue_example.csv";
         public float characterFadeTime = 0.5f;
         public bool loadFromCSV = true;
         public List<DialogueEntry> fallbackDialogues;
