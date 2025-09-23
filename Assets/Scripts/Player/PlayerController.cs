@@ -12,18 +12,16 @@ public class PlayerController : Singleton<PlayerController>
     private Coroutine moveCoroutine;
 
 
-    protected override void Awake()
+    void Start()
     {
-        base.Awake();
         mainCamera = Camera.main;
         IsInSelectingMode = true;
-        
-        mapController = MapController.Instance; // TO REMOVE
+        mapController = MapController.Instance;
     }
 
     void Update()
     {
-        // if (TargetingManager.Instance != null && TargetingManager.Instance.IsTargeting) return;
+        if (GameManager.Instance.CurrentState != GameState.Playing) return;
 
         if (IsInSelectingMode && Input.GetMouseButtonDown(0))
         {
