@@ -1,0 +1,7 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint
+NPC,你好啊，冒险者！,True,"告诉我任务信息",1,"我想休息一下",5,0,0
+NPC,很好！你的任务是收集5个魔法水晶。这些水晶可以在森林深处找到。,False,,,,-1,1,0
+NPC,收集完水晶后，记得回来找我领取奖励。,False,,,,-1,1,0
+NPC,祝你好运！,False,,,,-1,2,0
+NPC,休息是很重要的。在冒险前确保你已经准备好了一切。,False,,,,-1,0,0
+NPC,当你准备好的时候，随时可以来找我开始任务。,False,,,,-1,1,0

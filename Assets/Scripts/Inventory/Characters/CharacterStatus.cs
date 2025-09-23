@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterStatus : MonoBehaviour
@@ -156,6 +156,7 @@ public class CharacterStatus : MonoBehaviour
 
         if (publishEvent && Mathf.Abs(currentStamina - oldValue) > 0f)
         {
+            Debug.Log($"[CharacterStatus] 发布体力值变化事件 - 角色ID: {characterSO.characterID}, 旧值: {oldValue}, 新值: {currentStamina}, 变化量: {amount}");
             // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Stamina)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
@@ -181,6 +182,8 @@ public class CharacterStatus : MonoBehaviour
 
         if (publishEvent && Mathf.Abs(currentHunger - oldValue) > 0f)
         {
+            Debug.Log($"[CharacterStatus] 发布饥饿值变化事件 - 角色ID: {characterSO.characterID}, 旧值: {oldValue}, 新值: {currentHunger}, 变化量: {amount}");
+            // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Hunger)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
                 characterID = this.CharacterID,

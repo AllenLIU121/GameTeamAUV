@@ -172,7 +172,7 @@ public class CharacterSlot : MonoBehaviour
             staminaBar.maxValue = newValue;
         }
 
-        // Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - {statType}：{newValue}");
+        Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - {statType}：{newValue}");
     }
 
     private void HandleDiseaseContracted(OnDiseaseContracted eventData)
