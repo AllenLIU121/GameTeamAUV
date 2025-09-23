@@ -7,18 +7,11 @@ public class CharacterManager : MonoBehaviour
 {
     private Dictionary<string, GameObject> characterGODict = new Dictionary<string, GameObject>();
     private Dictionary<string, CharacterSO> characterSODict = new Dictionary<string, CharacterSO>();
-    private BuffManager buffManager;
-
 
     private void Awake()
     {
         GameStateManager.Instance.RegisterCharacterManager(this);
         EventManager.Instance.Subscribe<OnItemUseRequest>(HandleItemUseRequest);
-    }
-
-    private void Start()
-    {
-        buffManager = GameStateManager.Instance.Buff;
     }
 
     private void OnDestroy()

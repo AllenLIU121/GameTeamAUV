@@ -15,7 +15,7 @@ public class UI_InventoryPanel : MonoBehaviour
     private void Initialize()
     {
         // 获取InventoryManager实例
-        inventory = FindObjectOfType<InventoryManager>();
+        inventory = GameStateManager.Instance.Inventory;
         if (inventory == null)
         {
             Debug.LogWarning("[UI_InventoryPanel] InventoryManager not found");
@@ -24,9 +24,10 @@ public class UI_InventoryPanel : MonoBehaviour
 
         // 初始化所有SingleSlotPanel
         InitializeSlots();
+        Debug.Log($"[UI_InventoryPanel] Inventory panel initialized.");
 
         // 刷新UI显示
-        Refresh();
+        EventManager.Instance.Subscribe<OnInventoryInitialized>(Refresh);
 
         // 订阅物品栏变化事件
         EventManager.Instance.Subscribe<OnInventoryChanged>(HandleInventoryChanged);
@@ -35,6 +36,7 @@ public class UI_InventoryPanel : MonoBehaviour
     private void OnDestroy()
     {
         // 取消订阅事件
+        EventManager.Instance.Unsubscribe<OnInventoryInitialized>(Refresh);
         EventManager.Instance.Unsubscribe<OnInventoryChanged>(HandleInventoryChanged);
     }
 
@@ -49,17 +51,23 @@ public class UI_InventoryPanel : MonoBehaviour
             return;
         }
 
+        var allItems = ItemDatabase.Instance.GetAllItemSOs();
+        if (slots.Length != allItems.Count)
+        {
+            Debug.LogWarning("[UI_InventoryPanel] Slot count does not match item count in item database");
+        }
+
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] != null)
             {
-                slots[i].Initialize(i, inventory);
+                slots[i].Initialize(allItems[i], i);
             }
         }
     }
 
     // 刷新整个物品栏UI
-    public void Refresh()
+    public void Refresh(OnInventoryInitialized _)
     {
         if (inventory == null || GameStateManager.Instance == null)
         {
@@ -81,7 +89,13 @@ public class UI_InventoryPanel : MonoBehaviour
             {
                 slots[i].UpdateSlot(gameData.inventorySlots[i]);
             }
+            else
+            {
+                Debug.LogError($"[UI_InventoryPanel] Slot {i} is null");
+            }
         }
+
+        Debug.Log($"[UI_InventoryPanel] Inventory panel refreshed.]");
     }
 
     // 处理物品栏变化事件

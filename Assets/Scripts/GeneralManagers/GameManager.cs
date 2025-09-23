@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -5,6 +6,7 @@ using UnityEngine.SceneManagement;
 public enum GameState
 {
     MainMenu,
+    Initializing,
     Playing,
     Paused
 }
@@ -34,7 +36,7 @@ public class GameManager : Singleton<GameManager>
         string sceneName = SceneManager.GetActiveScene().name;
 
         if (sceneName == GameConstants.SceneName.MenuScene)
-            ChangeGameState(GameState.MainMenu);
+            ChangeGameState(GameState.Initializing);
         else
             ChangeGameState(GameState.Playing);
     }
@@ -48,6 +50,9 @@ public class GameManager : Singleton<GameManager>
         {
             case GameState.MainMenu:
                 HandleMainMenuState();
+                break;
+            case GameState.Initializing:
+                HandleInitializingState();
                 break;
             case GameState.Playing:
                 HandlePlayingState();
@@ -66,7 +71,7 @@ public class GameManager : Singleton<GameManager>
     public void NewGame()
     {
         // GameStateManager.Instance.NewGame();
-        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.GameScene);
+        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.ChapterOneScene);
     }
 
     // 继续游戏
@@ -99,6 +104,13 @@ public class GameManager : Singleton<GameManager>
         Time.timeScale = 1.0f;
     }
 
+    // 1s后进入Playing状态
+    private void HandleInitializingState()
+    {
+        Debug.Log("Entering Initializing State");
+        StartCoroutine(StartPlaying());
+    }
+
     private void HandlePlayingState()
     {
         Debug.Log("Entering Playing State");
@@ -111,4 +123,9 @@ public class GameManager : Singleton<GameManager>
         Time.timeScale = 0.0f;
     }
 
+    private IEnumerator StartPlaying()
+    {
+        yield return new WaitForSeconds(5f);
+        ChangeGameState(GameState.Playing);
+    }
 }

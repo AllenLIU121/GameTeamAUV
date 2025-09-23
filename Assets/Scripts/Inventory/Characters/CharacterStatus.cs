@@ -98,22 +98,18 @@ public class CharacterStatus : MonoBehaviour
         ModifyHunger(-currentFrameHungerDecay * deltaTime, true);
 
         // 体力值低于30%时 有20%几率获取随机疾病Debuff
-        if (staminaPercent < 0.9f)
+        if (staminaPercent < 0.95f)
         {
             randomDiseaseTimer += deltaTime;
             if (randomDiseaseTimer >= randomDiseaseCheckInterval)
             {
                 randomDiseaseTimer = 0f;
-                if (Random.value < 0.9f)
+                if (Random.value < 0.95f)
                 {
                     var randomDisease = buffManager.buffCollections.GetRandomDiseaseBuff();
                     buffManager.ApplyBuff(characterSO, randomDisease);
                     Debug.Log($"<color=orange>'{characterSO.characterName}' has caught '{randomDisease}' because of low stamina.</color>");
                 }
-            }
-            else
-            {
-                randomDiseaseTimer = 0f;
             }
         }
     }

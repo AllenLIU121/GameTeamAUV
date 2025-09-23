@@ -23,7 +23,7 @@ public class Cat_SkillSO : SkillSO
     }
 
     // 恢复弟弟体力值
-    public override bool ExecuteSkill(CharacterSO caster, BuffManager buffManager)
+    public override bool ExecuteSkill()
     {
         var characterManager = GameStateManager.Instance.Character;
         if (characterManager == null) return false;

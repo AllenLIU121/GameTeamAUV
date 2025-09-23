@@ -29,6 +29,8 @@ public struct OnCharacterStatChanged     // 角色属性改变时发布
     public float changeAmount;
 }
 
+public struct OnInventoryInitialized { }    // 物品栏初始化时发布
+
 public struct OnInventoryChanged     // 物品栏发生变化时发布
 {
     public List<int> updatedSlotIndexes;
@@ -41,18 +43,29 @@ public struct OnItemUseRequest     // 角色使用物品时发布
     public float itemFreshness;
 }
 
+public struct OnItemFreshnessChanged
+{
+    public int slotIndex;
+    public float currentFreshness;
+    // public float maxFreshness;
+}
+
 public struct OnSkillActivated //角色技能激活 
 {
     public string characterID;
-    public string skillID;
 }
 
-public struct OnSkillCooldownUpdated //角色技能冷却
+public struct OnSkillCooldownStarted  // 角色技能冷却开始
 {
     public string characterID;
-    public string skillID;
-    public float cooldownProgress; // 0-1
+    public float maxCooldown;
 }
+
+public struct OnSkillCooldownEnded    // 角色技能冷却结束
+{
+    public string characterID;
+}
+
 // BuffEvents.cs
 public struct OnBuffApplied
 {
@@ -76,12 +89,12 @@ public struct OnBuffUpdated
 
 public struct OnDiseaseContracted
 {
-    public CharacterSO target;
-    public BuffSO.DiseaseType diseaseType;
+    public string characterID;
+    public BuffSO buffSO;
 }
 
 public struct OnDiseaseCured
 {
-    public CharacterSO target;
-    public BuffSO.DiseaseType diseaseType;
+    public string characterID;
+    public BuffSO buffSO;
 }
