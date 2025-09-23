@@ -1,8 +1,8 @@
 CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint,OnDialogueCompleteMethod,IsDeadly
-自言自语,火灾了！是否要走这条路？,True,是,2,否,7,0,0,0,,0
-自言自语,是否有要提示家人的？,True,是,3,否,5,0,0,0,,0
+自言自语,火灾了！是否要走这条路？,True,是,1,否,6,0,0,0,,0
+自言自语,是否有要提示家人的？,True,是,2,否,4,0,0,0,,0
 自言自语,大家快蹲下捂住口鼻，毒气和热气都会上升，蹲下捂住口鼻可以减少吸入空气和粉尘！,False,,,,-1,1,0,0,,0
 自言自语,终于逃出来了！快去大使馆吧！,False,,,,-1,0,0,1,,0
-自言自语,你没有提醒家人，在火灾中不幸丧生...,False,,,,-1,2,0,0,,1
+自言自语,你没有提醒家人，在火灾中不幸丧生...,False,,,,-1,2,0,1,,1
 自言自语,看看还有没有更好的逃生路线或者做法？,False,,,,-1,0,0,1,,0
 自言自语,看看其他路线？,False,,,,-1,0,0,1,,0

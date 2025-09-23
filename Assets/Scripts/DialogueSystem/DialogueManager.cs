@@ -193,6 +193,9 @@ namespace DialogueSystem
                 if (_typingCoroutine != null)
                     StopCoroutine(_typingCoroutine);
 
+                // 立即设置对话内容（包括角色名称和对话文本）
+                _uiManager.ShowDialogueContent(currentEntry);
+                
                 // 开始打字动画
                 _typingCoroutine = StartCoroutine(TypeDialogueText(currentEntry));
 

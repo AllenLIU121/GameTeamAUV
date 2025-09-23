@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.Animations;
 using Inventory.Characters;
 using System.Collections.Generic;
 using DialogueSystem;
+using System.Linq;
 
 /// <summary>
 /// 场景转换管理器 - 处理场景之间的转换逻辑
@@ -68,12 +70,77 @@ public class SceneTransitionManager : MonoBehaviour
             return;
         }
 
+        // 检查是否已触发死亡状态（存在死亡面板）
+        if (HasDeathPanelActive())
+        {
+            Debug.Log("SceneTransitionManager: 检测到死亡状态，取消场景转换");
+            return;
+        }
+
         // 检查当前对话是否包含逃离成功的标志性文本
         if (dialogueManager != null && IsEscapeSuccessDialogue())
         {
             // 执行场景转换
             ExecuteSceneTransition();
         }
+    }
+
+    /// <summary>
+    /// 检查是否有死亡面板在场景中激活
+    /// </summary>
+    /// <returns>是否有激活的死亡面板</returns>
+    private bool HasDeathPanelActive()
+    {
+        // 方法1：查找场景中的Final Canvas下是否有死亡面板
+        GameObject finalCanvas = GameObject.Find("Final Canvas");
+        if (finalCanvas != null)
+        {
+            // 检查Final Canvas下是否有激活的子对象（假设死亡面板是其子对象）
+            foreach (Transform child in finalCanvas.transform)
+            {
+                if (child.gameObject.activeInHierarchy &&
+                   (child.name.Contains("DeadPanel") || child.name.Contains("死亡")))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // 方法2：直接在场景中查找死亡面板对象
+        GameObject[] deadPanels = GameObject.FindGameObjectsWithTag("DeadPanel");
+        if (deadPanels.Length > 0)
+        {
+            foreach (GameObject panel in deadPanels)
+            {
+                if (panel.activeInHierarchy)
+                {
+                    return true;
+                }
+            }
+        }
+
+        // 方法3：检查GameStateManager中玩家的存活状态
+        try
+        {
+            GameStateManager gameStateManager = FindObjectOfType<GameStateManager>();
+            if (gameStateManager != null && gameStateManager.currentData != null)
+            {
+                foreach (var characterData in gameStateManager.currentData.characters.Values)
+                {
+                    // 假设玩家角色ID包含"Player"或类似标识
+                    if (characterData.characterID.Contains("Player") && !characterData.isAlive)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("SceneTransitionManager: 检查玩家存活状态时出错: " + ex.Message);
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -101,7 +168,7 @@ public class SceneTransitionManager : MonoBehaviour
         {
             Debug.LogWarning("SceneTransitionManager: 获取当前对话文件失败: " + ex.Message);
         }
-        
+
         Debug.Log("SceneTransitionManager: 当前对话文件: " + currentCSVFile);
 
         // 首先检查是否是特定的几个文件
@@ -150,13 +217,10 @@ public class SceneTransitionManager : MonoBehaviour
                     Debug.LogWarning("SceneTransitionManager: 找不到dialogues字段");
                 }
 
-                // 如果无法通过反射获取，默认返回true（基于文件名的检查）
-                Debug.LogWarning("SceneTransitionManager: 无法获取对话内容，使用文件名进行检测");
                 return true;
             }
             catch (System.Exception ex)
             {
-                Debug.LogError("SceneTransitionManager: 检查对话内容时发生错误: " + ex.Message);
                 return true;
             }
         }
@@ -172,12 +236,9 @@ public class SceneTransitionManager : MonoBehaviour
         // 标记已转换
         hasTransitioned = true;
 
-        Debug.Log("SceneTransitionManager: 检测到玩家成功逃离当前场景，执行场景转换...");
+        // 重置地震计数，使场景切换后不再受之前地震次数的影响
+        ResetEarthquakeCount();
 
-        // 检查player和playerTransform的状态
-        Debug.Log("SceneTransitionManager: player = " + (player != null ? "存在" : "不存在"));
-        Debug.Log("SceneTransitionManager: playerTransform = " + (playerTransform != null ? "存在" : "不存在"));
-        Debug.Log("SceneTransitionManager: characterMove = " + (characterMove != null ? "存在" : "不存在"));
 
         // 直接设置玩家位置（瞬移效果）
         if (playerTransform != null)
@@ -226,23 +287,26 @@ public class SceneTransitionManager : MonoBehaviour
         if (dialogueManager != null)
         {
             Debug.Log("SceneTransitionManager: 准备触发下一个场景对话: " + NEXT_SCENE_DIALOGUE_FILE);
-            
+
             // 确保对话管理器不在活跃状态
             if (!dialogueManager.IsDialogueActive())
             {
                 // 直接调用DialogueManager的公开方法来设置和启动对话，避免使用反射
                 try
                 {
-                    dialogueManager.SetDialogueType(false); // store_711.csv是提示类型对话
-                    Debug.Log("SceneTransitionManager: 已设置对话类型为提示类型");
-                    
+                    // 根据对话文件名动态设置对话类型
+                    // 对于包含选择的对话文件，设置为选择类型
+                    bool isChoiceDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
+                                           NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
+                    dialogueManager.SetDialogueType(isChoiceDialogue);
+                    Debug.Log("SceneTransitionManager: 已设置对话类型为" + (isChoiceDialogue ? "选择类型" : "提示类型"));
                     dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);
                     Debug.Log("SceneTransitionManager: 已启动对话文件: " + NEXT_SCENE_DIALOGUE_FILE);
                 }
                 catch (System.Exception ex)
                 {
                     Debug.LogError("SceneTransitionManager: 启动对话时发生错误: " + ex.Message);
-                    
+
                     // 备用方案：创建临时的ItemDialogueTrigger对象来触发对话
                     Debug.Log("SceneTransitionManager: 尝试备用方案触发对话");
                     GameObject triggerObj = new GameObject("TempSceneTransitionTrigger");
@@ -250,7 +314,12 @@ public class SceneTransitionManager : MonoBehaviour
 
                     // 设置触发参数
                     trigger.dialogueCSVFileName = NEXT_SCENE_DIALOGUE_FILE;
-                    trigger.isChoiceTypeDialogue = false; // store_711.csv是提示类型对话
+
+                    // 根据对话文件名动态设置对话类型
+                    // 对于包含选择的对话文件，设置为选择类型
+                    trigger.isChoiceTypeDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
+                                                  NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
+
                     trigger.triggerRange = 100f; // 设置一个足够大的范围以确保立即触发
                     trigger.requireInteractionKey = false; // 不需要按键，自动触发
                     trigger.triggerOnce = true; // 只触发一次
@@ -274,13 +343,33 @@ public class SceneTransitionManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("SceneTransitionManager: 对话管理器正在活跃状态，无法触发新对话");
-                
+
                 // 如果对话正在进行中，延迟触发
                 Invoke("TriggerNextSceneDialogueDelayed", 1f);
             }
         }
     }
-    
+
+    /// <summary>
+    /// 重置地震动画状态
+    /// </summary>
+    private void ResetEarthquakeCount()
+    {
+
+        // 查找场景中所有的AnimationTrigger组件
+        AnimationTrigger[] triggers = FindObjectsOfType<AnimationTrigger>();
+
+        foreach (AnimationTrigger trigger in triggers)
+        {
+            trigger.StopAnimationCycle();
+
+            trigger.SetEarthquakeCount(0);
+
+            trigger.enabled = false;
+        }
+
+    }
+
     /// <summary>
     /// 延迟触发下一个场景对话的方法
     /// </summary>
@@ -289,10 +378,18 @@ public class SceneTransitionManager : MonoBehaviour
         if (dialogueManager != null && !dialogueManager.IsDialogueActive())
         {
             Debug.Log("SceneTransitionManager: 延迟触发下一个场景对话: " + NEXT_SCENE_DIALOGUE_FILE);
-            
-            dialogueManager.SetDialogueType(false);
+
+            // 根据对话文件名动态设置对话类型
+            // 对于包含选择的对话文件，设置为选择类型
+            bool isChoiceDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
+                                   NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
+            dialogueManager.SetDialogueType(isChoiceDialogue);
+            Debug.Log("SceneTransitionManager: 已设置对话类型为" + (isChoiceDialogue ? "选择类型" : "提示类型"));
+
             dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);
-        } else {
+        }
+        else
+        {
             Debug.LogError("SceneTransitionManager: 延迟触发对话失败，对话管理器仍在活跃状态");
         }
     }
