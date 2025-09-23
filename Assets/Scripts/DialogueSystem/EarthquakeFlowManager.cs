@@ -84,7 +84,7 @@ public class EarthquakeFlowManager : MonoBehaviour
     IEnumerator TriggerThirdDialogueAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        dialogueManager.SetDialogueType(false); // 设置为提示类型，与其他文件保持一致
+        dialogueManager.SetDialogueType(true); // 设置为选择类型，因为这个CSV有选项
         dialogueManager.StartDialogue("earthquake_father_smoking.csv");
     }
 }

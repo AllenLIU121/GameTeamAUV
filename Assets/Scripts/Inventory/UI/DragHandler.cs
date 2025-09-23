@@ -4,9 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Inventory;
 
-/// <summary>
-/// 处理UI元素的拖拽逻辑，包括物品栏中的物品拖拽到角色栏或场景中
-/// </summary>
+// 处理UI元素的拖拽逻辑，包括物品栏中的物品拖拽到角色栏或场景中
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 {
     [Header("拖拽设置")]

@@ -101,7 +101,7 @@ public class SceneTransitionManager : MonoBehaviour
         {
             Debug.LogWarning("SceneTransitionManager: 获取当前对话文件失败: " + ex.Message);
         }
-        
+
         Debug.Log("SceneTransitionManager: 当前对话文件: " + currentCSVFile);
 
         // 首先检查是否是特定的几个文件
@@ -226,23 +226,26 @@ public class SceneTransitionManager : MonoBehaviour
         if (dialogueManager != null)
         {
             Debug.Log("SceneTransitionManager: 准备触发下一个场景对话: " + NEXT_SCENE_DIALOGUE_FILE);
-            
+
             // 确保对话管理器不在活跃状态
             if (!dialogueManager.IsDialogueActive())
             {
                 // 直接调用DialogueManager的公开方法来设置和启动对话，避免使用反射
                 try
                 {
-                    dialogueManager.SetDialogueType(false); // store_711.csv是提示类型对话
-                    Debug.Log("SceneTransitionManager: 已设置对话类型为提示类型");
-                    
+                    // 根据对话文件名动态设置对话类型
+                    // 对于包含选择的对话文件，设置为选择类型
+                    bool isChoiceDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
+                                           NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
+                    dialogueManager.SetDialogueType(isChoiceDialogue);
+                    Debug.Log("SceneTransitionManager: 已设置对话类型为" + (isChoiceDialogue ? "选择类型" : "提示类型"));
                     dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);
                     Debug.Log("SceneTransitionManager: 已启动对话文件: " + NEXT_SCENE_DIALOGUE_FILE);
                 }
                 catch (System.Exception ex)
                 {
                     Debug.LogError("SceneTransitionManager: 启动对话时发生错误: " + ex.Message);
-                    
+
                     // 备用方案：创建临时的ItemDialogueTrigger对象来触发对话
                     Debug.Log("SceneTransitionManager: 尝试备用方案触发对话");
                     GameObject triggerObj = new GameObject("TempSceneTransitionTrigger");
@@ -250,7 +253,12 @@ public class SceneTransitionManager : MonoBehaviour
 
                     // 设置触发参数
                     trigger.dialogueCSVFileName = NEXT_SCENE_DIALOGUE_FILE;
-                    trigger.isChoiceTypeDialogue = false; // store_711.csv是提示类型对话
+
+                    // 根据对话文件名动态设置对话类型
+                    // 对于包含选择的对话文件，设置为选择类型
+                    trigger.isChoiceTypeDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
+                                                  NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
+
                     trigger.triggerRange = 100f; // 设置一个足够大的范围以确保立即触发
                     trigger.requireInteractionKey = false; // 不需要按键，自动触发
                     trigger.triggerOnce = true; // 只触发一次
@@ -274,13 +282,13 @@ public class SceneTransitionManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("SceneTransitionManager: 对话管理器正在活跃状态，无法触发新对话");
-                
+
                 // 如果对话正在进行中，延迟触发
                 Invoke("TriggerNextSceneDialogueDelayed", 1f);
             }
         }
     }
-    
+
     /// <summary>
     /// 延迟触发下一个场景对话的方法
     /// </summary>
@@ -289,10 +297,18 @@ public class SceneTransitionManager : MonoBehaviour
         if (dialogueManager != null && !dialogueManager.IsDialogueActive())
         {
             Debug.Log("SceneTransitionManager: 延迟触发下一个场景对话: " + NEXT_SCENE_DIALOGUE_FILE);
-            
-            dialogueManager.SetDialogueType(false);
+
+            // 根据对话文件名动态设置对话类型
+            // 对于包含选择的对话文件，设置为选择类型
+            bool isChoiceDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
+                                   NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
+            dialogueManager.SetDialogueType(isChoiceDialogue);
+            Debug.Log("SceneTransitionManager: 已设置对话类型为" + (isChoiceDialogue ? "选择类型" : "提示类型"));
+
             dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);
-        } else {
+        }
+        else
+        {
             Debug.LogError("SceneTransitionManager: 延迟触发对话失败，对话管理器仍在活跃状态");
         }
     }

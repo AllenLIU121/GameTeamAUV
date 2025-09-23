@@ -1,2 +1,2 @@
 CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEnd
-自言自语,诶，怎么在这里，我记得刚刚不是地震了吗！上一世我们全家0防灾意识，这次重活一世，我一定要带全家逃生！,False,,,,-1,0,0,1
+自言自语,诶，怎么在这里，我记得刚刚不是地震了吗！我重生了？上一世我们全家0防灾意识，这次重活一世，我一定要带全家逃生！,False,,,,-1,0,0,1
