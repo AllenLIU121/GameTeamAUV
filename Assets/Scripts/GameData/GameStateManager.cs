@@ -151,12 +151,11 @@ public class GameStateManager : Singleton<GameStateManager>
         // 物品栏模块数据
         // 暂时不需要 因为InventoryManager直接操作的此数据currentData
 
-
         // 技能模块数据
         // 暂时不需要 当前没有保留技能冷却数据
 
         // 第二章地图数据
-        if (MapController.Instance != null)
+        if (SceneManager.GetActiveScene().name == GameConstants.SceneName.ChapterTwoScene)
         {
             currentData.mapNodes = MapController.Instance.GetMapDataToSave();
         }

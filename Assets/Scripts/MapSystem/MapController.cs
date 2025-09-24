@@ -21,9 +21,11 @@ public class MapController : Singleton<MapController>
     public GameObject nodePrefab;
     [SerializeField] private GameObject parent;
 
-    [Header("动态节点图标")]
+    [Header("动态UI配置和引用")]
     public Sprite shelterIcon;
     public Sprite storeIcon;
+    public GameObject seamlessMountain;
+    public GameObject seamlessSea;
 
     private DisasterSystem disasterSystem;
     private Node[,] grid;
@@ -140,6 +142,33 @@ public class MapController : Singleton<MapController>
                 }
 
                 SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.FinalScene);
+                break;
+
+            case NodeType.OpenSpace:
+                seamlessMountain.SetActive(false);
+                seamlessSea.SetActive(false);
+                break;
+
+            case NodeType.Mountain:
+                if (!seamlessMountain.activeInHierarchy)
+                {
+                    seamlessMountain.SetActive(true);
+                }
+                if (seamlessSea.activeInHierarchy)
+                {
+                    seamlessSea.SetActive(false);
+                }
+                break;
+                
+            case NodeType.Sea:
+                if (!seamlessSea.activeInHierarchy)
+                {
+                    seamlessSea.SetActive(true);
+                }
+                if (seamlessMountain.activeInHierarchy)
+                {
+                    seamlessMountain.SetActive(false);
+                }
                 break;
         }
 

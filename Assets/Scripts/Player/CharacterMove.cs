@@ -12,7 +12,7 @@ public class CharacterMove : MonoBehaviour
     private SpriteRenderer portrait;
     private Rigidbody2D rb;
     private Vector2 movementInput;
-    private bool canMove = true;
+    public bool canMove = true;
 
     void Awake()
     {
@@ -39,11 +39,6 @@ public class CharacterMove : MonoBehaviour
         // }
         if (canMove)
             HandlePlayerMoveInput();
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            StoreManager.Instance.OpenStore();
-        }
     }
 
     void HandlePlayerMoveInput()

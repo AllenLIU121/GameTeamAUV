@@ -26,7 +26,7 @@ public class SceneTransitionManager : MonoBehaviour
     // 下一个场景的对话文件名
     private const string NEXT_SCENE_DIALOGUE_FILE = "store_711.csv";
     // 目标位置坐标
-    private readonly Vector3 TARGET_POSITION = new Vector3(20f, -1.7f, 0f);
+    private readonly Vector3 TARGET_POSITION = new Vector3(57f, -0.5f, 0f);
 
     private void Start()
     {

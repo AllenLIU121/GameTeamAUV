@@ -14,8 +14,8 @@ public class Scene2_RoadingCar : MonoBehaviour
     public bool isStoped = true;
     public int nextViewImage = -1;
 
-    public Sprite  specialStopSprites;
-    public Sprite  defaultSprite;
+    public Sprite specialStopSprites;
+    public Sprite defaultSprite;
     // Start is called before the first frame update
     void Start()
     {
