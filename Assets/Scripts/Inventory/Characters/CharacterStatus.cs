@@ -42,7 +42,7 @@ public class CharacterStatus : MonoBehaviour
         characterManager = GameStateManager.Instance.Character;
         if (characterManager != null)
         {
-            characterManager.RegisterCharacter(characterSO, gameObject);
+            characterManager.RegisterCharacter(characterSO, this);
         }
 
         buffManager = GameStateManager.Instance.Buff;
@@ -235,9 +235,38 @@ public class CharacterStatus : MonoBehaviour
         directMaxStaminaModifier = data.directMaxStaminaModifier;
         RecalculateStats();
 
-        currentStamina = data.currentStamina;
-        currentHunger = data.currentHunger;
-        IsAlive = data.isAlive;        
+        if (currentStamina != data.currentStamina)
+        {
+            currentStamina = data.currentStamina;
+            EventManager.Instance.Publish(new OnCharacterStatChanged
+            {
+                characterID = characterSO.characterID,
+                statType = BuffSO.StatType.Stamina,
+                newValue = currentStamina,
+                changeAmount = 0
+            });
+        }
+
+        if (currentHunger != data.currentHunger)
+        {
+            currentHunger = data.currentHunger;
+            EventManager.Instance.Publish(new OnCharacterStatChanged
+            {
+                characterID = characterSO.characterID,
+                statType = BuffSO.StatType.Hunger,
+                newValue = currentHunger,
+                changeAmount = 0
+            });
+        }
+
+        if (IsAlive != data.isAlive)
+        {
+            IsAlive = data.isAlive;
+            EventManager.Instance.Publish(new OnCharacterRevived
+            {
+                characterSO = characterSO
+            });
+        }
     }
 
     public CharacterRuntimeData GetStateForSaving()
@@ -269,8 +298,11 @@ public class CharacterStatus : MonoBehaviour
         });
         Debug.Log($"<color=red>Character '{characterSO.characterID}' has died.</color>");
 
-        if(characterSO.skill != null)
+        if (characterSO.skill != null)
             characterSO.skill.OnDeactivate(characterSO);
+
+        if (characterSO.characterID == "player")
+            EventManager.Instance.Publish(new OnGameRollback());
     }
 
     // 角色复活逻辑, 体力饥饿恢复一半

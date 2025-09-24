@@ -30,6 +30,7 @@ public class CharacterSlot : MonoBehaviour
         EventManager.Instance.Subscribe<OnDiseaseContracted>(HandleDiseaseContracted);
         EventManager.Instance.Subscribe<OnDiseaseCured>(HandleDiseaseCured);
         EventManager.Instance.Subscribe<OnCharacterDied>(HandleCharacterDied);
+        EventManager.Instance.Subscribe<OnCharacterRevived>(HandleCharacterRevived);
     }
 
     // 每帧更新UI技能冷却显示
@@ -58,6 +59,7 @@ public class CharacterSlot : MonoBehaviour
         EventManager.Instance.Unsubscribe<OnSkillCooldownStarted>(HandleCooldownStart);
         EventManager.Instance.Unsubscribe<OnSkillCooldownEnded>(HandleCooldownEnd);
         EventManager.Instance.Unsubscribe<OnCharacterDied>(HandleCharacterDied);
+        EventManager.Instance.Unsubscribe<OnCharacterRevived>(HandleCharacterRevived);
     }
 
     /// <summary>
@@ -172,6 +174,7 @@ public class CharacterSlot : MonoBehaviour
             staminaBar.maxValue = newValue;
         }
 
+
         // Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - {statType}：{newValue}");
     }
 
@@ -233,27 +236,34 @@ public class CharacterSlot : MonoBehaviour
         avatar.color = new Color(0.2f, 0.2f, 0.2f, 1f);
     }
 
-    /// <summary>
-        /// 处理物品拖拽到角色上的逻辑
-        /// </summary>
-        /// <param name="eventData">拖拽事件数据</param>
-        // public void OnDrop(PointerEventData eventData)
-        // {
-        //     // 检查SingleSlotPanel中是否有物品正在被拖拽
-        //     if (SingleSlotPanel.currentlyDraggedSlotIndex != -1)
-        //     {
-        //         // 获取InventoryManager实例
-        //         InventoryManager inventoryManager = FindObjectOfType<InventoryManager>();
-        //         if (inventoryManager != null)
-        //         {
-        //             // 调用InventoryManager处理物品拖拽到角色的逻辑
-        //             inventoryManager.HandleDropOnCharacter(SingleSlotPanel.currentlyDraggedSlotIndex, _characterID);
-        //             Debug.Log("[CharacterSlot] 物品拖拽到角色 " + _characterID + " 上");
-        //         }
-        //         else
-        //         {
-        //             Debug.LogWarning("[CharacterSlot] InventoryManager is null");
-        //         }
-        //     }
-        // }
+    private void HandleCharacterRevived(OnCharacterRevived eventData)
+    {
+        if (eventData.characterSO.characterID != _characterID) return;
+
+        avatar.color = new Color(1f, 1f, 1f, 1f);
     }
+
+    /// <summary>
+    /// 处理物品拖拽到角色上的逻辑
+    /// </summary>
+    /// <param name="eventData">拖拽事件数据</param>
+    // public void OnDrop(PointerEventData eventData)
+    // {
+    //     // 检查SingleSlotPanel中是否有物品正在被拖拽
+    //     if (SingleSlotPanel.currentlyDraggedSlotIndex != -1)
+    //     {
+    //         // 获取InventoryManager实例
+    //         InventoryManager inventoryManager = FindObjectOfType<InventoryManager>();
+    //         if (inventoryManager != null)
+    //         {
+    //             // 调用InventoryManager处理物品拖拽到角色的逻辑
+    //             inventoryManager.HandleDropOnCharacter(SingleSlotPanel.currentlyDraggedSlotIndex, _characterID);
+    //             Debug.Log("[CharacterSlot] 物品拖拽到角色 " + _characterID + " 上");
+    //         }
+    //         else
+    //         {
+    //             Debug.LogWarning("[CharacterSlot] InventoryManager is null");
+    //         }
+    //     }
+    // }
+}

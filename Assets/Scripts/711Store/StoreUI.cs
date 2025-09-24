@@ -22,7 +22,7 @@ public class StoreUI : MonoBehaviour
         DeactivateStoreUI();
 
         if (nextSceneBtn != null)
-            nextSceneBtn.AddButtonListener(() => SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.ChapterTwoScene));
+            nextSceneBtn.AddButtonListener(() => StoreManager.Instance.CloseAndContinueToNextScene());
     }
 
     // 激活商店UI

@@ -26,17 +26,28 @@ public class GameStateManager : Singleton<GameStateManager>
     public void UnregisterBuffManager() => Buff = null;
     public void UnregisterInventoryManager() => Inventory = null;
     public void UnregisterCharacterManager() => Character = null;
-    // 角色数据更新请求列表
-    private Dictionary<string, List<float>> staminaModifiers = new Dictionary<string, List<float>>();
-    private Dictionary<string, List<float>> hungerModifiers = new Dictionary<string, List<float>>();
-    // //技能冷却
-    // private Dictionary<string, Dictionary<string, List<float>>> skillCooldownModifiers = 
-    //     new Dictionary<string, Dictionary<string, List<float>>>();
 
     protected override void Awake()
     {
         base.Awake();
         currentData = new GameData();
+
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.Subscribe<OnGameRollback>(SnapshotRollback);
+        }
+        else
+        {
+            Debug.LogError("[GameStateManager] EventManager is not initialized.");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.Unsubscribe<OnGameRollback>(SnapshotRollback);
+        }
     }
 
     // --------------- 游戏 存/读/回档 ---------------
@@ -54,8 +65,10 @@ public class GameStateManager : Singleton<GameStateManager>
     }
 
     // 游戏内数据回滚
-    public void SnapshotRollback()
+    public void SnapshotRollback(OnGameRollback _)
     {
+        SceneController.Instance.SceneRollbackAsync();
+
         if (historyStack.Count > 0)
         {
             currentData = historyStack.Peek();
@@ -66,7 +79,6 @@ public class GameStateManager : Singleton<GameStateManager>
 
             // PublishCharacterDataForSync();
 
-            EventManager.Instance.Publish(new OnGameDataLoaded());
             Debug.Log($"<color=green>[GameStateManager] Snapshot rollbacked. History depth: {historyStack.Count}</color>");
         }
         else
@@ -126,10 +138,9 @@ public class GameStateManager : Singleton<GameStateManager>
         if (Character != null)
         {
             currentData.characters.Clear();
-            var allCharacterObjects = Character.GetAllCharacterGOs();
-            foreach (var characterGO in allCharacterObjects)
+            var allCharacterStatus = Character.GetAllCharacterStatus();
+            foreach (var characterStatus in allCharacterStatus)
             {
-                var characterStatus = characterGO.GetComponent<CharacterStatus>();
                 if (characterStatus != null)
                 {
                     currentData.characters[characterStatus.CharacterID] = characterStatus.GetStateForSaving();
@@ -145,7 +156,10 @@ public class GameStateManager : Singleton<GameStateManager>
         // 暂时不需要 当前没有保留技能冷却数据
 
         // 第二章地图数据
-        // 第二章开始时自动保存
+        if (MapController.Instance != null)
+        {
+            currentData.mapNodes = MapController.Instance.GetMapDataToSave();
+        }
     }
 
     // 将currentData中的数据, 推送到各个模块中
@@ -156,10 +170,10 @@ public class GameStateManager : Singleton<GameStateManager>
         {
             foreach (var loadedData in currentData.characters.Values)
             {
-                var characterObject = Character.GetCharacterGameObject(loadedData.characterID);
-                if (characterObject != null)
+                var characterStatus = Character.GetCharacterStatus(loadedData.characterID);
+                if (characterStatus != null)
                 {
-                    characterObject.GetComponent<CharacterStatus>().LoadState(loadedData);
+                    characterStatus.LoadState(loadedData);
                 }
             }
         }
@@ -177,6 +191,7 @@ public class GameStateManager : Singleton<GameStateManager>
         }
 
         // 第二章地图数据
+        Debug.Log($"[GameStateManager] MapController exists? {MapController.Instance != null}; MapNodes count: {currentData.mapNodes.Count}");
         if (MapController.Instance != null && currentData.mapNodes.Count > 0)
         {
             MapController.Instance.RestoreMapData(currentData.mapNodes);

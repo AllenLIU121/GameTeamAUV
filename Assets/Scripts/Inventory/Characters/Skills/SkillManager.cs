@@ -114,9 +114,7 @@ public class SkillManager : MonoBehaviour
             return;
         }
 
-        var characterGO = GameStateManager.Instance.Character.GetCharacterGameObject(characterID);
-        if (characterGO == null) return;
-        var characterStatus = characterGO.GetComponent<CharacterStatus>();
+        var characterStatus = GameStateManager.Instance.Character.GetCharacterStatus(characterID);
         if (characterStatus == null || !characterStatus.IsAlive)
         {
             Debug.LogWarning($"Character '{characterID}' is dead.");

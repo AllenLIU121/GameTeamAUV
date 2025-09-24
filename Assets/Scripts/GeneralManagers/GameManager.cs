@@ -127,7 +127,7 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator StartPlaying()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(2f);
         ChangeGameState(GameState.Playing);
     }
 }

@@ -97,7 +97,6 @@ public class CharacterPanel : MonoBehaviour
             }
         }
 
-
         return true;
     }
 
@@ -109,7 +108,7 @@ public class CharacterPanel : MonoBehaviour
             CharacterSO characterSO = characterSOList[i];
 
             // 获取角色运行时数据
-            CharacterStatus characterStatus = GameStateManager.Instance.Character.GetCharacterGameObject(characterSO.characterID).GetComponent<CharacterStatus>();
+            CharacterStatus characterStatus = GameStateManager.Instance.Character.GetCharacterStatus(characterSO.characterID);
 
             // 如果没有运行时数据，使用默认值
             float initHunger = characterStatus != null ? characterStatus.CurrentHunger : characterStatus.MaxHunger;

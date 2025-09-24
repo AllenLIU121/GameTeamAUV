@@ -27,6 +27,18 @@ public class StoreManager : Singleton<StoreManager>
         }
     }
 
+    public void CloseAndContinueToNextScene()
+    {
+        GameObject playerGO = GameObject.FindWithTag("Player");
+        if (playerGO == null)
+        {
+            Debug.LogError($"[StoreManager] Player not found]");
+            return;
+        }
+
+        playerGO.GetComponent<CharacterMove>().BeforeSceneChanged();
+    }
+
     // 预计算总权重
     private float totalSpecialWeight = -1f;
 

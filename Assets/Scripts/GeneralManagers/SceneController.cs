@@ -24,8 +24,23 @@ public class SceneController : Singleton<SceneController>
         canvasGroup.gameObject.SetActive(false);
     }
 
+    public async void SceneRollbackAsync()
+    {
+        if (isLoading) return;
+
+        isLoading = true;
+        canvasGroup.gameObject.SetActive(true);
+
+        await Fade(1f);
+        await Task.Yield();
+        await Fade(0f);
+
+        isLoading = false;
+        canvasGroup.gameObject.SetActive(false);
+    }
+
     // 异步加载资源和场景
-    public async void LoadSceneAsync(string sceneName, string assetLabel = null, bool showLoadingUI = false,Action onComplete = null)
+    public async void LoadSceneAsync(string sceneName, string assetLabel = null, bool showLoadingUI = false, Action onComplete = null)
     {
         if (isLoading) return;
 

@@ -28,13 +28,10 @@ public class Cat_SkillSO : SkillSO
         var characterManager = GameStateManager.Instance.Character;
         if (characterManager == null) return false;
 
-        var targetGO = characterManager.GetCharacterGameObject("brother");
-        if (targetGO == null) return false;
-
-        var targetStatus = targetGO.GetComponent<CharacterStatus>();
-        if (targetStatus != null && targetStatus.IsAlive)
+        var characterStatus = characterManager.GetCharacterStatus("brother");
+        if (characterStatus != null && characterStatus.IsAlive)
         {
-            targetStatus.ModifyStamina(targetStatus.characterSO.maxStamina);
+            characterStatus.ModifyStamina(characterStatus.characterSO.maxStamina);
             return true;
         }
         return false;

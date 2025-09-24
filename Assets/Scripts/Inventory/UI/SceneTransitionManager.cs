@@ -26,7 +26,7 @@ public class SceneTransitionManager : MonoBehaviour
     // 下一个场景的对话文件名
     private const string NEXT_SCENE_DIALOGUE_FILE = "store_711.csv";
     // 目标位置坐标
-    private readonly Vector3 TARGET_POSITION = new Vector3(20f, 1f, 0f);
+    private readonly Vector3 TARGET_POSITION = new Vector3(20f, -1.7f, 0f);
 
     private void Start()
     {
@@ -63,7 +63,7 @@ public class SceneTransitionManager : MonoBehaviour
     /// </summary>
     private void OnDialogueEnd()
     {
-        Debug.Log($"[SceneTransitionManager] OnDialogueEnd called");
+
         // 防止重复触发
         if (hasTransitioned)
         {
@@ -214,28 +214,28 @@ public class SceneTransitionManager : MonoBehaviour
         {
             // 直接在目标位置生成/瞬移，不使用移动动画
             playerTransform.position = TARGET_POSITION;
-            Debug.Log("SceneTransitionManager: 玩家已瞬移至目标位置: " + TARGET_POSITION);
+            // Debug.Log("SceneTransitionManager: 玩家已瞬移至目标位置: " + TARGET_POSITION);
 
-            // 如果CharacterMove组件存在，更新其位置数据以保持一致性
-            if (characterMove != null)
-            {
-                characterMove.UpdatePosition();
-                Debug.Log("SceneTransitionManager: 已调用characterMove.UpdatePosition()更新位置数据");
-            }
-            else
-            {
-                Debug.LogWarning("SceneTransitionManager: characterMove为空，无法更新位置数据");
-                // 如果CharacterMove为空，尝试重新获取
-                if (player != null)
-                {
-                    characterMove = player.GetComponent<CharacterMove>();
-                    if (characterMove != null)
-                    {
-                        characterMove.UpdatePosition();
-                        Debug.Log("SceneTransitionManager: 重新获取characterMove并更新位置数据");
-                    }
-                }
-            }
+            // // 如果CharacterMove组件存在，更新其位置数据以保持一致性
+            // if (characterMove != null)
+            // {
+            //     characterMove.UpdatePosition();
+            //     Debug.Log("SceneTransitionManager: 已调用characterMove.UpdatePosition()更新位置数据");
+            // }
+            // else
+            // {
+            //     Debug.LogWarning("SceneTransitionManager: characterMove为空，无法更新位置数据");
+            //     // 如果CharacterMove为空，尝试重新获取
+            //     if (player != null)
+            //     {
+            //         characterMove = player.GetComponent<CharacterMove>();
+            //         if (characterMove != null)
+            //         {
+            //             characterMove.UpdatePosition();
+            //             Debug.Log("SceneTransitionManager: 重新获取characterMove并更新位置数据");
+            //         }
+            //     }
+            // }
         }
         else
         {

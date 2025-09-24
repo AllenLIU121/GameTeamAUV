@@ -8,7 +8,7 @@ public struct OnGameStateChanged   // 游戏状态改变时发布
 
 public struct OnSceneLoaded { }    // 场景加载完毕时发布
 
-public struct OnGameDataLoaded { }    // 游戏回滚时发布
+public struct OnGameRollback { }    // 游戏回滚时发布
 
 // public struct OnCharacterRegistered     // 角色注册时发布
 // {
@@ -20,6 +20,12 @@ public struct OnCharacterDied       // 角色死亡时发布
 {
     public CharacterSO characterSO;
 }
+
+public struct OnCharacterRevived     // 角色复活时发布
+{
+    public CharacterSO characterSO;
+}
+
 
 public struct OnCharacterStatChanged     // 角色属性改变时发布
 {

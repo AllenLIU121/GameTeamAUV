@@ -5,7 +5,6 @@ using UnityEngine;
 [Serializable]
 public class GameData : ISerializationCallbackReceiver  // Runtime数据仓库
 {
-    public string lastSceneName;
     public Dictionary<string, CharacterRuntimeData> characters = new Dictionary<string, CharacterRuntimeData>();
     public List<InventorySlot> inventorySlots = new List<InventorySlot>();
     public float currentWeight = 0f;

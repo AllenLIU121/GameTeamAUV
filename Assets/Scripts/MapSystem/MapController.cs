@@ -26,6 +26,8 @@ public class MapController : Singleton<MapController>
     private Node currentPlayerNode;
     private int turnCycle = 0;
 
+    public bool IsInitialized { get; private set; } = false;
+
     public Node GetPlayerNode() => currentPlayerNode;
     private Node currentShopNode;
     private Node currentShelterNode;
@@ -52,6 +54,15 @@ public class MapController : Singleton<MapController>
 
     private void Start()
     {
+        InitializePlayerPos();
+        waitForOneSecond = new WaitForSeconds(1f);
+
+        ProcessTurnCycle();
+        IsInitialized = true;
+    }
+
+    private void InitializePlayerPos()
+    {
         // 玩家初始节点位置
         currentPlayerNode = GetNodeAt(7, 0);
 
@@ -60,14 +71,6 @@ public class MapController : Singleton<MapController>
             playerController = PlayerController.Instance;
             Vector3 initalPos = new Vector3(currentPlayerNode.gridPosition.x, currentPlayerNode.gridPosition.y, 0);
             playerController.transform.position = parent.transform.TransformPoint(initalPos);
-        }
-
-        waitForOneSecond = new WaitForSeconds(1f);
-
-        ProcessTurnCycle();
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.currentData.mapNodes = GetMapDataToSave();
         }
     }
 
@@ -99,11 +102,7 @@ public class MapController : Singleton<MapController>
             bool isPlayerSafe = IsPlayerInSafeZone(currentPlayerNode);
             if (!isPlayerSafe)
             {
-                Debug.LogWarning($"Player is not safe, -30% stamina");
-            }
-            else
-            {
-                Debug.Log($"Player is safe");
+                GameStateManager.Instance.Character.ReduceAllAliveCharactersStamina();
             }
 
             turnCycle = 0;
@@ -288,7 +287,7 @@ public class MapController : Singleton<MapController>
     // }
 
     // 存储地图数据
-    private List<NodeRuntimeData> GetMapDataToSave()
+    public List<NodeRuntimeData> GetMapDataToSave()
     {
         var mapState = new List<NodeRuntimeData>();
         if (grid == null) return mapState;
@@ -338,6 +337,11 @@ public class MapController : Singleton<MapController>
             }
         }
         Debug.Log("[MapController] Map restored.");
+
+        InitializePlayerPos();
+
+        turnCycle = 0;
+        ProcessTurnCycle();
     }
 
     // 生成节点地图数据

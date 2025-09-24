@@ -17,6 +17,11 @@ public class PlayerController : Singleton<PlayerController>
         mainCamera = Camera.main;
         IsInSelectingMode = true;
         mapController = MapController.Instance;
+        if (!mapController.IsInitialized)
+        {
+            Debug.LogError($"[PlayerController] MapController not initialized]");
+        }
+        GameStateManager.Instance.GenerateSnapshot();
     }
 
     void Update()
