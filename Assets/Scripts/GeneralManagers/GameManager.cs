@@ -18,6 +18,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        Debug.Log("GameManager Start() 执行，Instance 是否为空：" + (Instance == null));
         CurrentState = GameState.MainMenu;
         ChangeGameState(CurrentState);
     }

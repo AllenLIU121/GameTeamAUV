@@ -31,6 +31,9 @@ public class AwardableQuestion : MonoBehaviour
 
     public float timer = 0;
     public int rightCount = 0;
+    
+    // 标志变量，用于确保最后一个问题的逻辑只执行一次
+    private bool isFinalQuestionProcessed = false;
 
     // Start is called before the first frame update
     void Start()
@@ -63,7 +66,7 @@ public class AwardableQuestion : MonoBehaviour
         QuestionCheckOut();
         WhenFalse();
         WhenRight();
-        //AfterFinalQuestion();
+        AfterFinalQuestion();
 
     }
 
@@ -173,23 +176,46 @@ public class AwardableQuestion : MonoBehaviour
 
     public void AfterFinalQuestion()
     {
-        if (questionIndex == 13  && rightCount  > 8)
+        // 只有当questionIndex达到13且尚未处理过最后一个问题时，才执行逻辑
+        if (questionIndex == 13 && !isFinalQuestionProcessed)
         {
-
-            Panel.gameObject.SetActive(false);
-            nextObject.SetActive(false);
-            Revive.GetComponent<Text>().text = @"他(她)回来了\o / \o / \o / \o /";
-            Revive.gameObject.SetActive(true);
-        }
-        else if(questionIndex == 13)
-        {
-            print(rightCount);
-   
-            Panel.gameObject.SetActive(false);
-            nextObject.SetActive(false);
-            Revive.GetComponent<Text>().text = @"他(她)没回来/o \ /o \ /o \ /o \";
-            Revive.gameObject.SetActive(true);
+            // 标记为已处理，防止重复执行
+            isFinalQuestionProcessed = true;
             
+            if (rightCount > 8)
+            {
+                Panel.gameObject.SetActive(false);
+                nextObject.SetActive(false);
+                Revive.GetComponent<Text>().text = @"他(她)回来了\o / \o / \o / \o /";
+                Revive.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.Log("正确率: " + rightCount);
+                
+                Panel.gameObject.SetActive(false);
+                nextObject.SetActive(false);
+                Revive.GetComponent<Text>().text = @"他(她)没回来/o \ /o \ /o \ /o \";
+                Revive.gameObject.SetActive(true);
+            }
+            
+            // 延迟调用EmbassyDialogueFlow的CheckFamilyStatus方法
+            Invoke("CallEmbassyDialogueFlowCheckFamilyStatus", 2f);
+        }
+    }
+    
+    private void CallEmbassyDialogueFlowCheckFamilyStatus()
+    {
+        // 查找EmbassyDialogueFlow组件并调用CheckFamilyStatus方法
+        EmbassyDialogueFlow dialogueFlow = FindObjectOfType<EmbassyDialogueFlow>();
+        if (dialogueFlow != null)
+        {
+            Debug.Log("AwardableQuestion: 问答结束，调用EmbassyDialogueFlow的CheckFamilyStatus方法");
+            dialogueFlow.CheckFamilyStatus();
+        }
+        else
+        {
+            Debug.LogError("AwardableQuestion: 找不到EmbassyDialogueFlow组件");
         }
     }
 }

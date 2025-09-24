@@ -1,2 +1,2 @@
 CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint
-自言自语,这个时候就不要坐电梯了！地震可能导致电梯停电停在中间，或松动损伤，从而在运行中电梯可能失控、发生卡阻或坠落。,False,,,,-1,0,0,1
+Player,这个时候就不要坐电梯了！地震可能导致电梯停电停在中间，或松动损伤，从而在运行中电梯可能失控、发生卡阻或坠落。,False,,,,-1,0,0,1

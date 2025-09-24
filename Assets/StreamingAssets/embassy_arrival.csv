@@ -1,0 +1,5 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint
+Player,终于带着全家人逃出来了！,false,,,,1,,0,0
+npc,哦孩子啊，分享一下你是如何带着家人逃生的？,false,,,,-1,,0,1
+Player,可惜人死不能复生，如果有机会我一定要掌握更多的防灾知识…可事已至此，还有什么用呢……,false,,,,3,,0,0
+npc,哦可怜的孩子啊，这场灾害真是让人措手不及，但你从中学会了什么？,false,,,,-1,,0,1

@@ -1,6 +1,6 @@
 CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEnd,OnDialogueCompleteMethod,IsDeadly
-爸爸,地震要来了，压力好大，好想抽根烟,True,出声制止：都这个时候了，就不要再抽烟了啊，要有生命危险了还抽什么烟啊！,1,同意：抽吧，人要活在当下。,2,0,0,0,,0
-爸爸,你说的有道理，我不抽了，我们一起想办法逃生吧。,False,,,,-1,1,0,1,,0
+Father,地震要来了，压力好大，好想抽根烟,True,出声制止：都这个时候了，就不要再抽烟了啊，要有生命危险了还抽什么烟啊！,1,同意：抽吧，人要活在当下。,2,0,0,0,,0
+Father,你说的有道理，我不抽了，我们一起想办法逃生吧。,False,,,,-1,1,0,1,,0
 系统,（选择同意后，由于吸烟引发火灾，你在地震中不幸遇难...）,False,,,,-1,0,0,0,,1
 系统,（你重生回到了地震前的时刻...）,False,,,,-1,0,0,0,,0
-自言自语,还是先活到明天吧，快找找哪里是火灾源头！,False,,,,-1,0,0,1,,0
+Player,还是先活到明天吧，快找找哪里是火灾源头！,False,,,,-1,0,0,1,,0
