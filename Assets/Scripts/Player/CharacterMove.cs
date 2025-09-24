@@ -34,6 +34,11 @@ public class CharacterMove : MonoBehaviour
         //     }
         // }
         HandlePlayerMoveInput();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            StoreManager.Instance.OpenStore();
+        }
     }
 
     void HandlePlayerMoveInput()

@@ -6,7 +6,7 @@ using UnityEngine.Video;
 public class VideoClipCom : MonoBehaviour
 {
     public VideoPlayer videoClipPlayer;
-    // Start is called before the first frame update
+
     void Start()
     {
         videoClipPlayer = this.transform.GetComponent<VideoPlayer>();
@@ -19,6 +19,5 @@ public class VideoClipCom : MonoBehaviour
         {
             this.gameObject.SetActive(false);
         }
-
     }
 }

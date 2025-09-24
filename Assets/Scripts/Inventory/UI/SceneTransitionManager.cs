@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Animations;
-using Inventory.Characters;
 using System.Collections.Generic;
 using DialogueSystem;
 using System.Linq;
@@ -96,7 +95,6 @@ public class SceneTransitionManager : MonoBehaviour
     /// <returns>是否有激活的死亡面板</returns>
     private bool HasDeathPanelActive()
     {
-        // 方法1：查找场景中的Final Canvas下是否有死亡面板
         GameObject finalCanvas = GameObject.Find("Final Canvas");
         if (finalCanvas != null)
         {
@@ -109,40 +107,6 @@ public class SceneTransitionManager : MonoBehaviour
                     return true;
                 }
             }
-        }
-
-        // 方法2：直接在场景中查找死亡面板对象
-        GameObject[] deadPanels = GameObject.FindGameObjectsWithTag("DeadPanel");
-        if (deadPanels.Length > 0)
-        {
-            foreach (GameObject panel in deadPanels)
-            {
-                if (panel.activeInHierarchy)
-                {
-                    return true;
-                }
-            }
-        }
-
-        // 方法3：检查GameStateManager中玩家的存活状态
-        try
-        {
-            GameStateManager gameStateManager = FindObjectOfType<GameStateManager>();
-            if (gameStateManager != null && gameStateManager.currentData != null)
-            {
-                foreach (var characterData in gameStateManager.currentData.characters.Values)
-                {
-                    // 假设玩家角色ID包含"Player"或类似标识
-                    if (characterData.characterID.Contains("Player") && !characterData.isAlive)
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning("SceneTransitionManager: 检查玩家存活状态时出错: " + ex.Message);
         }
 
         return false;

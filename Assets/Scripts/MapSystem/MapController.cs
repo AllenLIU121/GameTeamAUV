@@ -16,8 +16,9 @@ public class MapController : Singleton<MapController>
     public int mapHeight = 7;
     public List<NodeConfiguration> initialLayout;
 
-    [Header("节点预制体")]
+    [Header("节点预制体和父物体")]
     public GameObject nodePrefab;
+    [SerializeField] private GameObject parent;
 
     private DisasterSystem disasterSystem;
     private Node[,] grid;
@@ -33,7 +34,6 @@ public class MapController : Singleton<MapController>
     private bool isMoving = false;
     public bool IsMoving => isMoving;
     private WaitForSeconds waitForOneSecond;
-
 
     protected override void Awake()
     {
@@ -53,13 +53,13 @@ public class MapController : Singleton<MapController>
     private void Start()
     {
         // 玩家初始节点位置
-        currentPlayerNode = GetNodeAt(6, 0);
+        currentPlayerNode = GetNodeAt(7, 0);
 
         if (PlayerController.Instance != null)
         {
             playerController = PlayerController.Instance;
             Vector3 initalPos = new Vector3(currentPlayerNode.gridPosition.x, currentPlayerNode.gridPosition.y, 0);
-            playerController.transform.position = initalPos;
+            playerController.transform.position = parent.transform.TransformPoint(initalPos);
         }
 
         waitForOneSecond = new WaitForSeconds(1f);
@@ -79,7 +79,8 @@ public class MapController : Singleton<MapController>
         isMoving = true;
 
         Vector3 targetPosition = new Vector3(newNode.gridPosition.x, newNode.gridPosition.y, 0);
-        playerController.MoveTo(targetPosition);
+        Vector3 worldPosition = parent.transform.TransformPoint(targetPosition);
+        playerController.MoveTo(worldPosition);
         yield return waitForOneSecond;
 
         currentPlayerNode = newNode;
@@ -132,6 +133,8 @@ public class MapController : Singleton<MapController>
                     PlayerController.Instance.IsInSelectingMode = false;
                     PlayerController.Instance.enabled = false;
                 }
+
+                SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.FinalScene);
                 break;
         }
 
@@ -367,10 +370,10 @@ public class MapController : Singleton<MapController>
                 grid[x, y] = new Node(x, y, nodeType);
                 if (nodePrefab != null)
                 {
-                    GameObject nodeObject = Instantiate(nodePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
+                    GameObject nodeObject = Instantiate(nodePrefab, new Vector3(x, y, 0), Quaternion.identity, parent.transform);
                     nodeObject.name = $"Node ({x}, {y})";
 
-                    NodeView nodeView = nodeObject.GetComponent<NodeView>();
+                NodeView nodeView = nodeObject.GetComponent<NodeView>();
                     if (nodeView != null)
                     {
                         nodeView.Initialize(grid[x, y]);
@@ -384,6 +387,8 @@ public class MapController : Singleton<MapController>
             }
         }
 
+        parent.transform.localScale = new Vector3(0.495f, 0.495f, 0.495f);
+        parent.transform.position = new Vector3(1.24f, -1.03f, 0f);
         Debug.Log("[MapController] Map generated successfully!");
     }
 

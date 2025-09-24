@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class VideoManager : MonoBehaviour
 {
     public VideoPlayer videoPlayer;
-    private string nextSceneName = GameConstants.SceneName.ChapterOneScene; // 视频播放完成后要加载的场景名称
+    [SerializeField] private string nextSceneName; // 视频播放完成后要加载的场景名称
 
     void Start()
     {
@@ -28,8 +28,13 @@ public class VideoManager : MonoBehaviour
         // 加载下一个场景
         if (SceneController.Instance != null)
             SceneController.Instance.LoadSceneAsync(nextSceneName);
-        else 
+        else
             SceneManager.LoadScene(nextSceneName);
+
+        if (nextSceneName == null)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     // 可选：添加跳过视频的功能
