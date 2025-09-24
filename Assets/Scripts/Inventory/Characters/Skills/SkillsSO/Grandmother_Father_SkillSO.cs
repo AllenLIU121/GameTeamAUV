@@ -6,9 +6,9 @@ public class Grandmother_Father_SkillSO : SkillSO
 {
     public override bool ExecuteSkill(int slotIndex)
     { 
-        // return GameStateManager.Instance.Inventory.CookItem(slotIndex);
-        Debug.Log($"测试模式：烹饪技能触发冷却 {cooldownTime}s");
-        return true;
+        return GameStateManager.Instance.Inventory.CookItem(slotIndex);
+        // Debug.Log($"测试模式：烹饪技能触发冷却 {cooldownTime}s");
+        // return true;
     }
 
     public LayerMask uiLayer; // UI层

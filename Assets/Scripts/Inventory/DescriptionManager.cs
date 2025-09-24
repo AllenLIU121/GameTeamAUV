@@ -6,17 +6,16 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text.RegularExpressions;
 
-public class DescriptionManager : MonoBehaviour,IPointerDownHandler
+public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerExitHandler
 {
     public GameObject DescriptionPanel;
     public Text DescriptionText;
-    public CharacterSO Character;
     private CharacterSlot characterSlot;
-
+    private int slotIndex = -1;
+    private GameData gameData;
     private CharacterPanel characterpanel;
     private Canvas parentCanvas;
     private RectTransform tooltipRect;
-
     void Start()
     {
         //开局隐藏
@@ -26,12 +25,35 @@ public class DescriptionManager : MonoBehaviour,IPointerDownHandler
         tooltipRect = DescriptionPanel.GetComponent<RectTransform>();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        characterSlot =  GetComponent<CharacterSlot>();
-        string characterName = characterSlot.ToString();
-        characterName = Regex.Replace(characterName, @"\s*\(.*\)", "").Trim();
-        DisplayDescription(Character);
+            characterSlot =  GetComponent<CharacterSlot>();
+            if (characterSlot != null)
+            {
+                string characterName = characterSlot.ToString();
+                characterName = Regex.Replace(characterName, @"\s*\(.*\)", "").Trim();
+                DisplayDescription(characterName);
+            }
+            SingleSlotPanel slotPanel = GetComponentInParent<SingleSlotPanel>();
+            if (slotPanel != null)
+            {
+                // 尝试通过反射获取槽位索引（临时解决方案，建议在SingleSlotPanel中提供公开方法）
+            
+                var fieldInfo = slotPanel.GetType().GetField("slotIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (fieldInfo != null)
+                {
+                    slotIndex = (int)fieldInfo.GetValue(slotPanel);
+                    var slot = gameData.inventorySlots[slotIndex];
+                    ItemSO itemSO = ItemDatabase.Instance.GetItemSO(slot.itemID);
+                    DisplayDescription(itemSO);
+                }
+            
+            }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        DescriptionPanel.SetActive(false);
     }
     
     //物品描述
@@ -140,29 +162,29 @@ public class DescriptionManager : MonoBehaviour,IPointerDownHandler
     }
     
     //人物描述
-    public void DisplayDescription(CharacterSO descriptionCharacter)
+    public void DisplayDescription(string descriptionCharacter)
     {
-        switch (descriptionCharacter.skill.skillID)
+        switch (descriptionCharacter)
         {
-            case "brother_skill" :
+            case "Bro" :
                 DescriptionText.text = @"弟弟：有弟弟在感觉体力都变多了！，我不敢想失去弟弟会有什么后果…";
                 break;
-            case "cat_skill" :
+            case "Cat" :
                 DescriptionText.text = @"猫：幸运猫猫！有它在找到特殊资源的概率谜之上升！也是哄弟弟的好帮手，不知道为什么弟弟总是很喜欢猫猫，摸到猫猫的弟弟会非常开心！";
                 break;
-            case "father_skill" :
+            case "Dad" :
                 DescriptionText.text = @"爸爸：不靠谱的爸爸但父爱如山，能扛！爸爸在不需要担心有东西提不动！背包负重+5kg，名副其实的家庭劳动力";
                 break;
-            case "grandmother_father_skill" :
+            case "NaiNai" :
                 DescriptionText.text = @"奶奶：奶奶掌勺，化腐朽为神奇，什么食物经过奶奶的手都能变得无比美味！这就是奶奶的味道！";
                 break;
-            case "grandmother_mother_skill" :
+            case "LaoLao" :
                 DescriptionText.text = @"姥姥：在姥姥眼里食物没有”变质”的概念，经过姥姥的手可以将那些在变质边缘疯狂试探的食物重获新生！效果堪比冰箱！";
                 break;
-            case "mom_skill" :
+            case "Mom" :
                 DescriptionText.text = @"妈妈：妈妈牌家庭医生总会备着一些需要的药品。更恐怖的是，她掌握着宇宙的终极治愈法则——黄桃罐头。无论你是感冒发烧还是心情低落，一罐下去，满血复活，药到病除！";
                 break;
-            case "sister_skill" :
+            case "Sister" :
                 DescriptionText.text = @"妹妹：看到活泼可爱的妹妹，无论有什么困难都可以撑住，在她的可爱光环照耀下，大家的体力条都掉得慢了一些。";
                 break;
             default:
@@ -179,13 +201,11 @@ public class DescriptionManager : MonoBehaviour,IPointerDownHandler
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             parentCanvas.transform as RectTransform,
-            Input.mousePosition,
+            this.transform.position,
             parentCanvas.worldCamera,
             out localPoint);
         //加一个偏移量，要不然挡住了ui
-        tooltipRect.anchoredPosition = localPoint + new Vector2(20, 20);
-        //有个bug，就是坐标改变了，但是视图没变，再次打印坐标发现坐标又回去了
-        Debug.Log(tooltipRect.anchoredPosition);
+        tooltipRect.anchoredPosition = localPoint + new Vector2(60, 60);
     }
     
 }
