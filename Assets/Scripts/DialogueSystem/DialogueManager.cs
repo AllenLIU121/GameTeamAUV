@@ -146,7 +146,10 @@ namespace DialogueSystem
 
             // 暂停游戏
             Debug.Log("DialogueManager: 对话开始，暂停游戏");
-            GameManager.Instance?.ChangeGameState(GameState.Paused);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ChangeGameState(GameState.Paused);
+            }
 
             // 启动重试机制（确保UI正确显示）
             StartCoroutine(CheckDialogueActiveRetry());
@@ -245,7 +248,7 @@ namespace DialogueSystem
                 foreach (char c in entry.dialogueText.ToCharArray())
                 {
                     targetText.text += c;
-                    yield return new WaitForSeconds(systemConfig.typingSpeed);
+                    yield return new WaitForSecondsRealtime(systemConfig.typingSpeed);
                 }
             }
 
@@ -295,7 +298,11 @@ namespace DialogueSystem
             _uiManager.ClearChoiceButtons();
 
             // 创建游戏快照，以便后续可以回档到这个选择点
-            GameStateManager.Instance?.GenerateSnapshot();
+            if (GameManager.Instance != null)
+            {
+                GameStateManager.Instance.GenerateSnapshot();
+            }
+
             Debug.Log("DialogueManager: 在选择对话选项时创建了游戏快照");
 
             // 特殊处理防灾手册选择（保持原有业务逻辑）
@@ -409,7 +416,7 @@ namespace DialogueSystem
 
             // 恢复游戏
             Debug.Log("DialogueManager: 对话结束，恢复游戏");
-            GameManager.Instance?.ChangeGameState(GameState.Playing);
+            GameManager.Instance.ChangeGameState(GameState.Playing);
 
             // 根据之前保存的isDeadly状态决定后续操作
             if (isDeadlyDialogue)
@@ -431,7 +438,10 @@ namespace DialogueSystem
         {
             // 暂停游戏
             Debug.Log("DialogueManager: 显示死亡界面，暂停游戏");
-            GameManager.Instance?.ChangeGameState(GameState.Paused);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ChangeGameState(GameState.Paused);
+            }
 
             // 如果有对话正在进行，结束对话
             if (IsDialogueActive())

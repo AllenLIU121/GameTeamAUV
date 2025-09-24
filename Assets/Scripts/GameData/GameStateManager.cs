@@ -163,7 +163,7 @@ public class GameStateManager : Singleton<GameStateManager>
         // 暂时不需要 当前没有保留技能冷却数据
 
         // 第二章地图数据
-        if (MapController.Instance != null)
+        if (SceneManager.GetActiveScene().name == GameConstants.SceneName.ChapterTwoScene)
         {
             currentData.mapNodes = MapController.Instance.GetMapDataToSave();
         }
