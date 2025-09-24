@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -102,17 +103,21 @@ public class BuffManager : MonoBehaviour
     public bool ApplyBuff(CharacterSO target, BuffSO buff, CharacterSO source = null)
     {
         // 安全检查：确保目标和Buff不为空
-        if (target == null || buff == null) return false;
+        if (target == null || buff == null)
+        {
+            Debug.Log($"[BuffManager] Target is null: {target == null}, Buff is null: {buff == null}");
+            return false;
+        }
         
         // 如果目标对象还没有Buff列表，创建一个新的
         if (!activeBuffs.ContainsKey(target))
         {
             activeBuffs[target] = new List<ActiveBuff>();
         }
-        
+
         // 查找目标对象是否已经有同类型的Buff
         var existingBuff = activeBuffs[target].Find(b => b.buff.buffID == buff.buffID);
-        
+
         // 如果已存在同类型Buff
         if (existingBuff != null)
         {
@@ -130,20 +135,24 @@ public class BuffManager : MonoBehaviour
         {
             // 创建新的ActiveBuff实例
             var newActiveBuff = new ActiveBuff(buff, source);
+
+            // 如果是疾病类型的Buff，发布疾病感染事件
+            if (buff.buffType == BuffSO.BuffType.Disease && buff.diseaseType != BuffSO.DiseaseType.None)
+            {
+                bool hasDisease = activeBuffs[target].Any(b => b.buff.diseaseType != BuffSO.DiseaseType.None);
+                if (hasDisease) return false;
+
+                EventManager.Instance.Publish(new OnDiseaseContracted
+                {
+                    characterID = target.characterID,
+                    buffSO = buff
+                });
+            }
+
             activeBuffs[target].Add(newActiveBuff);
             
             // 调用Buff的施加逻辑
             buff.OnApply(target);
-            
-            // 如果是疾病类型的Buff，发布疾病感染事件
-            if (buff.buffType == BuffSO.BuffType.Disease && buff.diseaseType != BuffSO.DiseaseType.None)
-            {
-                EventManager.Instance.Publish(new OnDiseaseContracted
-                {
-                    target = target,
-                    diseaseType = buff.diseaseType
-                });
-            }
             
             // 发布Buff施加事件
             EventManager.Instance.Publish(new OnBuffApplied
@@ -187,8 +196,8 @@ public class BuffManager : MonoBehaviour
             {
                 EventManager.Instance.Publish(new OnDiseaseCured
                 {
-                    target = target,
-                    diseaseType = buff.diseaseType
+                    characterID = target.characterID,
+                    buffSO = buff
                 });
             }
             

@@ -5,12 +5,14 @@ public class SkillRuntime
 {
     public SkillSO SkillData { get; private set; }
     public float CurrentCooldown { get; private set; }
+    public bool targetItem;
     public bool IsReady => CurrentCooldown <= 0;
 
     public SkillRuntime(SkillSO skillData)
     {
         SkillData = skillData;
         CurrentCooldown = 0f;
+        targetItem = skillData.targetItem;
     }
 
     public void UpdateCooldown(float deltaTime)

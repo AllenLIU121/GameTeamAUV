@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Animations;
-using Inventory.Characters;
 using System.Collections.Generic;
 using DialogueSystem;
 using System.Reflection;
@@ -25,7 +24,7 @@ public class SceneTransitionManager : MonoBehaviour
     private const string NEXT_SCENE_DIALOGUE_FILE = "store_711.csv";
     // 目标位置坐标
     private readonly Vector3 TARGET_POSITION = new Vector3(20f, 1f, 0f);
-    
+
     // 标记是否需要在对话结束后执行场景转换
     private bool _needSceneTransition = false;
 
@@ -66,19 +65,20 @@ public class SceneTransitionManager : MonoBehaviour
         // 检查是否已触发死亡状态（存在死亡面板）
         if (HasDeathPanelActive())
             return;
-        
+
         // 检查当前对话是否包含逃离成功的标志性文本
         if (IsEscapeSuccessDialogue())
         {
             _needSceneTransition = true;
         }
     }
-    
+
     /// <summary>
     /// 对话结束时的回调函数
     /// </summary>
     private void OnDialogueEnd()
     {
+
         // 检查是否已触发死亡状态（存在死亡面板）
         if (HasDeathPanelActive())
             return;
@@ -126,7 +126,7 @@ public class SceneTransitionManager : MonoBehaviour
             currentCSVFile != "typhoon_inside.csv" &&
             currentCSVFile != "typhoon_outside.csv")
             return false;
-        
+
         // 通过反射获取DialogueManager中的对话信息
         try
         {
@@ -134,16 +134,16 @@ public class SceneTransitionManager : MonoBehaviour
                 BindingFlags.NonPublic | BindingFlags.Instance);
             var currentIndexField = typeof(DialogueManager).GetField("_currentDialogueIndex",
                 BindingFlags.NonPublic | BindingFlags.Instance);
-            
+
             if (dialoguesField == null || currentIndexField == null)
                 return false;
-            
+
             var dialogues = dialoguesField.GetValue(dialogueManager) as List<DialogueEntry>;
             int currentIndex = (int)currentIndexField.GetValue(dialogueManager);
-            
+
             if (dialogues == null || dialogues.Count <= 0 || currentIndex < 0 || currentIndex >= dialogues.Count)
                 return false;
-            
+
             DialogueEntry lastSeenEntry = dialogues[currentIndex];
             return lastSeenEntry != null && lastSeenEntry.dialogueText.Contains(ESCAPE_SUCCESS_DIALOGUE);
         }
@@ -161,7 +161,7 @@ public class SceneTransitionManager : MonoBehaviour
     {
         try
         {
-            FieldInfo currentCsvPathField = typeof(DialogueSystem.DialogueManager).GetField("_currentCSVPath", 
+            FieldInfo currentCsvPathField = typeof(DialogueSystem.DialogueManager).GetField("_currentCSVPath",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             if (currentCsvPathField != null)
             {
@@ -200,25 +200,30 @@ public class SceneTransitionManager : MonoBehaviour
         if (playerTransform != null)
         {
             playerTransform.position = TARGET_POSITION;
-            
-            // 更新角色移动组件位置数据
-            if (characterMove != null)
-            {
-                characterMove.UpdatePosition();
-            }
-            else if (player != null)
-            {
-                characterMove = player.GetComponent<CharacterMove>();
-                if (characterMove != null)
-                {
-                    characterMove.UpdatePosition();
-                }
-            }
-            return true;
+            // Debug.Log("SceneTransitionManager: 玩家已瞬移至目标位置: " + TARGET_POSITION);
+
+            // // 如果CharacterMove组件存在，更新其位置数据以保持一致性
+            // if (characterMove != null)
+            // {
+            //     characterMove.UpdatePosition();
+            //     Debug.Log("SceneTransitionManager: 已调用characterMove.UpdatePosition()更新位置数据");
+            // }
+            // else
+            // {
+            //     Debug.LogWarning("SceneTransitionManager: characterMove为空，无法更新位置数据");
+            //     // 如果CharacterMove为空，尝试重新获取
+            //     if (player != null)
+            //     {
+            //         characterMove = player.GetComponent<CharacterMove>();
+            //         if (characterMove != null)
+            //         {
+            //             characterMove.UpdatePosition();
+            //             Debug.Log("SceneTransitionManager: 重新获取characterMove并更新位置数据");
+            //         }
+            //     }
+            // }
         }
-        
-        // 如果playerTransform为空，尝试通过其他方式获取
-        if (player != null)
+        else
         {
             playerTransform = player.GetComponent<Transform>();
             if (playerTransform != null)
@@ -227,7 +232,7 @@ public class SceneTransitionManager : MonoBehaviour
                 return true;
             }
         }
-        
+
         // 最后的尝试：直接通过标签查找
         try
         {
@@ -239,7 +244,7 @@ public class SceneTransitionManager : MonoBehaviour
             }
         }
         catch { }
-        
+
         return false;
     }
 
@@ -253,7 +258,7 @@ public class SceneTransitionManager : MonoBehaviour
         {
             dialogueManager = FindObjectOfType<DialogueManager>();
         }
-        
+
         if (dialogueManager != null)
         {
             // 确保对话管理器不在活跃状态
@@ -286,23 +291,23 @@ public class SceneTransitionManager : MonoBehaviour
 
             bool isChoiceDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
                                   NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
-            
+
             // 使用反射设置对话类型和启动对话
             MethodInfo setDialogueTypeMethod = typeof(DialogueManager).GetMethod("SetDialogueType",
                 BindingFlags.Public | BindingFlags.Instance);
             MethodInfo startDialogueMethod = typeof(DialogueManager).GetMethod("StartDialogue",
                 BindingFlags.Public | BindingFlags.Instance);
-            
+
             if (setDialogueTypeMethod != null)
             {
                 setDialogueTypeMethod.Invoke(tempDialogueManager, new object[] { isChoiceDialogue });
             }
-            
+
             if (startDialogueMethod != null)
             {
                 startDialogueMethod.Invoke(tempDialogueManager, new object[] { NEXT_SCENE_DIALOGUE_FILE });
             }
-            
+
             // 对话结束后删除临时对象
             Destroy(dialogueManagerObj, 10f);
         }
@@ -329,12 +334,12 @@ public class SceneTransitionManager : MonoBehaviour
     {
         if (dialogueManager == null || dialogueManager.IsDialogueActive())
             return;
-        
+
         // 根据对话文件名动态设置对话类型
         bool isChoiceDialogue = NEXT_SCENE_DIALOGUE_FILE.Contains("choice") ||
                                NEXT_SCENE_DIALOGUE_FILE.Contains("earthquake_father_smoking");
         dialogueManager.SetDialogueType(isChoiceDialogue);
-        
+
         try
         {
             dialogueManager.StartDialogue(NEXT_SCENE_DIALOGUE_FILE);

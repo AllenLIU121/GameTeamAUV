@@ -2,13 +2,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
-public class SingleSlotPanel : MonoBehaviour
+public class SingleSlotPanel : MonoBehaviour, IPointerClickHandler
 {
     [Header("UI组件")]
     [SerializeField] private Image itemImage;
     [SerializeField] private TextMeshProUGUI stackNum;
     [SerializeField] private Image background; // 添加背景图片组件引用
+    [SerializeField] private Slider freshnessBar;
 
     // 不同状态的背景图
     public Sprite emptySlotBackground;
@@ -19,54 +21,99 @@ public class SingleSlotPanel : MonoBehaviour
     private ItemSO itemData;
     private int itemCount = 0;
 
-    public void Initialize(int index, InventoryManager manager)
+    private void Awake()
+    {
+        // 订阅物品栏变化事件
+        // EventManager.Instance.Subscribe<OnInventoryChanged>(HandleInventoryChanged);
+        EventManager.Instance.Subscribe<OnItemFreshnessChanged>(HandleFreshnessChanged);
+    }
+
+    public void Initialize(ItemSO itemSO, int index)
     {
         slotIndex = index;
-        inventoryManager = manager;
+        if (itemSO != null)
+        {
+            itemImage.sprite = itemSO.itemIcon;
+            itemImage.enabled = true;
+        }
 
-        // 订阅物品栏变化事件
-        EventManager.Instance.Subscribe<OnInventoryChanged>(HandleInventoryChanged);
+        stackNum.text = "";
     }
 
     private void OnDestroy()
     {
         // 取消订阅事件
-        EventManager.Instance.Unsubscribe<OnInventoryChanged>(HandleInventoryChanged);
+        // EventManager.Instance.Unsubscribe<OnInventoryChanged>(HandleInventoryChanged);
+        EventManager.Instance.Unsubscribe<OnItemFreshnessChanged>(HandleFreshnessChanged);
     }
 
     public void UpdateSlot(InventorySlot slotData)
     {
-        if (slotData == null)
+        if (slotData == null) return;
+        bool isPossessed = slotData.quantity > 0;
+
+        if (!isPossessed)
         {
-            // 保留原有的物品图片状态，但更新数据
-            itemData = null;
-            itemCount = 0;
+            stackNum.text = "";
+            stackNum.enabled = false;
+            freshnessBar.gameObject.SetActive(false);
+            background.sprite = emptySlotBackground;
         }
         else
         {
-            itemData = ItemDatabase.Instance.GetItemSO(slotData.itemID);
-            itemCount = slotData.quantity;
-            // 确保有物品时显示图片
-            if (itemImage != null && itemData != null)
+            stackNum.text = slotData.quantity.ToString();
+            stackNum.enabled = true;
+            
+            if (freshnessBar != null)
             {
-                itemImage.enabled = true;
-                itemImage.sprite = itemData.itemIcon;
+                var itemSO = ItemDatabase.Instance.GetItemSO(slotData.itemID);
+                bool hasFreshness = itemSO != null && itemSO.maxFreshness > 0;
+                freshnessBar.gameObject.SetActive(hasFreshness);
+
+                if (hasFreshness)
+                {
+                    freshnessBar.maxValue = itemSO.maxFreshness;
+                    freshnessBar.value = slotData.currentFreshness;
+                }
             }
 
-            if (slotData.quantity >= 1)
+            if (background != null)
             {
-                stackNum.text = slotData.quantity.ToString();
-                stackNum.enabled = true;
-            }
-            else
-            {
-                stackNum.text = "";
-                stackNum.enabled = false;
+                background.sprite = filledSlotBackground;
             }
         }
 
-        // 应用背景图
-        ApplyBackground();
+        // if (slotData == null)
+        // {
+        //     // 保留原有的物品图片状态，但更新数据
+        //     itemData = null;
+        //     itemCount = 0;
+        // }
+        // else
+        // {
+        //     itemData = ItemDatabase.Instance.GetItemSO(slotData.itemID);
+        //     itemCount = slotData.quantity;
+        //     // 确保有物品时显示图片
+        //     if (itemImage != null && itemData != null)
+        //     {
+        //         itemImage.enabled = true;
+        //         itemImage.sprite = itemData.itemIcon;
+        //     }
+
+        //     if (slotData.quantity >= 1)
+        //     {
+        //         stackNum.text = slotData.quantity.ToString();
+        //         stackNum.enabled = true;
+        //     }
+        //     else
+        //     {
+        //         stackNum.text = "";
+        //         stackNum.enabled = false;
+        //     }
+        // }
+
+        // // 应用背景图
+        // ApplyBackground();
     }
 
     // 根据数量自动应用背景图
@@ -124,6 +171,24 @@ public class SingleSlotPanel : MonoBehaviour
         if (eventData.updatedSlotIndexes.Contains(slotIndex))
         {
             UpdateSlot(gameData.inventorySlots[slotIndex]);
+        }
+    }
+
+    private void HandleFreshnessChanged(OnItemFreshnessChanged eventData)
+    {
+        if (eventData.slotIndex != slotIndex) return;
+        if (freshnessBar != null && freshnessBar.gameObject.activeInHierarchy)
+        {
+            freshnessBar.value = eventData.currentFreshness;
+        }
+    }
+
+    // 角色技能针对物品栏位的点击
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (TargetingManager.Instance != null && TargetingManager.Instance.IsTargeting)
+        {
+            TargetingManager.Instance.SelectTarget(slotIndex);
         }
     }
 }

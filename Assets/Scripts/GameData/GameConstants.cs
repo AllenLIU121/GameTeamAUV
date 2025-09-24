@@ -6,8 +6,11 @@ public static class GameConstants
 {
     public static class SceneName
     {
-        public const string MenuScene = "Framework Test Scene (Menu)";
-        public const string GameScene = "Framework Test Scene (Game)";
+        public const string MenuScene = "MenuScene";
+        public const string IntroVideoScene = "VideoScene";
+        public const string ChapterOneScene = "FirstChapterScene";
+        public const string ChapterTwoScene = "SecondChapterScene";
+        public const string FinalScene = "FinalScene";
     }
 
     public static class AddressablesName
