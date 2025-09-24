@@ -1,10 +1,10 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
-Shader "UI/VisibbleStuffs"
+Shader "UI/Video"
 {
     Properties
     {
-        [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+         _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
 
         _StencilComp ("Stencil Comparison", Float) = 8
@@ -30,14 +30,14 @@ Shader "UI/VisibbleStuffs"
             "CanUseSpriteAtlas"="True"
         }
 
-        Stencil
-        {
-            Ref 1
-            Comp Equal
-            Pass Keep
-            // ReadMask [_StencilReadMask]
-            // WriteMask [_StencilWriteMask]
-        }
+        // Stencil
+        // {
+        //     Ref 1
+        //     Comp Equal
+        //     Pass Keep
+        //     ReadMask [_StencilReadMask]
+        //     WriteMask [_StencilWriteMask]
+        // }
 
         Cull [_IsBack]
         Lighting Off

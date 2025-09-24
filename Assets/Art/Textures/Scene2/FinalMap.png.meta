@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f2552cfb55b1f6741ad0aa2a44a4c312
+guid: de2e5493503738843a37a5a5b79de049
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -53,7 +53,7 @@ TextureImporter:
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationDetail: 0
+  spriteTessellationDetail: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -97,13 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u672A\u547D\u540D\u4F5C\u54C1_0"
+      name: FinalMap_0
       rect:
         serializedVersion: 2
-        x: 1188
-        y: 488
-        width: 205
-        height: 184
+        x: 273
+        y: 287
+        width: 743
+        height: 781
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -111,28 +111,46 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a11ea2e2ed072e644a3188ebfdb145aa
-      internalID: 66972039
+      spriteID: ef4f0fca0f5f6cc4283467fc2ca5d8a8
+      internalID: 2064837678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FinalMap_1
+      rect:
+        serializedVersion: 2
+        x: 1368
+        y: 595
+        width: 49
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 291572f29c1c6684eac1cc2eab2ecffa
+      internalID: 400140911
       vertices: []
       indices: 
       edges: []
       weights: []
     outline: []
-    physicsShape:
-    - - {x: 250.5, y: -123}
-      - {x: 248.5, y: -55}
-      - {x: 386.5, y: 22}
-      - {x: 447.5, y: -13}
+    physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      "\u672A\u547D\u540D\u4F5C\u54C1_0": 66972039
+      FinalMap_0: 2064837678
+      FinalMap_1: 400140911
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
