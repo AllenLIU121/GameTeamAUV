@@ -34,7 +34,7 @@ public class DiedPanelController : MonoBehaviour
     private void OnRollbackButtonClick()
     {
 
-        GameStateManager.Instance?.SnapshotRollback();
+        GameStateManager.Instance?.SnapshotRollback(new OnGameRollback());
         Debug.Log("DiedPanelController: 成功调用GameStateManager的SnapshotRollback方法");
 
         // 获取DialogueManager实例

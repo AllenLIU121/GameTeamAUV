@@ -223,7 +223,7 @@ namespace DialogueSystem
                         _uiManager.HideChoiceContainerAndMask();
                     }
                 }
-                
+
                 // 触发对话条目显示完成事件
                 onDialogueEntryShown?.Invoke();
             }));

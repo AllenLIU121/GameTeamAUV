@@ -61,7 +61,7 @@ public class UI_InventoryPanel : MonoBehaviour
         {
             if (slots[i] != null)
             {
-                slots[i].Initialize(allItems[i], i);
+                slots[i].Initialize(i, inventory);
             }
         }
     }

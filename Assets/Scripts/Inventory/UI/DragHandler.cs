@@ -24,7 +24,6 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private RectTransform m_DraggingPlane;
     private CanvasGroup canvasGroup;
     private Image originalImage; // 原始物品图像组件
-    private bool isDragging = false;
     private int slotIndex = -1; // 当前物品槽索引
 
     // 缓存组件引用
@@ -123,8 +122,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 设置初始位置
         SetDraggedPosition(eventData);
 
-        // 标记为拖拽中
-        isDragging = true;
+        // 拖拽已开始
     }
 
     /// <summary>
@@ -230,8 +228,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 处理拖放逻辑
         ProcessDrop(eventData);
 
-        // 重置拖拽状态
-        isDragging = false;
+        // 拖拽已结束
         slotIndex = -1;
     }
 

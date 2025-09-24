@@ -23,7 +23,7 @@ public class VideoManager : MonoBehaviour
     }
 
     // 视频播放结束时调用
-    void OnVideoEnd(VideoPlayer vp)
+    public void OnVideoEnd(VideoPlayer vp)
     {
         // 加载下一个场景
         if (SceneController.Instance != null)

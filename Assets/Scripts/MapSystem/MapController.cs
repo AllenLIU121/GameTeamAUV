@@ -377,7 +377,7 @@ public class MapController : Singleton<MapController>
                     GameObject nodeObject = Instantiate(nodePrefab, new Vector3(x, y, 0), Quaternion.identity, parent.transform);
                     nodeObject.name = $"Node ({x}, {y})";
 
-                NodeView nodeView = nodeObject.GetComponent<NodeView>();
+                    NodeView nodeView = nodeObject.GetComponent<NodeView>();
                     if (nodeView != null)
                     {
                         nodeView.Initialize(grid[x, y]);
@@ -408,8 +408,8 @@ public class MapController : Singleton<MapController>
     {
         if (node1 == null || node2 == null) return false;
 
-         int distance = Mathf.Abs(node1.gridPosition.x - node2.gridPosition.x) + Mathf.Abs(node1.gridPosition.y - node2.gridPosition.y);
-         return distance == 1;
+        int distance = Mathf.Abs(node1.gridPosition.x - node2.gridPosition.x) + Mathf.Abs(node1.gridPosition.y - node2.gridPosition.y);
+        return distance == 1;
     }
 
     // // Test

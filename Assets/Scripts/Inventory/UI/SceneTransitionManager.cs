@@ -16,7 +16,7 @@ public class SceneTransitionManager : MonoBehaviour
     // 玩家Transform引用（用于直接设置位置）
     private Transform playerTransform;
     // 角色移动组件引用（如果存在，用于更新其位置数据）
-    private CharacterMove characterMove;
+    // private CharacterMove characterMove;
 
     // 成功逃离场景的标志性对话文本
     private const string ESCAPE_SUCCESS_DIALOGUE = "终于逃出来了！快去大使馆吧！";
@@ -42,7 +42,7 @@ public class SceneTransitionManager : MonoBehaviour
         if (player != null)
         {
             playerTransform = player.transform;
-            characterMove = player.GetComponent<CharacterMove>();
+            // characterMove = player.GetComponent<CharacterMove>();
         }
         else
         {
@@ -200,28 +200,6 @@ public class SceneTransitionManager : MonoBehaviour
         if (playerTransform != null)
         {
             playerTransform.position = TARGET_POSITION;
-            // Debug.Log("SceneTransitionManager: 玩家已瞬移至目标位置: " + TARGET_POSITION);
-
-            // // 如果CharacterMove组件存在，更新其位置数据以保持一致性
-            // if (characterMove != null)
-            // {
-            //     characterMove.UpdatePosition();
-            //     Debug.Log("SceneTransitionManager: 已调用characterMove.UpdatePosition()更新位置数据");
-            // }
-            // else
-            // {
-            //     Debug.LogWarning("SceneTransitionManager: characterMove为空，无法更新位置数据");
-            //     // 如果CharacterMove为空，尝试重新获取
-            //     if (player != null)
-            //     {
-            //         characterMove = player.GetComponent<CharacterMove>();
-            //         if (characterMove != null)
-            //         {
-            //             characterMove.UpdatePosition();
-            //             Debug.Log("SceneTransitionManager: 重新获取characterMove并更新位置数据");
-            //         }
-            //     }
-            // }
         }
         else
         {

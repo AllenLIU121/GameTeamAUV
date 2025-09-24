@@ -5,7 +5,6 @@ public class EarthquakeFlowManager : MonoBehaviour
 {
     public DialogueManager dialogueManager;
     public float delayBetweenDialogues = 5f;
-    private bool isFirstDialogueShown = false;
     private bool isSecondDialogueShown = false;
     private bool isThirdDialogueReady = false;
     private bool hasDisasterManual = false; // 标记玩家是否获得防灾手册
@@ -34,7 +33,6 @@ public class EarthquakeFlowManager : MonoBehaviour
 
         dialogueManager.SetDialogueType(true); // 设置为选择类型但没有选项，这样可以显示头像
         dialogueManager.StartDialogue("earthquake_first_encounter.csv");
-        isFirstDialogueShown = true;
         StartCoroutine(WaitForSecondDialogue());
     }
 

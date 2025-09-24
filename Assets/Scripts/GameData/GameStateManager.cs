@@ -67,7 +67,14 @@ public class GameStateManager : Singleton<GameStateManager>
     // 游戏内数据回滚
     public void SnapshotRollback(OnGameRollback _)
     {
-        SceneController.Instance.SceneRollbackAsync();
+        if (SceneController.Instance != null)
+        {
+            SceneController.Instance.SceneRollbackAsync();
+        }
+        else
+        {
+            Debug.LogWarning("[GameStateManager] SceneController instance not found during rollback.");
+        }
 
         if (historyStack.Count > 0)
         {
