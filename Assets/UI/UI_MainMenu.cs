@@ -10,7 +10,7 @@ public class UI_MainMenu : MonoBehaviour
     private void Awake()
     {
         newGameBtn.AddButtonListener(StartNewGame, 1f);
-        continueBtn.AddButtonListener(ContinueGame, 1f);
+        // continueBtn.AddButtonListener(ContinueGame, 1f);
         exitBtn.AddButtonListener(ExitGame);
     }
 
@@ -19,10 +19,10 @@ public class UI_MainMenu : MonoBehaviour
         GameManager.Instance.NewGame();
     }
 
-    private void ContinueGame()
-    {
-        _ = GameManager.Instance.ContinueGame();
-    }
+    // private void ContinueGame()
+    // {
+    //     _ = GameManager.Instance.ContinueGame();
+    // }
 
     private void ExitGame()
     {

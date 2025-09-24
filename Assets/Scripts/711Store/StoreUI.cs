@@ -1,14 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StoreUI : MonoBehaviour
 {
     [Header("UI组件")]
     [SerializeField] private GameObject canvas;
-    [SerializeField] private TextMeshProUGUI specialItemRateText;
+    [SerializeField] private Text specialItemRateText;
+    [SerializeField] private Button nextSceneBtn;
 
     private List<StoreSlotUI> uiSlots;
 
@@ -20,6 +20,9 @@ public class StoreUI : MonoBehaviour
             Debug.LogWarning($"[StoreManager] The number of UI Slots is different from SO.numberOfSlots: '{uiSlots.Count}' != '{StoreManager.Instance.storeSO.numberOfSlots}'");
         }
         DeactivateStoreUI();
+
+        if (nextSceneBtn != null)
+            nextSceneBtn.AddButtonListener(() => SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.ChapterTwoScene));
     }
 
     // 激活商店UI

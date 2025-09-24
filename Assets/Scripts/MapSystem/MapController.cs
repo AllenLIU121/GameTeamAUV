@@ -65,6 +65,10 @@ public class MapController : Singleton<MapController>
         waitForOneSecond = new WaitForSeconds(1f);
 
         ProcessTurnCycle();
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.currentData.mapNodes = GetMapDataToSave();
+        }
     }
 
     #region --------- 游戏核心流程 ---------
@@ -279,6 +283,59 @@ public class MapController : Singleton<MapController>
     //     }
     //     return adjacentNodes;
     // }
+
+    // 存储地图数据
+    private List<NodeRuntimeData> GetMapDataToSave()
+    {
+        var mapState = new List<NodeRuntimeData>();
+        if (grid == null) return mapState;
+
+        for (int x = 0; x < mapWidth; x++)
+        {
+            for (int y = 0; y < mapHeight; y++)
+            {
+                Node node = grid[x, y];
+                if (node != null)
+                {
+                    var nodeData = new NodeRuntimeData
+                    {
+                        gridPosition = node.gridPosition,
+                        nodeType = node.nodeType,
+                        isStore = node.isStore,
+                        isSafeZone = node.isSafeZone
+                    };
+                    mapState.Add(nodeData);
+                }
+            }
+        }
+        return mapState;
+    }
+
+    // 恢复地图数据
+    public void RestoreMapData(List<NodeRuntimeData> savedNodes)
+    {
+        if (grid == null || nodeViewGrid == null)
+        {
+            Debug.LogError($"[MapController] Grid or nodeViewGrid is null]");
+        }
+
+        foreach (var savedNode in savedNodes)
+        {
+            int x = savedNode.gridPosition.x;
+            int y = savedNode.gridPosition.y;
+
+            if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
+            {
+                Node node = grid[x, y];
+                node.nodeType = savedNode.nodeType;
+                node.isStore = savedNode.isStore;
+                node.isSafeZone = savedNode.isSafeZone;
+
+                nodeViewGrid[x, y].UpdateVisuals();
+            }
+        }
+        Debug.Log("[MapController] Map restored.");
+    }
 
     // 生成节点地图数据
     private void GenerateMapData()

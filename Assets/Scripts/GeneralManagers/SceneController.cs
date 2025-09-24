@@ -25,7 +25,7 @@ public class SceneController : Singleton<SceneController>
     }
 
     // 异步加载资源和场景
-    public async void LoadSceneAsync(string sceneName, string assetLabel = null, Action onComplete = null)
+    public async void LoadSceneAsync(string sceneName, string assetLabel = null, bool showLoadingUI = false,Action onComplete = null)
     {
         if (isLoading) return;
 
@@ -38,7 +38,7 @@ public class SceneController : Singleton<SceneController>
         await ReleaseAndLoadAssets(assetLabel);
 
         // 加载新场景
-        await LoadingProgressAsync(sceneName);
+        await LoadingProgressAsync(sceneName, showLoadingUI);
 
         onComplete?.Invoke();
 
@@ -67,14 +67,20 @@ public class SceneController : Singleton<SceneController>
         }
     }
 
-    private async Task LoadingProgressAsync(string sceneName)
+    private async Task LoadingProgressAsync(string sceneName, bool showLoadingUI)
     {
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
+        
+        progressBar.gameObject.SetActive(showLoadingUI);
+
         while (!operation.isDone)
         {
-            float progress = Mathf.Clamp01(operation.progress / 0.9f);
-            if (progressBar != null)
-                progressBar.value = progress;
+            if (showLoadingUI)
+            {
+                float progress = Mathf.Clamp01(operation.progress / 0.9f);
+                if (progressBar != null)
+                    progressBar.value = progress;
+            }
             await Task.Yield();
         }
     }

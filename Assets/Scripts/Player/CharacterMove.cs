@@ -49,9 +49,8 @@ public class CharacterMove : MonoBehaviour
         rb.MovePosition(rb.position + movementInput.normalized * MoveSpeed * Time.fixedDeltaTime);
     }
 
-    // public void UpdatePosition()
-        // {
-        //     CurPosition = new Vector2(transform.position.x, transform.position.y);
-        // }
+    public void UpdatePosition()
+    {
+        transform.position = new Vector2(transform.position.x, transform.position.y);
     }
-// }
+}

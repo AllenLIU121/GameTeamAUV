@@ -64,9 +64,11 @@ public class SceneTransitionManager : MonoBehaviour
     /// </summary>
     private void OnDialogueEnd()
     {
+        Debug.Log($"[SceneTransitionManager] OnDialogueEnd called");
         // 防止重复触发
         if (hasTransitioned)
         {
+            Debug.LogWarning($"[SceneTransitionManager] OnDialogueEnd has transitioned => return");
             return;
         }
 
@@ -78,9 +80,12 @@ public class SceneTransitionManager : MonoBehaviour
         }
 
         // 检查当前对话是否包含逃离成功的标志性文本
+        Debug.Log($"[SceneTransitionManager] Checking for Escape Success Dialogue: {IsEscapeSuccessDialogue()}");
+        Debug.Log($"[SceneTransitionManager] DialogueManager: {dialogueManager == null}");
         if (dialogueManager != null && IsEscapeSuccessDialogue())
         {
             // 执行场景转换
+            Debug.Log($"[SceneTransitionManager] Executing Scene Transition");
             ExecuteSceneTransition();
         }
     }

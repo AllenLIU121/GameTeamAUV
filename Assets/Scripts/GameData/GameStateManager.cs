@@ -75,49 +75,49 @@ public class GameStateManager : Singleton<GameStateManager>
         }
     }
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-    // 保存游戏数据到本地(Windows), 在玩家退出游戏到菜单时调用
-    public async Task SaveGameAsync()
-    {
-        currentData.lastSceneName = SceneManager.GetActiveScene().name;
+    // #if UNITY_EDITOR || UNITY_STANDALONE_WIN
+    //     // 保存游戏数据到本地(Windows), 在玩家退出游戏到菜单时调用
+    //     public async Task SaveGameAsync()
+    //     {
+    //         currentData.lastSceneName = SceneManager.GetActiveScene().name;
 
-        SyncDataFromModules();
+    //         SyncDataFromModules();
 
-        string json = JsonUtility.ToJson(currentData, true);
-        string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
+    //         string json = JsonUtility.ToJson(currentData, true);
+    //         string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
 
-        await Task.Run(() => File.WriteAllText(path, json));
-        Debug.Log("[GameStateManager] Game saved successfully.");
-    }
+    //         await Task.Run(() => File.WriteAllText(path, json));
+    //         Debug.Log("[GameStateManager] Game saved successfully.");
+    //     }
 
-    // 从玩家本地(Windows)读取数据, 在玩家进入菜单时并且点击继续游戏时调用
-    public async Task<bool> LoadGameAsync()
-    {
-        string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
+    //     // 从玩家本地(Windows)读取数据, 在玩家进入菜单时并且点击继续游戏时调用
+    //     public async Task<bool> LoadGameAsync()
+    //     {
+    //         string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
 
-        if (!File.Exists(path))
-        {
-            Debug.LogWarning("[GameStateManager] No save file found.");
-            return false;
-        }
+    //         if (!File.Exists(path))
+    //         {
+    //             Debug.LogWarning("[GameStateManager] No save file found.");
+    //             return false;
+    //         }
 
-        string json = await Task.Run(() => File.ReadAllText(path));
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError("[GameStateManager] Save file is empty or corrupted.");
-            return false;
-        }
+    //         string json = await Task.Run(() => File.ReadAllText(path));
+    //         if (string.IsNullOrEmpty(json))
+    //         {
+    //             Debug.LogError("[GameStateManager] Save file is empty or corrupted.");
+    //             return false;
+    //         }
 
-        currentData = JsonUtility.FromJson<GameData>(json);
-        SyncDataFromSnapShot();
+    //         currentData = JsonUtility.FromJson<GameData>(json);
+    //         SyncDataFromSnapShot();
 
-        // PublishCharacterDataForSync();
-        EventManager.Instance.Publish(new OnGameDataLoaded());
-        Debug.Log("[GameStateManager] Game loaded successfully.");
-        return true;
-    }
+    //         // PublishCharacterDataForSync();
+    //         EventManager.Instance.Publish(new OnGameDataLoaded());
+    //         Debug.Log("[GameStateManager] Game loaded successfully.");
+    //         return true;
+    //     }
 
-#endif
+    // #endif
 
     // 从各个模块中拉取最新数据,更新到CurrentData
     private void SyncDataFromModules()
@@ -140,8 +140,12 @@ public class GameStateManager : Singleton<GameStateManager>
         // 物品栏模块数据
         // 暂时不需要 因为InventoryManager直接操作的此数据currentData
 
+
         // 技能模块数据
         // 暂时不需要 当前没有保留技能冷却数据
+
+        // 第二章地图数据
+        // 第二章开始时自动保存
     }
 
     // 将currentData中的数据, 推送到各个模块中
@@ -171,166 +175,12 @@ public class GameStateManager : Singleton<GameStateManager>
         {
             Skill.ResetAllCooldowns();
         }
+
+        // 第二章地图数据
+        if (MapController.Instance != null && currentData.mapNodes.Count > 0)
+        {
+            MapController.Instance.RestoreMapData(currentData.mapNodes);
+        }
     }
 
-
-    // // 帧末更新本帧变化的数据
-    // private void LateUpdate()
-    // {
-    //     ProcessModifiers();
-    // }
-
-    // private void ProcessModifiers()
-    // {
-    //     if (staminaModifiers.Count == 0 && hungerModifiers.Count == 0) return;
-
-    //     // 记录属性变化的角色
-    //     HashSet<string> modifiedCharacters = new HashSet<string>();
-    //     foreach (var key in staminaModifiers.Keys) modifiedCharacters.Add(key);
-    //     foreach (var key in hungerModifiers.Keys) modifiedCharacters.Add(key);
-
-    //     foreach (string characterID in modifiedCharacters)
-    //     {
-    //         if (!currentData.characters.ContainsKey(characterID)) continue;
-
-    //         var data = currentData.characters[characterID];
-
-    //         // 结算体力值
-    //         if (staminaModifiers.TryGetValue(characterID, out var staminaChanges))
-    //         {
-    //             float totalChange = 0;
-    //             foreach (var modifier in staminaChanges) totalChange += modifier;
-
-    //             if (totalChange != 0)
-    //             {
-    //                 float oldValue = data.currentStamina;
-    //                 data.currentStamina = Mathf.Clamp(oldValue + totalChange, 0, data.maxStamina);
-
-    //                 EventManager.Instance.Publish(new OnCharacterStatChanged
-    //                 {
-    //                     characterID = characterID,
-    //                     statType = BuffSO.StatType.Stamina,
-    //                     newValue = data.currentStamina,
-    //                     changeAmount = data.currentStamina - oldValue
-    //                 });
-    //                 Debug.Log($"Character {characterID}'s stamina has changed, newValue: {data.currentStamina}, changeAmount: {data.currentStamina - oldValue}");
-    //             }
-    //         }
-
-    //         // 结算饥饿值
-    //         if (hungerModifiers.TryGetValue(characterID, out var hungerChanges))
-    //         {
-    //             float totalChange = 0;
-    //             foreach (var modifier in hungerChanges) totalChange += modifier;
-
-    //             if (totalChange != 0)
-    //             {
-    //                 float oldValue = data.currentHunger;
-    //                 data.currentHunger = Mathf.Clamp(oldValue + totalChange, 0, data.maxHunger);
-
-    //                 EventManager.Instance.Publish(new OnCharacterStatChanged
-    //                 {
-    //                     characterID = characterID,
-    //                     statType = BuffSO.StatType.Hunger,
-    //                     newValue = data.currentHunger,
-    //                     changeAmount = data.currentHunger - oldValue
-    //                 });
-    //                 Debug.Log($"Character {characterID}'s hunger has changed, newValue: {data.currentHunger}, changeAmount: {data.currentHunger - oldValue}");
-    //             }
-    //         }
-    //     }
-
-    //     ClearAllModifiers();
-    // }
-    // public class SerializableSkillData
-    // {
-    //     public string skillID;
-    //     public float currentCooldown;
-    //     public float cooldownTime;
-
-    //     public SerializableSkillData() { }
-
-    //     public SerializableSkillData(SkillSO skill)
-    //     {
-    //         skillID = skill.skillID;
-    //         currentCooldown = skill.currentCooldown;
-    //         cooldownTime = skill.cooldownTime;
-    //     }
-    // }
-    // private void ClearAllModifiers()
-    // {
-    //     staminaModifiers.Clear();
-    //     hungerModifiers.Clear();
-    // }
-
-    // // --------------- 新游戏接口 ---------------
-    // public void NewGame()
-    // {
-    //     currentData = new GameData();
-    //     historyStack.Clear();
-    //     ClearAllModifiers();
-    // }
-
-    // // --------------- 初始化/获取 角色数据 ---------------
-
-    //     // 初始化角色
-    // public void RegisterNewCharacter(CharacterRuntimeData newCharacterData)
-    // {
-    //     if (currentData.characters.ContainsKey(newCharacterData.characterID)) return;
-    //     currentData.characters[newCharacterData.characterID] = newCharacterData;
-    // }
-
-    // // 获取单个角色运行时数据
-    // public CharacterRuntimeData GetCharacterData(string characterID)
-    // {
-    //     currentData.characters.TryGetValue(characterID, out CharacterRuntimeData characterData);
-    //     return characterData;
-    // }
-
-
-    // // --------------- 更新角色某一属性数据(在帧末统一结算) ---------------
-
-    // // 体力值更新
-    // public void UpdateStamina(string characterID, float amount)
-    // {
-    //     if (!staminaModifiers.ContainsKey(characterID))
-    //     {
-    //         staminaModifiers[characterID] = new List<float>();
-    //     }
-    //     staminaModifiers[characterID].Add(amount);
-    // }
-
-    // // 饥饿值更新
-    // public void UpdateHunger(string characterID, float amount)
-    // {
-    //     if (!hungerModifiers.ContainsKey(characterID))
-    //     {
-    //         hungerModifiers[characterID] = new List<float>();
-    //     }
-    //     hungerModifiers[characterID].Add(amount);
-    // }
-
-    // public void PublishCharacterDataForSync()
-    // {
-    //     foreach (var character in currentData.characters.Values)
-    //     {
-    //         // 体力值更新
-    //         EventManager.Instance.Publish(new OnCharacterStatChanged
-    //         {
-    //             characterID = character.characterID,
-    //             statType = BuffSO.StatType.Stamina,
-    //             newValue = character.currentStamina,
-    //             changeAmount = 0
-    //         });
-
-    //         // 饥饿值更新
-    //         EventManager.Instance.Publish(new OnCharacterStatChanged
-    //         {
-    //             characterID = character.characterID,
-    //             statType = BuffSO.StatType.Hunger,
-    //             newValue = character.currentHunger,
-    //             changeAmount = 0
-    //         });
-    //     }
-    // }
 }

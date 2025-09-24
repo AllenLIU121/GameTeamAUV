@@ -18,6 +18,15 @@ public class StoreManager : Singleton<StoreManager>
         essentialItemRate = storeSO.essentialItemRate;
     }
 
+    public void OpenStore()
+    {
+        StoreUI storeUI = FindAnyObjectByType<StoreUI>();
+        if (storeUI != null)
+        {
+            storeUI.ActivateStoreUI();
+        }
+    }
+
     // 预计算总权重
     private float totalSpecialWeight = -1f;
 
@@ -82,4 +91,5 @@ public class StoreManager : Singleton<StoreManager>
         essentialItemRate -= deltaRate;
         Debug.Log($"[StoreManager] Special item refreshing rate is {1 - essentialItemRate} now.");
     }
+
 }

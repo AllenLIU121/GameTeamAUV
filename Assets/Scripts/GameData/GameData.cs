@@ -10,6 +10,7 @@ public class GameData : ISerializationCallbackReceiver  // Runtime数据仓库
     public List<InventorySlot> inventorySlots = new List<InventorySlot>();
     public float currentWeight = 0f;
 
+    public List<NodeRuntimeData> mapNodes = new List<NodeRuntimeData>();
 
     #region 字典(不可序列化) 和 列表(可序列化) 转换
     [SerializeField] private List<string> characterKeys = new List<string>();
@@ -74,4 +75,14 @@ public class InventorySlot
         this.quantity = quantity;
         currentFreshness = item.maxFreshness;
     }
+}
+
+// 第二章地图数据
+[Serializable]
+public class NodeRuntimeData
+{
+    public Vector2Int gridPosition;
+    public NodeType nodeType;
+    public bool isStore;
+    public bool isSafeZone;
 }
