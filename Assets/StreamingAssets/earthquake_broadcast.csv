@@ -1,0 +1,2 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint
+广播,紧急地震警报:请市民注意，地震即将到来，请准备好应对强烈震动。保持冷静，寻找安全场所。,False,,,,-1,0,0,1

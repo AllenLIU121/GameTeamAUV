@@ -5,20 +5,13 @@ using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
 {
-    private Dictionary<string, GameObject> characterGODict = new Dictionary<string, GameObject>();
+    private Dictionary<string, CharacterStatus> characterStatusDict = new Dictionary<string, CharacterStatus>();
     private Dictionary<string, CharacterSO> characterSODict = new Dictionary<string, CharacterSO>();
-    private BuffManager buffManager;
-
 
     private void Awake()
     {
         GameStateManager.Instance.RegisterCharacterManager(this);
         EventManager.Instance.Subscribe<OnItemUseRequest>(HandleItemUseRequest);
-    }
-
-    private void Start()
-    {
-        buffManager = GameStateManager.Instance.Buff;
     }
 
     private void OnDestroy()
@@ -34,6 +27,15 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
+    // 所有角色减少体力值
+    public void ReduceAllAliveCharactersStamina()
+    {
+        foreach (var status in GetAllAliveCharacterStatus())
+        {
+            status.ModifyStamina(-(float)0.3 * status.MaxStamina);
+        }
+    }
+
     // 当角色使用物品时
     private void HandleItemUseRequest(OnItemUseRequest eventData)
     {
@@ -43,26 +45,19 @@ public class CharacterManager : MonoBehaviour
         var targetCharacterID = eventData.targetCharacterID;
 
         var characterSO = GetCharacterSO(targetCharacterID);
-        var targetObject = GetCharacterGameObject(targetCharacterID);
+        var characterStatus = GetCharacterStatus(targetCharacterID);
 
-        if (characterSO == null || targetObject == null)
+        if (characterSO == null || characterStatus == null)
         {
-            Debug.LogError($"Use item failed: Can't find character SO or GameObject with ID '{targetCharacterID}'");
-            return;
-        }
-
-        var characterStatus = targetObject.GetComponent<CharacterStatus>();
-        if (characterStatus == null)
-        {
-            Debug.LogError($"Character {targetCharacterID} is missing a CharacterStatus component");
+            Debug.LogError($"Use item failed: Can't find character SO or Status with ID '{targetCharacterID}'");
             return;
         }
 
         // 妈妈存活时 黄桃罐头对弟弟妹妹加成效果
         if (itemSO.itemID == "canned_yellow_peach" && characterSO.characterTag == "child")
         {
-            var momGO = GetCharacterGameObject("mom");
-            if (momGO != null && momGO.GetComponent<CharacterStatus>().IsAlive)
+            var momStatus = GetCharacterStatus("mom");
+            if (momStatus != null && momStatus.IsAlive)
             {
                 characterStatus.ModifyStamina(characterSO.maxStamina, true);
                 characterStatus.ModifyHunger(characterSO.maxHunger, true);
@@ -85,10 +80,10 @@ public class CharacterManager : MonoBehaviour
             switch (effect.type)
             {
                 case EffectType.RestoreStamina:
-                    characterStatus.ModifyStamina(eventData.itemFreshness < 20f? effect.value/2 : effect.value);
+                    characterStatus.ModifyStamina(eventData.itemFreshness < 20f ? effect.value / 2 : effect.value);
                     break;
                 case EffectType.RestoreHunger:
-                    characterStatus.ModifyHunger(eventData.itemFreshness < 20f? effect.value/2 : effect.value);
+                    characterStatus.ModifyHunger(eventData.itemFreshness < 20f ? effect.value / 2 : effect.value);
                     break;
                 case EffectType.ApplyBuff:
                     if (effect.buffToApply != null)
@@ -101,12 +96,12 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
-    public void RegisterCharacter(CharacterSO characterSO, GameObject characterGO)
+    public void RegisterCharacter(CharacterSO characterSO, CharacterStatus characterStatus)
     {
-        if (characterSO == null || characterGO == null) return;
+        if (characterSO == null || characterStatus == null) return;
 
         // 注册GameObject实例
-        characterGODict[characterSO.characterID] = characterGO;
+        characterStatusDict[characterSO.characterID] = characterStatus;
 
         // 注册SO数据
         if (!characterSODict.ContainsKey(characterSO.characterID))
@@ -126,9 +121,9 @@ public class CharacterManager : MonoBehaviour
     {
         if (characterSO == null) return;
 
-        if (characterGODict.ContainsKey(characterSO.characterID))
+        if (characterStatusDict.ContainsKey(characterSO.characterID))
         {
-            characterGODict.Remove(characterSO.characterID);
+            characterStatusDict.Remove(characterSO.characterID);
         }
     }
 
@@ -142,14 +137,27 @@ public class CharacterManager : MonoBehaviour
     public List<CharacterSO> GetAllAliveCharacterSOs()
     {
         List<CharacterSO> aliveCharacters = new List<CharacterSO>();
-        foreach (var entry in characterGODict)
+        foreach (var entry in characterStatusDict)
         {
-            CharacterStatus status = entry.Value.GetComponent<CharacterStatus>();
-            if (status != null && status.IsAlive)
+            if (entry.Value != null && entry.Value.IsAlive)
             {
-                aliveCharacters.Add(status.characterSO);
+                aliveCharacters.Add(entry.Value.characterSO);
             }
         }
+        return aliveCharacters;
+    }
+
+    public List<CharacterStatus> GetAllAliveCharacterStatus()
+    {
+        List<CharacterStatus> aliveCharacters = new List<CharacterStatus>();
+        foreach (var entry in characterStatusDict)
+        {
+            if (entry.Value != null && entry.Value.IsAlive)
+            {
+                aliveCharacters.Add(entry.Value);
+            }
+        }
+
         return aliveCharacters;
     }
 
@@ -164,14 +172,14 @@ public class CharacterManager : MonoBehaviour
         return characterSO;
     }
 
-    public GameObject GetCharacterGameObject(string characterID)
+    public CharacterStatus GetCharacterStatus(string characterID)
     {
-        characterGODict.TryGetValue(characterID, out GameObject characterGO);
-        return characterGO;
+        characterStatusDict.TryGetValue(characterID, out CharacterStatus status);
+        return status;
     }
 
-    public ICollection<GameObject> GetAllCharacterGOs()
+    public ICollection<CharacterStatus> GetAllCharacterStatus()
     {
-        return characterGODict.Values;
+        return characterStatusDict.Values;
     }
 }
