@@ -14,18 +14,15 @@ public class CharacterSlot : MonoBehaviour
     public Color cooldownColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
     private Color originalColor;
     private string _characterID; // 角色唯一ID
-    private CharacterSO curCharacterSO;
+    public CharacterSO curCharacterSO;
     private SkillManager skillManager;
     //冷却比例
     private float cooldownpercent;
     private float currentCooldown;
-    // void Start()
-    // {
-    //     skillManager= GameStateManager.Instance.Skill;
-    //     normalAvatar = avatar;
-    //     skillManager.ActivateSkill(curCharacterSO.characterID, curCharacterSO.skill.skillID, 0);
-    //     InitializeUI();
-    // }
+    void Start()
+    {
+        normalAvatar = avatar;;
+    }
     //
     // void Update()
     // {
