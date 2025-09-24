@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
 [System.Serializable]
@@ -20,11 +21,15 @@ public class MapController : Singleton<MapController>
     public GameObject nodePrefab;
     [SerializeField] private GameObject parent;
 
+    [Header("动态节点图标")]
+    public Sprite shelterIcon;
+    public Sprite storeIcon;
+
     private DisasterSystem disasterSystem;
     private Node[,] grid;
     private NodeView[,] nodeViewGrid;
     private Node currentPlayerNode;
-    private int turnCycle = 0;
+    private int turnCycle;
 
     public bool IsInitialized { get; private set; } = false;
 
@@ -57,6 +62,7 @@ public class MapController : Singleton<MapController>
         InitializePlayerPos();
         waitForOneSecond = new WaitForSeconds(1f);
 
+        turnCycle = 0;
         ProcessTurnCycle();
         IsInitialized = true;
     }
@@ -137,18 +143,30 @@ public class MapController : Singleton<MapController>
                 break;
         }
 
+        // if (node.isStore)
+        // {
+        //     // 到达商店后的逻辑
+        //     node.isStore = true;
+        //     nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
+        // }
+        // else if (node.isSafeZone)
+        // {
+        //     // 到达躲避点后的逻辑
+        //     node.isSafeZone = true;
+        //     nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
+        // }
+
         if (node.isStore)
         {
-            // 到达商店后的逻辑
-            node.isStore = false;
-            nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
+            StoreManager.Instance.OpenStore();
         }
-        else if (node.isSafeZone)
+        else
         {
-            // 到达躲避点后的逻辑
-            node.isSafeZone = false;
-            nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
+            if (StoreManager.Instance.IsOpen)
+                StoreManager.Instance.CloseStore();
         }
+
+        nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
     }
 
     private void RefreshWorldState(Node playerNode)
@@ -377,7 +395,7 @@ public class MapController : Singleton<MapController>
                     GameObject nodeObject = Instantiate(nodePrefab, new Vector3(x, y, 0), Quaternion.identity, parent.transform);
                     nodeObject.name = $"Node ({x}, {y})";
 
-                NodeView nodeView = nodeObject.GetComponent<NodeView>();
+                    NodeView nodeView = nodeObject.GetComponent<NodeView>();
                     if (nodeView != null)
                     {
                         nodeView.Initialize(grid[x, y]);
@@ -394,6 +412,8 @@ public class MapController : Singleton<MapController>
         parent.transform.localScale = new Vector3(0.495f, 0.495f, 0.495f);
         parent.transform.position = new Vector3(1.24f, -1.03f, 0f);
         Debug.Log("[MapController] Map generated successfully!");
+        
+        GameStateManager.Instance.GenerateSnapshot();
     }
 
     // 获取指定坐标节点数据

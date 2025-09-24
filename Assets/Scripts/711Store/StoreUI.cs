@@ -15,10 +15,10 @@ public class StoreUI : MonoBehaviour
     private void Awake()
     {
         uiSlots = canvas.GetComponentsInChildren<StoreSlotUI>().ToList();
-        if (uiSlots.Count != StoreManager.Instance.storeSO.numberOfSlots)
-        {
-            Debug.LogWarning($"[StoreManager] The number of UI Slots is different from SO.numberOfSlots: '{uiSlots.Count}' != '{StoreManager.Instance.storeSO.numberOfSlots}'");
-        }
+        // if (uiSlots.Count != StoreManager.Instance.storeSO.numberOfSlots)
+        // {
+        //     Debug.LogWarning($"[StoreManager] The number of UI Slots is different from SO.numberOfSlots: '{uiSlots.Count}' != '{StoreManager.Instance.storeSO.numberOfSlots}'");
+        // }
         DeactivateStoreUI();
 
         if (nextSceneBtn != null)
@@ -61,6 +61,6 @@ public class StoreUI : MonoBehaviour
 
     private void SetSpecialItemRateText(float rate)
     {
-        specialItemRateText.text = $"special item refreshing rate: {(1 - rate) * 100}%";
+        specialItemRateText.text = $"特殊商品刷新率: {(1 - rate) * 100}%";
     }
 }

@@ -75,11 +75,7 @@ public class CharacterMove : MonoBehaviour
         GetComponent<CapsuleCollider2D>().enabled = false;
         GetComponentInChildren<SpriteRenderer>().enabled = false;
 
-        GameObject storeUI = GameObject.Find("UI_StoreChapterOne");
-        if (storeUI != null)
-        {
-            storeUI.GetComponent<StoreUI>().DeactivateStoreUI();
-        }
+        StoreManager.Instance.CloseStore();
 
         StartCoroutine(PlayCarAnimation());
     }

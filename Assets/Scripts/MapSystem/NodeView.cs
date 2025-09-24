@@ -10,6 +10,7 @@ public class NodeView : MonoBehaviour
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = 5;
     }
 
     public void Initialize(Node nodeData)
@@ -26,29 +27,33 @@ public class NodeView : MonoBehaviour
     {
         if (spriteRenderer == null || nodeData == null) return;
 
-        switch (nodeData.nodeType)
-        {
-            case NodeType.Embassy:
-                spriteRenderer.color = Color.yellow;
-                break;
-            case NodeType.Mountain:
-                spriteRenderer.color = Color.green;
-                break;
-            case NodeType.Sea:
-                spriteRenderer.color = Color.blue;
-                break;
-            case NodeType.OpenSpace:
-                spriteRenderer.color = Color.white;
-                break;
-        }
+        // switch (nodeData.nodeType)
+        // {
+        //     case NodeType.Embassy:
+        //         spriteRenderer.color = Color.yellow;
+        //         break;
+        //     case NodeType.Mountain:
+        //         spriteRenderer.color = Color.green;
+        //         break;
+        //     case NodeType.Sea:
+        //         spriteRenderer.color = Color.blue;
+        //         break;
+        //     case NodeType.OpenSpace:
+        //         spriteRenderer.color = Color.white;
+        //         break;
+        // }
 
         if (nodeData.isStore)
         {
-            spriteRenderer.color = Color.red;
+            spriteRenderer.sprite = MapController.Instance.storeIcon;
         }
         else if (nodeData.isSafeZone)
         {
-            spriteRenderer.color = Color.cyan;
+            spriteRenderer.sprite = MapController.Instance.shelterIcon;
+        }
+        else
+        {
+            spriteRenderer.sprite = null;
         }
     }
 }

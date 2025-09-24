@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DisasterSystem : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class DisasterSystem : MonoBehaviour
     public List<DisasterSO> mapWideDisasters;
     public DisasterSO landslideDisaster;
     public DisasterSO tsunamiDisaster;
+
+    [SerializeField] private Text currentDisasterName;
 
     public DisasterSO ActiveDisaster { get; private set; }
 
@@ -30,6 +33,6 @@ public class DisasterSystem : MonoBehaviour
             ActiveDisaster = mapWideDisasters[Random.Range(0, mapWideDisasters.Count)]; // 空旷地区随机触发全图灾害
         }
 
-        Debug.Log($"[DisasterSystem] Triggered new disaster: {ActiveDisaster.disasterName}");
+        currentDisasterName.text = $"当前灾害: {ActiveDisaster.disasterName}";
     }
 }
