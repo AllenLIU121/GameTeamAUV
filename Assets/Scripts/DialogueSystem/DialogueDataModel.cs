@@ -61,6 +61,7 @@ namespace DialogueSystem
         public Text choiceTypeCharacterNameText;
         public GameObject choiceTypeDialogueBox;
         public Transform choiceContainer;
+        public Image choiceTypeCharacterAvatarImage; // 角色头像
 
         // 提示类型UI组件
         public GameObject hintTypeDialogueUI;

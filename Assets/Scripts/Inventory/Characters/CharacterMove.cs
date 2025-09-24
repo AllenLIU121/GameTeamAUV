@@ -19,26 +19,45 @@ namespace Inventory.Characters
         }
         void Update()
         {
-            UpdatePosition();
-
-            // 检查对话是否正在进行，如果是则不处理鼠标点击
+            // 检查对话是否正在进行，如果是则不处理移动输入
             if (dialogueManager != null && dialogueManager.IsDialogueActive())
             {
                 return;
             }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                // 检测点击点是否在“任何碰撞器”内部
-                Collider2D collider = Physics2D.OverlapPoint(mouseWorldPosition);
+            // 使用WASD键控制移动
+            float moveX = 0f;
+            float moveY = 0f;
 
-                // 如果“不在任何碰撞器内部”（即点击绿色线外），执行移动
-                if (collider == null)
-                {
-                    transform.position = Vector2.Lerp(CurPosition, mouseWorldPosition, MoveSpeed * Time.deltaTime);
-                }
+            if (Input.GetKey(KeyCode.W))
+            {
+                moveY = 1f;
             }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                moveY = -1f;
+            }
+
+            if (Input.GetKey(KeyCode.D))
+            {
+                moveX = 1f;
+            }
+            else if (Input.GetKey(KeyCode.A))
+            {
+                moveX = -1f;
+            }
+
+            // 计算移动方向向量并归一化
+            Vector2 moveDirection = new Vector2(moveX, moveY).normalized;
+
+            // 应用移动
+            if (moveDirection != Vector2.zero)
+            {
+                transform.Translate(moveDirection * MoveSpeed * Time.deltaTime);
+            }
+
+            // 更新当前位置
+            UpdatePosition();
         }
         public void UpdatePosition()
         {

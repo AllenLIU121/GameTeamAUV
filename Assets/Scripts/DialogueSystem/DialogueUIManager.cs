@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Reflection; // 添加反射命名空间引用
 
 namespace DialogueSystem
 {
@@ -12,6 +13,9 @@ namespace DialogueSystem
         private readonly DialogueUIConfig _uiConfig;
         private bool _isUILoaded = false;
         private bool _isCurrentChoiceType = true; // 当前对话UI类型
+        private Dictionary<string, UnityEngine.Sprite> _characterAvatars = new Dictionary<string, UnityEngine.Sprite>();
+        private bool _hasLoadedCharacterData = false;
+        private float _originalMaskAlpha = 1f; // 保存遮罩的原始透明度
 
         public bool IsUILoaded => _isUILoaded;
         public bool IsCurrentChoiceType => _isCurrentChoiceType;
@@ -20,6 +24,7 @@ namespace DialogueSystem
         {
             _uiConfig = uiConfig;
         }
+
 
         /// <summary>
         /// 实例化并绑定所有UI组件
@@ -50,6 +55,8 @@ namespace DialogueSystem
                         if (nameBar != null)
                         {
                             _uiConfig.choiceTypeCharacterNameText = FindTextComponent(nameBar, "Name");
+                            // 绑定角色头像Image组件（假设在profile下有Image组件）
+                            _uiConfig.choiceTypeCharacterAvatarImage = FindImageComponent(profile, "Image");
                         }
                     }
                 }
@@ -70,6 +77,9 @@ namespace DialogueSystem
                         _uiConfig.choiceButtonPrefab = tempPrefab;
                     }
                 }
+
+                // 保存遮罩的原始透明度
+                SaveOriginalMaskAlpha();
             }
 
             // 2. 实例化提示类型UI
@@ -94,6 +104,32 @@ namespace DialogueSystem
                 : _uiConfig.hintTypeDialogueUI != null && _uiConfig.hintTypeDialogueBox != null;
 
             Debug.Log($"DialogueUIManager: UI实例化完成，加载状态={_isUILoaded}");
+        }
+
+        /// <summary>
+        /// 保存遮罩的原始透明度
+        /// </summary>
+        private void SaveOriginalMaskAlpha()
+        {
+            if (_uiConfig.choiceTypeDialogueUI == null)
+                return;
+
+            // 查找遮罩（mask）组件
+            Image maskImage = null;
+            // 尝试查找常见的遮罩名称
+            Transform maskTransform = _uiConfig.choiceTypeDialogueUI.transform.Find("Mask");
+
+            if (maskTransform != null)
+            {
+                maskImage = maskTransform.GetComponent<Image>();
+            }
+
+            // 如果找到了遮罩组件，保存其原始透明度
+            if (maskImage != null)
+            {
+                _originalMaskAlpha = maskImage.color.a;
+                Debug.Log($"DialogueUIManager: 保存遮罩原始透明度={_originalMaskAlpha}");
+            }
         }
 
         /// <summary>
@@ -123,6 +159,7 @@ namespace DialogueSystem
                 }
                 if (_uiConfig.choiceContainer != null)
                 {
+                    // 默认情况下激活选择容器，后续在ShowChoiceButtons中会根据是否有选项来决定
                     _uiConfig.choiceContainer.gameObject.SetActive(_isCurrentChoiceType && isActive);
                 }
             }
@@ -149,7 +186,7 @@ namespace DialogueSystem
         }
 
         /// <summary>
-        /// 显示单条对话内容（角色名+文本）
+        /// 显示单条对话内容（角色名+文本+头像）
         /// </summary>
         public void ShowDialogueContent(DialogueEntry entry)
         {
@@ -159,6 +196,38 @@ namespace DialogueSystem
             if (_isCurrentChoiceType && _uiConfig.choiceTypeCharacterNameText != null)
             {
                 _uiConfig.choiceTypeCharacterNameText.text = entry.characterName;
+            }
+
+            // 显示角色头像（仅选择类型UI支持）
+            if (_isCurrentChoiceType && _uiConfig.choiceTypeCharacterAvatarImage != null)
+            {
+                if (!string.IsNullOrEmpty(entry.characterName))
+                {
+                    // 确保角色数据已加载
+                    LoadCharacterData();
+                    
+                    // 查找对应角色的头像（不区分大小写）
+                    string characterNameLower = entry.characterName.ToLower();
+                    if (_characterAvatars.TryGetValue(characterNameLower, out UnityEngine.Sprite avatarSprite))
+                    {
+                        // 使用找到的头像
+                        _uiConfig.choiceTypeCharacterAvatarImage.sprite = avatarSprite;
+                        _uiConfig.choiceTypeCharacterAvatarImage.gameObject.SetActive(true);
+                        Debug.Log($"DialogueUIManager: 显示角色 '{entry.characterName}' 的头像");
+                    }
+                    else
+                    {
+                        // 如果找不到头像，尝试通过角色名直接查找（可能是Addressables中的资源）
+                        // 这作为备用方案
+                        Debug.LogWarning($"DialogueUIManager: 未找到角色 '{entry.characterName}' 的头像");
+                        _uiConfig.choiceTypeCharacterAvatarImage.gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    // 没有角色名时隐藏头像
+                    _uiConfig.choiceTypeCharacterAvatarImage.gameObject.SetActive(false);
+                }
             }
 
             // 显示对话文本（根据当前类型选择对应文本组件）
@@ -183,6 +252,18 @@ namespace DialogueSystem
 
             // 清除现有按钮
             ClearChoiceButtons();
+
+            // 如果没有选项，则隐藏选择容器并处理遮罩
+            if (choices == null || choices.Count == 0)
+            {
+                _uiConfig.choiceContainer.gameObject.SetActive(false);
+                HandleMaskVisibility(false);
+                return;
+            }
+
+            // 有选项时显示选择容器并处理遮罩
+            _uiConfig.choiceContainer.gameObject.SetActive(true);
+            HandleMaskVisibility(true);
 
             // 为容器添加布局组件（确保按钮排版正确）
             AddLayoutToChoiceContainer();
@@ -229,6 +310,46 @@ namespace DialogueSystem
         }
 
         /// <summary>
+        /// 处理遮罩的可见性
+        /// </summary>
+        private void HandleMaskVisibility(bool hasChoices)
+        {
+            if (!_isUILoaded || !_isCurrentChoiceType || _uiConfig.choiceTypeDialogueUI == null)
+                return;
+
+            // 查找遮罩（mask）组件
+            Image maskImage = null;
+            // 尝试查找常见的遮罩名称
+            Transform maskTransform = _uiConfig.choiceTypeDialogueUI.transform.Find("Mask") ??
+                                     _uiConfig.choiceTypeDialogueUI.transform.Find("BackgroundMask") ??
+                                     _uiConfig.choiceTypeDialogueUI.transform.Find("DialogueMask");
+
+            if (maskTransform != null)
+            {
+                maskImage = maskTransform.GetComponent<Image>();
+            }
+
+            // 如果找到了遮罩组件
+            if (maskImage != null)
+            {
+                if (hasChoices)
+                {
+                    // 有选项时恢复原始透明度
+                    Color color = maskImage.color;
+                    color.a = _originalMaskAlpha; // 恢复保存的原始透明度
+                    maskImage.color = color;
+                }
+                else
+                {
+                    // 没有选项时设置透明度为0
+                    Color color = maskImage.color;
+                    color.a = 0f; // 设置透明度为0
+                    maskImage.color = color;
+                }
+            }
+        }
+
+        /// <summary>
         /// 清除所有选择按钮
         /// </summary>
         public void ClearChoiceButtons()
@@ -247,6 +368,24 @@ namespace DialogueSystem
         {
             UpdateUIState(false);
             ClearChoiceButtons();
+        }
+
+        /// <summary>
+        /// 隐藏选择容器和遮罩
+        /// </summary>
+        public void HideChoiceContainerAndMask()
+        {
+            if (!_isUILoaded || !_isCurrentChoiceType)
+                return;
+
+            // 隐藏选择容器
+            if (_uiConfig.choiceContainer != null)
+            {
+                _uiConfig.choiceContainer.gameObject.SetActive(false);
+            }
+
+            // 设置遮罩透明度为0
+            HandleMaskVisibility(false);
         }
 
         /// <summary>
@@ -289,6 +428,71 @@ namespace DialogueSystem
         {
             var child = FindChildObject(parent, childName);
             return child != null ? child.GetComponent<Text>() : null;
+        }
+
+        private Image FindImageComponent(GameObject parent, string childName)
+        {
+            var child = FindChildObject(parent, childName);
+            return child != null ? child.GetComponent<Image>() : null;
+        }
+
+        /// <summary>
+        /// 加载所有角色数据
+        /// </summary>
+        private void LoadCharacterData()
+        {   
+            // 检查是否已经加载过角色数据
+            if (_hasLoadedCharacterData && _characterAvatars.Count > 0) return;
+            
+            // 清空现有数据，准备重新加载
+            _characterAvatars.Clear();
+            
+            try
+            {   
+                // 直接查找项目中所有CharacterSO资源
+                var characterSOs = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.ScriptableObject>();
+                
+                foreach (var characterSO in characterSOs)
+                {   
+                    // 检查是否为CharacterSO类型
+                    if (characterSO.GetType().Name == "CharacterSO")
+                    {   
+                        // 使用反射获取字段值
+                        var characterNameField = characterSO.GetType().GetField("characterName", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        var characterPortraitField = characterSO.GetType().GetField("characterPortrait", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        
+                        if (characterNameField != null && characterPortraitField != null)
+                        {   
+                            string characterName = characterNameField.GetValue(characterSO) as string;
+                            UnityEngine.Sprite portrait = characterPortraitField.GetValue(characterSO) as UnityEngine.Sprite;
+                            
+                            if (!string.IsNullOrEmpty(characterName) && portrait != null)
+                            {   
+                                // 存储角色头像（不区分大小写）
+                                string nameKey = characterName.ToLower();
+                                if (!_characterAvatars.ContainsKey(nameKey))
+                                {   
+                                    _characterAvatars[nameKey] = portrait;
+                                    Debug.Log($"DialogueUIManager: 加载角色 '{characterName}' 的头像");
+                                }
+                                else
+                                {   
+                                    Debug.LogWarning($"DialogueUIManager: 角色名 '{characterName}' 重复，使用第一个找到的头像");
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                _hasLoadedCharacterData = true;
+                Debug.Log($"DialogueUIManager: 总共加载 {_characterAvatars.Count} 个角色头像");
+            }
+            catch (System.Exception e)
+            {   
+                Debug.LogError($"DialogueUIManager: 加载角色数据时出错: {e.Message}\n{e.StackTrace}");
+                // 如果出错，允许下次尝试重新加载
+                _hasLoadedCharacterData = false;
+            }
         }
 
         private Transform FindTransform(GameObject parent, string childName)
