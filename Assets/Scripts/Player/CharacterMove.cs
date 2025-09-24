@@ -55,11 +55,11 @@ public class CharacterMove : MonoBehaviour
 
         if (moveX > 0f)
         {
-            portrait.flipX = false;
+            portrait.flipX = true;
         }
         else if (moveX < 0f)
         {
-            portrait.flipX = true;
+            portrait.flipX = false;
         }
     }
 
