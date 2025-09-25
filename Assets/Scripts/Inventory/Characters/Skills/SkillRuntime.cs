@@ -7,7 +7,7 @@ public class SkillRuntime
     public float CurrentCooldown { get; private set; }
     public bool targetItem;
     public bool IsReady => CurrentCooldown <= 0;
-
+    
     public SkillRuntime(SkillSO skillData)
     {
         SkillData = skillData;
@@ -17,9 +17,17 @@ public class SkillRuntime
 
     public void UpdateCooldown(float deltaTime)
     {
-        if (CurrentCooldown > 0) CurrentCooldown = Mathf.Max(0, CurrentCooldown - deltaTime);
+        if (CurrentCooldown > 0)
+        {
+            CurrentCooldown = Mathf.Max(0, CurrentCooldown - deltaTime);
+        }
     }
 
     public void StartCooldown() => CurrentCooldown = SkillData.cooldownTime;
     public void ResetCooldown() => CurrentCooldown = 0;
+
+    public float GetCooldown()
+    {
+        return CurrentCooldown;
+    }
 }

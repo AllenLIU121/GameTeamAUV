@@ -76,7 +76,10 @@ public class CharacterSlot : MonoBehaviour
             Debug.LogError("InitSlot: characterSO为空！");
             return;
         }
-
+        else
+        {
+            curCharacterSO = characterSO;
+        }
         if (string.IsNullOrEmpty(characterSO.characterID))
         {
             Debug.LogError("InitSlot: characterID为空！");
