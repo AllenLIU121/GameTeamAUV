@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class AwardableQuestion : MonoBehaviour
 {
@@ -215,7 +216,21 @@ public class AwardableQuestion : MonoBehaviour
         }
         else
         {
-            Debug.LogError("AwardableQuestion: 找不到EmbassyDialogueFlow组件");
+            // 添加容错处理：尝试直接从场景中查找并激活回家视频播放逻辑
+            Debug.LogError("AwardableQuestion: 找不到EmbassyDialogueFlow组件，尝试直接触发回家流程");
+            
+            // 查找回家视频播放器
+            VideoPlayer goHomeVideoPlayer = FindObjectOfType<VideoPlayer>();
+            if (goHomeVideoPlayer != null)
+            {
+                Debug.Log("AwardableQuestion: 找到VideoPlayer组件，尝试直接播放回家视频");
+                goHomeVideoPlayer.gameObject.SetActive(true);
+                goHomeVideoPlayer.Play();
+            }
+            else
+            {
+                Debug.LogError("AwardableQuestion: 找不到VideoPlayer组件，无法触发回家流程");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Video;
 using DialogueSystem;
 using System.Collections.Generic;
 using System.Reflection;
@@ -15,6 +16,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
     public CharacterManager characterManager;
     public VideoManager videoManager;
     public AwardableQuestion awardableQuestion; // 使用AwardableQuestion中的正确率逻辑
+    public VideoPlayer goHomeVideoPlayer; // 回家视频播放器
 
     private string currentDialogueType = "";
 
@@ -35,7 +37,13 @@ public class EmbassyDialogueFlow : MonoBehaviour
             videoManager = FindObjectOfType<VideoManager>();
 
         if (awardableQuestion == null)
+        {
             awardableQuestion = FindObjectOfType<AwardableQuestion>();
+            if (awardableQuestion == null)
+            {
+                Debug.LogWarning("EmbassyDialogueFlow: 初始查找未找到AwardableQuestion组件，将在需要时再次尝试查找");
+            }
+        }
     }
 
     private void Start()
@@ -128,6 +136,12 @@ public class EmbassyDialogueFlow : MonoBehaviour
             if (!string.IsNullOrEmpty(currentCSVPath) && currentCSVPath.Contains("embassy_arrival.csv"))
             {
                 // 显示AwardableQuestion问答预制体
+                if (awardableQuestion == null)
+                {
+                    // 尝试重新查找AwardableQuestion组件
+                    awardableQuestion = FindObjectOfType<AwardableQuestion>();
+                }
+                
                 if (awardableQuestion != null)
                 {
                     Debug.Log("EmbassyDialogueFlow: 显示AwardableQuestion问答预制体");
@@ -135,7 +149,9 @@ public class EmbassyDialogueFlow : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("EmbassyDialogueFlow: 找不到AwardableQuestion组件");
+                    Debug.LogError("EmbassyDialogueFlow: 找不到AwardableQuestion组件，将直接触发回家流程");
+                    // 直接触发回家流程，避免游戏卡住
+                    TriggerGoHomeAnimation();
                 }
                 return;
             }
@@ -222,7 +238,38 @@ public class EmbassyDialogueFlow : MonoBehaviour
     {
         Debug.Log("EmbassyDialogueFlow: 触发回家动画");
 
-        Debug.Log("正在播放回家动画...");
+        // 检查回家视频播放器是否已赋值
+        if (goHomeVideoPlayer == null)
+        {
+            Debug.LogError("EmbassyDialogueFlow: 回家视频播放器未赋值");
+            return;
+        }
+
+        // 确保视频播放器对象是激活状态
+        goHomeVideoPlayer.gameObject.SetActive(true);
+
+        // 移除之前可能存在的事件监听器（避免重复添加）
+        goHomeVideoPlayer.loopPointReached -= OnGoHomeVideoEnd;
+        // 添加视频结束事件监听器
+        goHomeVideoPlayer.loopPointReached += OnGoHomeVideoEnd;
+
+        // 开始播放回家视频
+        goHomeVideoPlayer.Play();
+        Debug.Log("EmbassyDialogueFlow: 开始播放回家视频");
+    }
+
+    // 回家视频播放结束时调用
+    private void OnGoHomeVideoEnd(VideoPlayer vp)
+    {
+        Debug.Log("EmbassyDialogueFlow: 回家视频播放结束，退出游戏");
+
+        // 退出游戏
+        Application.Quit();
+
+        // 在编辑器模式下停止播放
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
     // 重置答题系统
@@ -237,8 +284,13 @@ public class EmbassyDialogueFlow : MonoBehaviour
     {
         if (awardableQuestion == null)
         {
-            Debug.LogError("EmbassyDialogueFlow: 找不到AwardableQuestion组件");
-            return false;
+            // 尝试重新查找AwardableQuestion组件
+            awardableQuestion = FindObjectOfType<AwardableQuestion>();
+            if (awardableQuestion == null)
+            {
+                Debug.LogWarning("EmbassyDialogueFlow: 找不到AwardableQuestion组件，使用默认正确率结果");
+                return true; // 使用默认值true，确保游戏流程能继续
+            }
         }
 
         return awardableQuestion.rightCount > 8;
