@@ -1,0 +1,468 @@
+fileFormatVersion: 2
+guid: 13bdb3c3b9fe750408df3a7c0fb17e08
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Scene1Room(gai)_0
+      rect:
+        serializedVersion: 2
+        x: 1765
+        y: 1129
+        width: 100
+        height: 156
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b7b42d113d0e854e8cdde23945fa367
+      internalID: 1480543273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_1
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 1022
+        width: 137
+        height: 272
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4a7553357a4463479d727c5d8a2d9e9
+      internalID: -1913044959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 12
+        width: 1662
+        height: 1203
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape:
+      - - {x: 814, y: 297.5}
+        - {x: 816, y: 90.5}
+        - {x: 376, y: 346.5}
+        - {x: 312, y: 363.5}
+        - {x: 85, y: 231.5}
+        - {x: 206, y: 164.5}
+        - {x: 207, y: 0.5}
+        - {x: -4, y: -123.5}
+        - {x: -831, y: 353.5}
+        - {x: -831, y: 584.5}
+        - {x: 325, y: 593.5}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b57ef09b86986842824eb81d23d5b89
+      internalID: -1780494179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_4
+      rect:
+        serializedVersion: 2
+        x: 2208
+        y: 1057
+        width: 140
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c16e53671544fb84b96d7b713535fe3e
+      internalID: 685032265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_6
+      rect:
+        serializedVersion: 2
+        x: 1761
+        y: 774
+        width: 80
+        height: 209
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8a63550fea70c2419e96fed0b037eff
+      internalID: -1248430941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_7
+      rect:
+        serializedVersion: 2
+        x: 2007
+        y: 728
+        width: 115
+        height: 225
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ef06800e34eb39f40893e295036e91de
+      internalID: -1455445155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_9
+      rect:
+        serializedVersion: 2
+        x: 2224
+        y: 830
+        width: 140
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5feff1c2c6620864095a9fa8fa608293
+      internalID: -946954502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_14
+      rect:
+        serializedVersion: 2
+        x: 1751
+        y: 595
+        width: 60
+        height: 57
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7b6c8929d5daac4f83e422d21c5c187
+      internalID: -918454370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_15
+      rect:
+        serializedVersion: 2
+        x: 1913
+        y: 440
+        width: 119
+        height: 224
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1fd5e307c14063240905cb71a8fdb9bf
+      internalID: 1623978515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_18
+      rect:
+        serializedVersion: 2
+        x: 2104
+        y: 575
+        width: 28
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f18cfbe4590178249bfe00f39493c9bf
+      internalID: 438716866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_23
+      rect:
+        serializedVersion: 2
+        x: 1721
+        y: 155
+        width: 347
+        height: 230
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be2f4518108eb7448a06f26a3048fc6a
+      internalID: -251874267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_24
+      rect:
+        serializedVersion: 2
+        x: 2226
+        y: 352
+        width: 140
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ec9b67412d4f57146a0542663eec5d2e
+      internalID: -1281199191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_26
+      rect:
+        serializedVersion: 2
+        x: 1653
+        y: 29
+        width: 81
+        height: 95
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 73c6e28cabdb2074e8c0a522eee7c3b9
+      internalID: 1063900921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_27
+      rect:
+        serializedVersion: 2
+        x: 2063
+        y: 5
+        width: 292
+        height: 190
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfaec11b16a7ef840a17b8d54c7e8531
+      internalID: 1509638876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Scene1Room(gai)_5
+      rect:
+        serializedVersion: 2
+        x: 2232
+        y: 600
+        width: 140
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b0596fb358b85c449c092d89ff01263
+      internalID: -1541810354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Scene1Room(gai)_0: 1480543273
+      Scene1Room(gai)_1: -1913044959
+      Scene1Room(gai)_10: -265988431
+      Scene1Room(gai)_11: -1879593957
+      Scene1Room(gai)_12: 1293908578
+      Scene1Room(gai)_13: -1795542442
+      Scene1Room(gai)_14: -918454370
+      Scene1Room(gai)_15: 1623978515
+      Scene1Room(gai)_16: -363775189
+      Scene1Room(gai)_17: -519016685
+      Scene1Room(gai)_18: 438716866
+      Scene1Room(gai)_19: -1554734174
+      Scene1Room(gai)_2: 1147648959
+      Scene1Room(gai)_20: 1730197821
+      Scene1Room(gai)_21: 11805339
+      Scene1Room(gai)_22: 451055056
+      Scene1Room(gai)_23: -251874267
+      Scene1Room(gai)_24: -1281199191
+      Scene1Room(gai)_25: -353379805
+      Scene1Room(gai)_26: 1063900921
+      Scene1Room(gai)_27: 1509638876
+      Scene1Room(gai)_3: -1780494179
+      Scene1Room(gai)_4: 685032265
+      Scene1Room(gai)_5: -1541810354
+      Scene1Room(gai)_6: -1248430941
+      Scene1Room(gai)_7: -1455445155
+      Scene1Room(gai)_8: -411806126
+      Scene1Room(gai)_9: -946954502
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

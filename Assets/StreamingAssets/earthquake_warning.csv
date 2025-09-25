@@ -1,0 +1,2 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint
+Player,我没记错的话，等一会地震就要来了，快看看酒店的逃生手册，并储备一点物资。,False,,,,-1,0,0,1

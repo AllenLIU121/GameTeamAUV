@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Inventory;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// 处理UI元素的拖拽逻辑，包括物品栏中的物品拖拽到角色栏或场景中
-/// </summary>
+// 处理UI元素的拖拽逻辑，包括物品栏中的物品拖拽到角色栏或场景中
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 {
     [Header("拖拽设置")]
@@ -25,7 +25,6 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private RectTransform m_DraggingPlane;
     private CanvasGroup canvasGroup;
     private Image originalImage; // 原始物品图像组件
-    private bool isDragging = false;
     private int slotIndex = -1; // 当前物品槽索引
 
     // 缓存组件引用
@@ -125,8 +124,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 设置初始位置
         SetDraggedPosition(eventData);
 
-        // 标记为拖拽中
-        isDragging = true;
+        // 拖拽已开始
     }
 
     /// <summary>
@@ -232,8 +230,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 处理拖放逻辑
         ProcessDrop(eventData);
 
-        // 重置拖拽状态
-        isDragging = false;
+        // 拖拽已结束
         slotIndex = -1;
     }
 
@@ -270,7 +267,8 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (!isOverUI)
         {
             // 拖放到场景中
-            DropToScene(eventData);
+            // DropToScene(eventData);
+            return;
         }
         else
         {
@@ -285,7 +283,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private void DropToScene(PointerEventData eventData)
     {
         // 在鼠标位置生成物品
-        if (Camera.main == null || parentCanvas == null)
+        if (Camera.main == null || parentCanvas == null || slotIndex < 0 || cachedInventoryManager == null || SceneManager.GetActiveScene().name != GameConstants.SceneName.ChapterOneScene)
             return;
 
         Vector2 localPoint;
@@ -307,6 +305,22 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 #if DEBUG
                 Debug.Log("[DragHandler] 物品成功放置到Canvas: " + instantiatedItem.name + " 在本地位置: " + localPoint);
 #endif
+            }
+
+            // 获取物品信息并设置到WorldItemClickHandler组件
+            // 使用完全限定名确保正确获取组件
+            Inventory.WorldItemClickHandler clickHandler = instantiatedItem.GetComponent<Inventory.WorldItemClickHandler>();
+            if (clickHandler != null)
+            {
+                // 使用GameStateManager获取物品ID和数量
+                var gameData = GameStateManager.Instance?.currentData;
+                if (gameData != null && slotIndex < gameData.inventorySlots.Count)
+                {
+                    var slot = gameData.inventorySlots[slotIndex];
+                    instantiatedItem.GetComponent<Image>().sprite = ItemDatabase.Instance.GetItemSO(slot.itemID).itemIcon;
+                    clickHandler.itemID = slot.itemID;
+                    clickHandler.quantity = 1; // 每次拖放一个物品
+                }
             }
         }
     }
@@ -405,7 +419,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 rt.position = eventData.position;
             }
         }
-        
+
         rt.localScale = Vector3.one;
     }
 
@@ -432,7 +446,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             component = t.gameObject.GetComponent<T>();
             if (component != null)
                 return component;
-            
+
             t = t.parent;
         }
 

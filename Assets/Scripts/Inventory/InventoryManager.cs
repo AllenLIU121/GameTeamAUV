@@ -14,10 +14,6 @@ public class InventoryManager : MonoBehaviour
     private void Awake()
     {
         GameStateManager.Instance.RegisterInventoryManager(this);
-    }
-
-    private void Start()
-    {
         if (GameStateManager.Instance != null)
         {
             gameData = GameStateManager.Instance.currentData;
@@ -34,6 +30,11 @@ public class InventoryManager : MonoBehaviour
         // 初始化物品栏位
         InitializeInventorySlots();
 
+        EventManager.Instance.Publish(new OnInventoryInitialized());
+    }
+
+    private void Start()
+    {
         StartCoroutine(FreshnessDecayCoroutine());
     }
 
@@ -89,6 +90,7 @@ public class InventoryManager : MonoBehaviour
             Debug.Log($"[InventoryManager] Add Item: {itemSO.itemName}, Quantity: {amount}, Index: {slotIndex}, Freshness: {slot.currentFreshness}");
         }
 
+        Debug.Log($"[InventoryManaer] slot freshness: {slot.currentFreshness}");
         UpdateCurrentWeight(itemSO.weight * amount);
         RefreshSlotUIRequest(new List<int> { slotIndex });
         return true;
@@ -282,12 +284,25 @@ public class InventoryManager : MonoBehaviour
             var itemSO = GetItemSO(i);
             if (itemSO == null || itemSO.decayRate <= 0) continue;
 
-            slot.currentFreshness -= itemSO.decayRate * deltaTime;
+            float effectiveDecayRate = itemSO.decayRate;
+            if (slot.quantity > 1)
+            {
+                effectiveDecayRate /= slot.quantity;
+            }
+
+            slot.currentFreshness -= effectiveDecayRate * deltaTime;
+            EventManager.Instance.Publish(new OnItemFreshnessChanged
+            {
+                slotIndex = i,
+                currentFreshness = slot.currentFreshness
+            });
 
             if (slot.currentFreshness <= 0)
             {
-                slot.Reset();
                 UpdateCurrentWeight(-(itemSO.weight * slot.quantity));
+                slot.Reset();
+
+                RefreshSlotUIRequest(new List<int> { i });
             }
         }
     }

@@ -1,0 +1,5 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint,OnDialogueCompleteMethod,IsDeadly
+Player,地震好像要来了，我该怎么下去呢？走楼梯还是坐电梯？,True,走楼梯,2,坐电梯,3,0,0,0,,0
+Player,嗯，楼梯虽然麻烦，但在地震时更安全。,False,,,,-1,1,0,1,,0
+Player,电梯可能会更快，但地震时存在风险...我还是小心点好。,False,,,,-1,2,0,1,,0
+系统,（你选择了坐电梯，电梯在地震中发生故障，你不幸遇难...）,False,,,,-1,0,0,1,,1

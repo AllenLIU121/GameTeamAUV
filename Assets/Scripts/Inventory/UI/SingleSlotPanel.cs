@@ -1,7 +1,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using System.Collections.Generic;
 
 public class SingleSlotPanel : MonoBehaviour
@@ -125,6 +124,6 @@ public class SingleSlotPanel : MonoBehaviour
         if (eventData.updatedSlotIndexes.Contains(slotIndex))
         {
             UpdateSlot(gameData.inventorySlots[slotIndex]);
-        }
+      }
     }
 }

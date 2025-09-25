@@ -1,0 +1,6 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint,OnCompleteMethod,IsDeadly
+系统,发生火灾了！房间里充满了浓烟，你需要立即逃生。窗户就在你的左边，你可以选择跳窗逃生或者寻找其他出口。,True,"我要跳窗逃生",1,"我要寻找其他出口",3,0,0,0,,0
+系统,你决定从窗户跳下去。但是窗户很高，跳下去会受重伤甚至死亡！,False,,,,-1,1,0,1,,1
+系统,你成功地从窗户跳了下去，不幸的是，由于高度过高，你受了致命伤。,False,,,,-1,2,0,1,,1
+系统,你决定寻找其他出口。你在房间里仔细搜索，发现了一个安全的消防通道。,False,,,,-1,1,0,0,,0
+系统,你通过消防通道成功逃生，虽然过程很惊险，但你保住了性命。,False,,,,-1,2,0,1,,0

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterStatus : MonoBehaviour
@@ -42,7 +42,7 @@ public class CharacterStatus : MonoBehaviour
         characterManager = GameStateManager.Instance.Character;
         if (characterManager != null)
         {
-            characterManager.RegisterCharacter(characterSO, gameObject);
+            characterManager.RegisterCharacter(characterSO, this);
         }
 
         buffManager = GameStateManager.Instance.Buff;
@@ -82,15 +82,15 @@ public class CharacterStatus : MonoBehaviour
 
         if (hungerPercent <= 0f)            // 饥饿值为0时 体力流失(速率0.13/s)
         {
-            currentFrameStaminaDecay = 0.13f * 10; 
+            currentFrameStaminaDecay = 0.13f; 
         }
         else if (hungerPercent < 0.2f && staminaPercent > 0.1f)       // 饥饿值<20% 体力值>10%时 体力流失(速率0.1/s)
         {
-            currentFrameStaminaDecay = 0.1f * 10;
+            currentFrameStaminaDecay = 0.1f;
         }
         else if (hungerPercent < 0.5f)       // 饥饿值<50%时 体力流失(速率0.08/s) 
         {
-            currentFrameStaminaDecay = 0.08f * 10;
+            currentFrameStaminaDecay = 0.08f;
         }
 
         // 最终衰减值
@@ -98,22 +98,18 @@ public class CharacterStatus : MonoBehaviour
         ModifyHunger(-currentFrameHungerDecay * deltaTime, true);
 
         // 体力值低于30%时 有20%几率获取随机疾病Debuff
-        if (staminaPercent < 0.9f)
+        if (staminaPercent < 0.3f)
         {
             randomDiseaseTimer += deltaTime;
             if (randomDiseaseTimer >= randomDiseaseCheckInterval)
             {
                 randomDiseaseTimer = 0f;
-                if (Random.value < 0.9f)
+                if (Random.value < 0.2f)
                 {
                     var randomDisease = buffManager.buffCollections.GetRandomDiseaseBuff();
                     buffManager.ApplyBuff(characterSO, randomDisease);
-                    Debug.Log($"<color=orange>'{characterSO.characterName}' has caught '{randomDisease}' because of low stamina.</color>");
+                    // Debug.Log($"<color=orange>'{characterSO.characterName}' has caught '{randomDisease}' because of low stamina.</color>");
                 }
-            }
-            else
-            {
-                randomDiseaseTimer = 0f;
             }
         }
     }
@@ -160,6 +156,7 @@ public class CharacterStatus : MonoBehaviour
 
         if (publishEvent && Mathf.Abs(currentStamina - oldValue) > 0f)
         {
+            // Debug.Log($"[CharacterStatus] 发布体力值变化事件 - 角色ID: {characterSO.characterID}, 旧值: {oldValue}, 新值: {currentStamina}, 变化量: {amount}");
             // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Stamina)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
@@ -182,10 +179,10 @@ public class CharacterStatus : MonoBehaviour
         
         float oldValue = currentHunger;
         currentHunger = Mathf.Clamp(currentHunger + amount, 0, MaxHunger);
-        // Debug.Log($"{characterSO.characterID} currentHunger: {currentHunger}");
 
         if (publishEvent && Mathf.Abs(currentHunger - oldValue) > 0f)
         {
+            // Debug.Log($"[CharacterStatus] 发布饥饿值变化事件 - 角色ID: {characterSO.characterID}, 旧值: {oldValue}, 新值: {currentHunger}, 变化量: {amount}");
             // Debug.Log($"{characterSO.characterID} CharacterStatus: Publish OnCharacterStatChanged Event (Hunger)");
             EventManager.Instance.Publish(new OnCharacterStatChanged
             {
@@ -238,9 +235,38 @@ public class CharacterStatus : MonoBehaviour
         directMaxStaminaModifier = data.directMaxStaminaModifier;
         RecalculateStats();
 
-        currentStamina = data.currentStamina;
-        currentHunger = data.currentHunger;
-        IsAlive = data.isAlive;        
+        if (currentStamina != data.currentStamina)
+        {
+            currentStamina = data.currentStamina;
+            EventManager.Instance.Publish(new OnCharacterStatChanged
+            {
+                characterID = characterSO.characterID,
+                statType = BuffSO.StatType.Stamina,
+                newValue = currentStamina,
+                changeAmount = 0
+            });
+        }
+
+        if (currentHunger != data.currentHunger)
+        {
+            currentHunger = data.currentHunger;
+            EventManager.Instance.Publish(new OnCharacterStatChanged
+            {
+                characterID = characterSO.characterID,
+                statType = BuffSO.StatType.Hunger,
+                newValue = currentHunger,
+                changeAmount = 0
+            });
+        }
+
+        if (IsAlive != data.isAlive)
+        {
+            IsAlive = data.isAlive;
+            EventManager.Instance.Publish(new OnCharacterRevived
+            {
+                characterSO = characterSO
+            });
+        }
     }
 
     public CharacterRuntimeData GetStateForSaving()
@@ -272,8 +298,11 @@ public class CharacterStatus : MonoBehaviour
         });
         Debug.Log($"<color=red>Character '{characterSO.characterID}' has died.</color>");
 
-        if(characterSO.skill != null)
+        if (characterSO.skill != null)
             characterSO.skill.OnDeactivate(characterSO);
+
+        if (characterSO.characterID == "player")
+            EventManager.Instance.Publish(new OnGameRollback());
     }
 
     // 角色复活逻辑, 体力饥饿恢复一半

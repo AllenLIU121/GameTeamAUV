@@ -6,20 +6,20 @@ public class BrotherConditionalSkillSO : SkillSO
 {
     public override void OnActivate(CharacterSO owner)
     {
-        var aliveCharacters = GameStateManager.Instance.Character.GetAllCharacterGOs();
-        foreach (var characterGO in aliveCharacters)
+        var aliveCharacters = GameStateManager.Instance.Character.GetAllCharacterStatus();
+        foreach (var characterStatus in aliveCharacters)
         {
-            characterGO.GetComponent<CharacterStatus>().ModifyMaxStamina(5f);
+            characterStatus.ModifyMaxStamina(5f);
         }
         Debug.Log($"<color=green> Brother passive skill activated! All characters' MaxStamina +5.</color>");
     }
 
     public override void OnDeactivate(CharacterSO owner)
     {
-        var aliveCharacters = GameStateManager.Instance.Character.GetAllCharacterGOs();
-        foreach (var characterGO in aliveCharacters)
+        var aliveCharacters = GameStateManager.Instance.Character.GetAllCharacterStatus();
+        foreach (var characterStatus in aliveCharacters)
         {
-            characterGO.GetComponent<CharacterStatus>().ModifyMaxStamina(-15f);
+            characterStatus.ModifyMaxStamina(-15f);
         }
         Debug.Log($"<color=green> Brother passive skill activated! All characters' MaxStamina -10.</color>");
     }

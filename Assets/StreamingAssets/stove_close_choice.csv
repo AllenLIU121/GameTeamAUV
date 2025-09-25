@@ -1,0 +1,4 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint,OnCompleteMethod,IsDeadly
+系统,你准备离开厨房了，但是，注意到灶台上的火还在燃烧。为了安全起见，你应该关闭灶台。,True,"锅怎么还在烧，快给它关了",1,"算了，应该不会有问题",2,0,0,0,,0
+系统,很好！你关闭了灶台，消除了潜在的火灾隐患。安全无小事，防范于未然总是好的。,False,,,,-1,1,0,1,,0
+系统,你没有关闭灶台就离开了。几分钟后，锅里的食物开始烧焦，散发出刺鼻的气味...这是一个危险的行为，下次记得关火！,False,,,,-1,2,0,1,,0

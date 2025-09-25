@@ -1,6 +1,6 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class CharacterSlot : MonoBehaviour
@@ -9,54 +9,59 @@ public class CharacterSlot : MonoBehaviour
     public Image avatar;     // 角色头像
     public Slider hungerBar; // 饥饿值条
     public Slider staminaBar;  // 体力值条
-    public Image cooldownImage;  //角色冷却头像
-    public Image normalAvatar;//冷却完毕头像
-    public Color cooldownColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
-    private Color originalColor;
-    private string _characterID; // 角色唯一ID
-    public CharacterSO curCharacterSO;
-    private SkillManager skillManager;
-    //冷却比例
-    private float cooldownpercent;
+
+    // 技能冷却相关
+    [Header("技能冷却UI")]
+    [SerializeField] private Image cooldownMask;
+    [SerializeField] private TextMeshProUGUI cooldownTimer;
+    private float maxCooldown;
     private float currentCooldown;
-    void Start()
+    private bool isCooldown = false;
+
+    [Header("Buff Prefab")]
+    [SerializeField] private GameObject buffPrefab;
+    private Dictionary<string, GameObject> buffs = new Dictionary<string, GameObject>();
+
+    public string GetCharacterID() => _characterID;
+    private string _characterID; // 角色唯一ID
+
+    private void Awake()
     {
-        normalAvatar = avatar;;
+        EventManager.Instance.Subscribe<OnDiseaseContracted>(HandleDiseaseContracted);
+        EventManager.Instance.Subscribe<OnDiseaseCured>(HandleDiseaseCured);
+        EventManager.Instance.Subscribe<OnCharacterDied>(HandleCharacterDied);
+        EventManager.Instance.Subscribe<OnCharacterRevived>(HandleCharacterRevived);
     }
-    //
-    // void Update()
-    // {
-    //     currentCooldown = skillManager.GetRemainingCooldown(curCharacterSO.characterID, curCharacterSO.skill.skillID);
-    //     Debug.Log("currentCooldown " +currentCooldown);
-    //     cooldownpercent = skillManager.GetCooldownPercent(curCharacterSO.characterID, curCharacterSO.skill.skillID);
-    //     Debug.Log("cooldownpercent "+cooldownpercent);
-    //     if (cooldownpercent > 0f)
-    //     {
-    //         avatar = cooldownImage;
-    //         // cooldownImage.gameObject.SetActive(true);
-    //         // cooldownImage.fillAmount = 1f-cooldownpercent;
-    //     }
-    //     else
-    //     {
-    //         avatar = normalAvatar;
-    //         // cooldownImage.gameObject.SetActive(false);
-    //     }
-    // }
-    //
-    // private void InitializeUI()
-    // {
-    //     originalColor = avatar.color;
-    //     if (cooldownImage != null)
-    //     {
-    //         cooldownImage.type = Image.Type.Filled;
-    //         cooldownImage.fillMethod = Image.FillMethod.Radial360;
-    //         cooldownImage.fillOrigin = (int)Image.Origin360.Top;
-    //         cooldownImage.fillClockwise = false;
-    //         cooldownImage.color = cooldownColor;
-    //         cooldownImage.fillAmount = 0f;
-    //         cooldownImage.gameObject.SetActive(false);
-    //     }
-    // }
+
+    // 每帧更新UI技能冷却显示
+    private void Update()
+    {
+        if (!isCooldown) return;
+
+        currentCooldown -= Time.deltaTime;
+        if (currentCooldown > 0)
+        {
+            cooldownMask.fillAmount = currentCooldown / maxCooldown;
+            cooldownTimer.text = currentCooldown.ToString("F1");
+        }
+        else
+        {
+            isCooldown = false;
+            cooldownMask.fillAmount = 0f;
+            cooldownTimer.text = "";
+        }
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.Subscribe<OnDiseaseContracted>(HandleDiseaseContracted);
+        EventManager.Instance.Subscribe<OnDiseaseCured>(HandleDiseaseCured);
+        EventManager.Instance.Unsubscribe<OnSkillCooldownStarted>(HandleCooldownStart);
+        EventManager.Instance.Unsubscribe<OnSkillCooldownEnded>(HandleCooldownEnd);
+        EventManager.Instance.Unsubscribe<OnCharacterDied>(HandleCharacterDied);
+        EventManager.Instance.Unsubscribe<OnCharacterRevived>(HandleCharacterRevived);
+    }
+
     /// <summary>
     /// 初始化角色槽位
     /// </summary>
@@ -71,10 +76,7 @@ public class CharacterSlot : MonoBehaviour
             Debug.LogError("InitSlot: characterSO为空！");
             return;
         }
-        else
-        {
-            curCharacterSO = characterSO;
-        }
+
         if (string.IsNullOrEmpty(characterSO.characterID))
         {
             Debug.LogError("InitSlot: characterID为空！");
@@ -116,6 +118,24 @@ public class CharacterSlot : MonoBehaviour
             Debug.LogWarning($"[CharacterSlot] 角色 {_characterID} 的staminaBar未赋值！");
         }
 
+        // 是否含有冷却时间UI
+        if (characterSO.skill != null && characterSO.skill.cooldownTime > 0f)
+        {
+            if (cooldownMask == null || cooldownTimer == null)
+            {
+                Debug.LogError($"[CharacterSlot] Character {characterSO.characterID}'s skill UI components are not found");
+            }
+            else
+            {
+                cooldownMask.fillAmount = 0f;
+                cooldownTimer.text = "";
+            }
+
+            // 订阅技能冷却事件
+            EventManager.Instance.Subscribe<OnSkillCooldownStarted>(HandleCooldownStart);
+            EventManager.Instance.Subscribe<OnSkillCooldownEnded>(HandleCooldownEnd);
+        }
+
         Debug.Log($"[CharacterSlot] 初始化角色 {_characterID} 的UI");
     }
 
@@ -154,10 +174,74 @@ public class CharacterSlot : MonoBehaviour
             staminaBar.maxValue = newValue;
         }
 
+
         // Debug.Log($"[CharacterSlot] 角色 {_characterID} 更新UI - {statType}：{newValue}");
     }
 
-    public string GetCharacterID() => _characterID;
+    private void HandleDiseaseContracted(OnDiseaseContracted eventData)
+    {
+        if (eventData.characterID != _characterID) return;
+
+        GameObject diseaseBuffGO = Instantiate(buffPrefab, transform);
+        if (!buffs.ContainsKey(eventData.buffSO.buffID))
+        {
+            buffs[eventData.buffSO.buffID] = diseaseBuffGO;
+            diseaseBuffGO.GetComponent<Image>().sprite = eventData.buffSO.icon;
+        }
+    }
+
+    private void HandleDiseaseCured(OnDiseaseCured eventData)
+    {
+        if (eventData.characterID != _characterID) return;
+
+        if (buffs.ContainsKey(eventData.buffSO.buffID))
+        {
+            Destroy(buffs[eventData.buffSO.buffID]);
+            buffs.Remove(eventData.buffSO.buffID);
+        }
+    }
+
+    private void HandleCooldownStart(OnSkillCooldownStarted eventData)
+    {
+        if (eventData.characterID != _characterID) return;
+
+        isCooldown = true;
+        maxCooldown = eventData.maxCooldown;
+        currentCooldown = maxCooldown;
+    }
+
+    private void HandleCooldownEnd(OnSkillCooldownEnded eventData)
+    {
+        if (eventData.characterID != _characterID) return;
+
+        isCooldown = false;
+        //防Update误差
+        cooldownMask.fillAmount = 0;
+        cooldownTimer.text = "";
+    }
+
+    private void HandleCharacterDied(OnCharacterDied eventData)
+    {
+        if (eventData.characterSO.characterID != _characterID) return;
+
+        if (buffs.Count > 0)
+        {
+            foreach (var buffGO in buffs.Values)
+            {
+                Destroy(buffGO);
+            }
+            buffs.Clear();
+        }
+
+        avatar.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+    }
+
+    private void HandleCharacterRevived(OnCharacterRevived eventData)
+    {
+        if (eventData.characterSO.characterID != _characterID) return;
+
+        avatar.color = new Color(1f, 1f, 1f, 1f);
+    }
 
     /// <summary>
     /// 处理物品拖拽到角色上的逻辑

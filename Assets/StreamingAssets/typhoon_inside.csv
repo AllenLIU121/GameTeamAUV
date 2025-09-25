@@ -1,0 +1,2 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint
+自言自语,终于逃出来了！快去大使馆吧！,False,,,,-1,0,0,1

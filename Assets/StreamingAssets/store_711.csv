@@ -1,0 +1,2 @@
+CharacterName,DialogueText,HasChoices,Choice1Text,Choice1NextIndex,Choice2Text,Choice2NextIndex,Expression,IsReturnPoint,IsEndPoint
+Player,离大使馆还有一段距离，拿点东西以防万一路上出什么事情。,False,,,,-1,0,0,1
