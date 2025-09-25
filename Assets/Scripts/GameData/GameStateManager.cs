@@ -42,7 +42,7 @@ public class GameStateManager : Singleton<GameStateManager>
         }
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (EventManager.Instance != null)
         {
@@ -195,6 +195,9 @@ public class GameStateManager : Singleton<GameStateManager>
         {
             Skill.ResetAllCooldowns();
         }
+
+        // // 第一章地震次数数据
+        // if ()
 
         // 第二章地图数据
         Debug.Log($"[GameStateManager] MapController exists? {MapController.Instance != null}; MapNodes count: {currentData.mapNodes.Count}");

@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Inventory;
+using UnityEngine.SceneManagement;
 
 // 处理UI元素的拖拽逻辑，包括物品栏中的物品拖拽到角色栏或场景中
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
@@ -265,7 +266,8 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (!isOverUI)
         {
             // 拖放到场景中
-            DropToScene(eventData);
+            // DropToScene(eventData);
+            return;
         }
         else
         {
@@ -280,7 +282,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private void DropToScene(PointerEventData eventData)
     {
         // 在鼠标位置生成物品
-        if (Camera.main == null || parentCanvas == null || slotIndex < 0 || cachedInventoryManager == null)
+        if (Camera.main == null || parentCanvas == null || slotIndex < 0 || cachedInventoryManager == null || SceneManager.GetActiveScene().name != GameConstants.SceneName.ChapterOneScene)
             return;
 
         Vector2 localPoint;
@@ -314,6 +316,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 if (gameData != null && slotIndex < gameData.inventorySlots.Count)
                 {
                     var slot = gameData.inventorySlots[slotIndex];
+                    instantiatedItem.GetComponent<Image>().sprite = ItemDatabase.Instance.GetItemSO(slot.itemID).itemIcon;
                     clickHandler.itemID = slot.itemID;
                     clickHandler.quantity = 1; // 每次拖放一个物品
                 }

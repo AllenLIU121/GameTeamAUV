@@ -39,6 +39,8 @@ public class CharacterMove : MonoBehaviour
         // }
         if (canMove)
             HandlePlayerMoveInput();
+        else
+            movementInput = Vector2.zero;
     }
 
     void HandlePlayerMoveInput()
@@ -48,13 +50,13 @@ public class CharacterMove : MonoBehaviour
 
         movementInput = new Vector2(moveX, moveY);
 
-        if (moveX > 0f)
+        if (moveX > 0.01f)
         {
-            portrait.flipX = true;
+            transform.localScale = new Vector3(-1f, 1f, 1f);
         }
-        else if (moveX < 0f)
+        else if (moveX < -0.01f)
         {
-            portrait.flipX = false;
+            transform.localScale = new Vector3(1f, 1f, 1f);
         }
     }
 

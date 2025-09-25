@@ -27,8 +27,8 @@ public class HandbookManager : MonoBehaviour
     {
         if (handbookText != null)
         {
-            handbookText.fontSize = 20;
-            handbookText.lineSpacing = 1.2f;
+            handbookText.fontSize = 15;
+            handbookText.lineSpacing = 1f;
             // handbookText.verticalAlignment = VerticalAlignmentOptions.Top;
             // handbookText.horizontalAlignment = HorizontalAlignmentOptions.Left;
             // handbookText.enableWordWrapping = true; // 重要：启用自动换行

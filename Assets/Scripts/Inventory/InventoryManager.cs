@@ -14,10 +14,6 @@ public class InventoryManager : MonoBehaviour
     private void Awake()
     {
         GameStateManager.Instance.RegisterInventoryManager(this);
-    }
-
-    private void Start()
-    {
         if (GameStateManager.Instance != null)
         {
             gameData = GameStateManager.Instance.currentData;
@@ -35,7 +31,10 @@ public class InventoryManager : MonoBehaviour
         InitializeInventorySlots();
 
         EventManager.Instance.Publish(new OnInventoryInitialized());
+    }
 
+    private void Start()
+    {
         StartCoroutine(FreshnessDecayCoroutine());
     }
 
@@ -91,6 +90,7 @@ public class InventoryManager : MonoBehaviour
             Debug.Log($"[InventoryManager] Add Item: {itemSO.itemName}, Quantity: {amount}, Index: {slotIndex}, Freshness: {slot.currentFreshness}");
         }
 
+        Debug.Log($"[InventoryManaer] slot freshness: {slot.currentFreshness}");
         UpdateCurrentWeight(itemSO.weight * amount);
         RefreshSlotUIRequest(new List<int> { slotIndex });
         return true;
