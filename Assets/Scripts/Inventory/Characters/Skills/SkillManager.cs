@@ -240,19 +240,7 @@ public class SkillManager : MonoBehaviour
             characterID = characterID
         });
     }
-    public float GetRemainingCooldown(string characterID, string skillID)
-    {
-        if (characterSkillsData.ContainsKey(characterID) && 
-            characterSkillsData[characterID] != null)
-        {
-            return characterSkillsData[characterID].GetCooldown();
-        }
-        else
-        {
-            return 1f;
-        }
-        
-    }
+    
 
     public float GetCooldownPercent(string characterID, string skillID)
     {

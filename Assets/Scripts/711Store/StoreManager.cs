@@ -21,6 +21,7 @@ public class StoreManager : Singleton<StoreManager>
 
     public void OpenStore()
     {
+        AudioManager.Instance.PlaySFX("便利店0919-1.mp3");
         StoreUI storeUI = FindAnyObjectByType<StoreUI>();
         if (storeUI != null)
         {
@@ -41,6 +42,7 @@ public class StoreManager : Singleton<StoreManager>
 
     public void CloseAndContinueToNextScene()
     {
+        AudioManager.Instance.StopBGM();
         GameObject playerGO = GameObject.FindWithTag("Player");
         if (playerGO == null)
         {

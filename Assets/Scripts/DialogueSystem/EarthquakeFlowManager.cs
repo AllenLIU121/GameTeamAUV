@@ -25,6 +25,7 @@ public class EarthquakeFlowManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1f); // 短暂延迟确保场景加载完成
 
+        AudioManager.Instance.PlaySFX("房间0919-1.mp3");
         // 检查是否已有对话在进行，如果有则等待
         while (dialogueManager.IsDialogueActive())
         {

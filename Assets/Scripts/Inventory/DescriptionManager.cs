@@ -36,8 +36,6 @@ public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerEx
             SingleSlotPanel slotPanel = GetComponentInParent<SingleSlotPanel>();
             if (slotPanel != null)
             {
-                // 尝试通过反射获取槽位索引（临时解决方案，建议在SingleSlotPanel中提供公开方法）
-            
                 var fieldInfo = slotPanel.GetType().GetField("slotIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 if (fieldInfo != null)
                 {
