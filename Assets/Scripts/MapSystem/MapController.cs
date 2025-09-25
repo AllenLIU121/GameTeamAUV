@@ -224,7 +224,7 @@ public class MapController : Singleton<MapController>
     {
         DisasterSO currentDisaster = disasterSystem.ActiveDisaster;
         if (currentDisaster == null) return true;
-
+        AudioManager.Instance.PlaySFX("到达安全区0925_01.wav");
         switch (currentDisaster.safeCondition)
         {
             case SafeZoneCondition.InNode:

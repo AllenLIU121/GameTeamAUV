@@ -74,7 +74,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
     private void OnVideoEnd(UnityEngine.Video.VideoPlayer vp)
     {
         Debug.Log("EmbassyDialogueFlow: 视频播放结束，开始对话");
-
+        AudioManager.Instance.PlaySFX("结束钢琴0919-1.mp3");
         // 直接检查家人存活状态并跳转到相应对话
         if (dialogueManager != null && characterManager != null)
         {

@@ -24,8 +24,13 @@ public class SkillManager : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.Instance.CurrentState == GameState.Playing)
-            UpdateAllCooldowns(Time.deltaTime);
+        // Debug.Log(GameManager.Instance.CurrentState);
+        // if (GameManager.Instance.CurrentState == GameState.Playing)
+        // {
+        //     Debug.Log("触发更新");
+        //     UpdateAllCooldowns(Time.deltaTime);
+        // }
+        // UpdateAllCooldowns(Time.deltaTime);
     }
 
     private void UpdateAllCooldowns(float deltaTime)
@@ -43,6 +48,7 @@ public class SkillManager : MonoBehaviour
                 EventManager.Instance.Publish(new OnSkillCooldownEnded { characterID = entry.Key });
             }
         }
+        
     }
 
     private void OnDestroy()
@@ -65,6 +71,7 @@ public class SkillManager : MonoBehaviour
     // 只注册主动技能并创建SkillRuntime实例
     public void RegisterCharacterSkill(string characterID, SkillSO skill)
     {
+        //被动技能不注册
         if (skill.cooldownTime == 0) return;
 
         characterSkillsData[characterID] = new SkillRuntime(skill);
@@ -224,4 +231,26 @@ public class SkillManager : MonoBehaviour
             skillRuntime.ResetCooldown();
         }
     }
+    //带物品的发布
+    private void PublishSkillActivatedEvent(string characterID, string skillID,int slotIndex)
+    {
+        var skillRuntime = characterSkillsData[characterID];
+        EventManager.Instance.Publish(new OnSkillActivated
+        {
+            characterID = characterID
+        });
+    }
+    
+
+    public float GetCooldownPercent(string characterID, string skillID)
+    {
+        if (characterSkillsData.ContainsKey(characterID) && 
+            characterSkillsData[characterID] != null)
+        {
+            var skillRuntime = characterSkillsData[characterID];
+            return skillRuntime.CurrentCooldown / skillRuntime.SkillData.cooldownTime;
+        }
+        return 0f;
+    }
+    
 }

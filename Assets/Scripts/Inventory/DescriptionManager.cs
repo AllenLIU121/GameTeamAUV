@@ -12,7 +12,6 @@ public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerEx
     public Text DescriptionText;
     private CharacterSlot characterSlot;
     private int slotIndex = -1;
-    private GameData gameData;
     private CharacterPanel characterpanel;
     private Canvas parentCanvas;
     private RectTransform tooltipRect;
@@ -27,7 +26,7 @@ public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerEx
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-            characterSlot =  GetComponent<CharacterSlot>();
+            characterSlot = GetComponent<CharacterSlot>();
             if (characterSlot != null)
             {
                 string characterName = characterSlot.ToString();
@@ -41,7 +40,7 @@ public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerEx
                 if (fieldInfo != null)
                 {
                     slotIndex = (int)fieldInfo.GetValue(slotPanel);
-                    var slot = gameData.inventorySlots[slotIndex];
+                    var slot = GameStateManager.Instance.currentData.inventorySlots[slotIndex];
                     ItemSO itemSO = ItemDatabase.Instance.GetItemSO(slot.itemID);
                     DisplayDescription(itemSO);
                 }

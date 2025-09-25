@@ -67,6 +67,7 @@ public class SceneTransitionManager : MonoBehaviour
         // 检查当前对话是否包含逃离成功的标志性文本
         if (IsEscapeSuccessDialogue())
         {
+            AudioManager.Instance.PlaySFX("紧急逃生出口0919-1.mp3");
             _needSceneTransition = true;
         }
     }
