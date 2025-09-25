@@ -234,21 +234,18 @@ public class SkillManager : MonoBehaviour
     //带物品的发布
     private void PublishSkillActivatedEvent(string characterID, string skillID,int slotIndex)
     {
-        var skillRuntime = characterSkillsData[characterID][skillID];
+        var skillRuntime = characterSkillsData[characterID];
         EventManager.Instance.Publish(new OnSkillActivated
         {
-            characterID = characterID,
-            skillID = skillID,
-            cooldownTime = skillRuntime.SkillData.cooldownTime,
-            currentCooldown = skillRuntime.CurrentCooldown
+            characterID = characterID
         });
     }
     public float GetRemainingCooldown(string characterID, string skillID)
     {
         if (characterSkillsData.ContainsKey(characterID) && 
-            characterSkillsData[characterID].ContainsKey(skillID))
+            characterSkillsData[characterID] != null)
         {
-            return characterSkillsData[characterID][skillID].GetCooldown();
+            return characterSkillsData[characterID].GetCooldown();
         }
         else
         {
@@ -260,9 +257,9 @@ public class SkillManager : MonoBehaviour
     public float GetCooldownPercent(string characterID, string skillID)
     {
         if (characterSkillsData.ContainsKey(characterID) && 
-            characterSkillsData[characterID].ContainsKey(skillID))
+            characterSkillsData[characterID] != null)
         {
-            var skillRuntime = characterSkillsData[characterID][skillID];
+            var skillRuntime = characterSkillsData[characterID];
             return skillRuntime.CurrentCooldown / skillRuntime.SkillData.cooldownTime;
         }
         return 0f;
