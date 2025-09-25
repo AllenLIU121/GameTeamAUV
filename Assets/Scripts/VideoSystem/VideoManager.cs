@@ -25,13 +25,15 @@ public class VideoManager : MonoBehaviour
     // 视频播放结束时调用
     public void OnVideoEnd(VideoPlayer vp)
     {
-        // 加载下一个场景
-        if (SceneController.Instance != null)
-            SceneController.Instance.LoadSceneAsync(nextSceneName);
-        else
-            SceneManager.LoadScene(nextSceneName);
+        string sceneToLoad = nextSceneName;
+        if(!string.IsNullOrEmpty(sceneToLoad)){
+            if (SceneController.Instance != null)
+                SceneController.Instance.LoadSceneAsync(nextSceneName);
+            else
+                SceneManager.LoadScene(nextSceneName);
+        }
 
-        if (string.IsNullOrEmpty(nextSceneName))
+        else
         {
             gameObject.SetActive(false);
         }
