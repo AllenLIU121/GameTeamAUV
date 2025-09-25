@@ -19,7 +19,7 @@ public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerEx
     {
         //开局隐藏
         DescriptionPanel.SetActive(false);
-        DescriptionText.fontSize = 9;
+        DescriptionText.fontSize = 17;
         parentCanvas = DescriptionPanel.GetComponentInParent<Canvas>();
         tooltipRect = DescriptionPanel.GetComponent<RectTransform>();
     }
