@@ -27,11 +27,11 @@ public class NodeView : MonoBehaviour
     {
         if (spriteRenderer == null || nodeData == null) return;
 
-        // switch (nodeData.nodeType)
-        // {
-        //     case NodeType.Embassy:
-        //         spriteRenderer.color = Color.yellow;
-        //         break;
+        switch (nodeData.nodeType)
+        {
+        // case NodeType.Embassy:
+        //     spriteRenderer.sprite = Color.gray;
+        //     break;
         //     case NodeType.Mountain:
         //         spriteRenderer.color = Color.green;
         //         break;
@@ -41,7 +41,7 @@ public class NodeView : MonoBehaviour
         //     case NodeType.OpenSpace:
         //         spriteRenderer.color = Color.white;
         //         break;
-        // }
+        }
 
         if (nodeData.isStore)
         {

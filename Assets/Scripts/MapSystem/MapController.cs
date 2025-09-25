@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
 [System.Serializable]
@@ -22,6 +21,7 @@ public class MapController : Singleton<MapController>
     [SerializeField] private GameObject parent;
 
     [Header("动态UI配置和引用")]
+    public Sprite embassyIcon;
     public Sprite shelterIcon;
     public Sprite storeIcon;
     public GameObject seamlessMountain;

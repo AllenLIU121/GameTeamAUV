@@ -46,7 +46,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 #if DEBUG
         Debug.Log("[DragHandler] 鼠标按下: " + gameObject.name);
 #endif
-        AudioManager.Instance.PlaySFX("Assets/Audio/ME/8.鼠标点击音效0925_01.wav");
+        AudioManager.Instance.PlaySFX("鼠标点击音效0925_01.wav");
 
         // 尝试获取父级的SingleSlotPanel来获取槽位索引
         SingleSlotPanel slotPanel = GetComponentInParent<SingleSlotPanel>();

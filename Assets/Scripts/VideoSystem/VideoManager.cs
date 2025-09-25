@@ -31,7 +31,7 @@ public class VideoManager : MonoBehaviour
         else
             SceneManager.LoadScene(nextSceneName);
 
-        if (nextSceneName == null)
+        if (string.IsNullOrEmpty(nextSceneName))
         {
             gameObject.SetActive(false);
         }

@@ -95,7 +95,7 @@ public class UI_InventoryPanel : MonoBehaviour
             }
         }
 
-        Debug.Log($"[UI_InventoryPanel] Inventory panel refreshed.]");
+        Debug.Log($"[UI_InventoryPanel] Inventory panel refreshed.");
     }
 
     // 处理物品栏变化事件

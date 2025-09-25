@@ -20,7 +20,7 @@ public class DestroyContoller : MonoBehaviour
 
     private void CheckCurrentScene(OnSceneLoaded _)
     {
-        if (SceneManager.GetActiveScene().name == GameConstants.SceneName.MenuScene)
+        if (SceneManager.GetActiveScene().name == GameConstants.SceneName.FinalScene)
             Destroy(gameObject);
     }
 }
