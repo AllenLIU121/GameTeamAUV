@@ -80,6 +80,7 @@ public class DialogueManager : MonoBehaviour
         if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
             && !isWaitingForChoice && !isChangingCharacter)
         {
+            AudioManager.Instance.PlaySFX("Assets/Audio/ME/8.鼠标点击音效0925_01.wav");
             if (isTyping)
             {
                 CompleteTyping();

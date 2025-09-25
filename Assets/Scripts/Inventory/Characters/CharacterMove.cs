@@ -17,6 +17,7 @@ namespace Inventory.Characters
             UpdatePosition();
             if (Input.GetMouseButtonDown(0))
             {
+                AudioManager.Instance.PlaySFX("Assets/Audio/ME/8.鼠标点击音效0925_01.wav");
                 Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 RaycastHit2D hit = Physics2D.Raycast(mouseWorldPosition, Vector2.zero);
                 if (hit.collider != null && hit.collider.tag == "Plane")

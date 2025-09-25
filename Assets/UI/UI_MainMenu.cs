@@ -9,6 +9,7 @@ public class UI_MainMenu : MonoBehaviour
 
     private void Awake()
     {
+        AudioManager.Instance.PlaySFX("Assets/Audio/BGM/1.菜单界面0919-1.mp3");
         newGameBtn.AddButtonListener(StartNewGame, 1f);
         continueBtn.AddButtonListener(ContinueGame, 1f);
         exitBtn.AddButtonListener(ExitGame);

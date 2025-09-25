@@ -199,12 +199,12 @@ public class DescriptionManager : MonoBehaviour,IPointerEnterHandler, IPointerEx
     private void SetPanelPosition()
     {
         Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            parentCanvas.transform as RectTransform,
-            this.transform.position,
-            parentCanvas.worldCamera,
-            out localPoint);
-        //加一个偏移量，要不然挡住了ui
+         RectTransformUtility.ScreenPointToLocalPointInRectangle(
+             parentCanvas.transform as RectTransform,
+             this.transform.position,
+             parentCanvas.worldCamera,
+             out localPoint);
+        // 加一个偏移量，要不然挡住了ui
         tooltipRect.anchoredPosition = localPoint + new Vector2(60, 60);
     }
     
