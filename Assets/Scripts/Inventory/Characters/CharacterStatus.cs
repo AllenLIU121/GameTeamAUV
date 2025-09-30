@@ -82,15 +82,15 @@ public class CharacterStatus : MonoBehaviour
 
         if (hungerPercent <= 0f)            // 饥饿值为0时 体力流失(速率0.13/s)
         {
-            currentFrameStaminaDecay = 0.13f * 10; 
+            currentFrameStaminaDecay = 0.13f; 
         }
         else if (hungerPercent < 0.2f && staminaPercent > 0.1f)       // 饥饿值<20% 体力值>10%时 体力流失(速率0.1/s)
         {
-            currentFrameStaminaDecay = 0.1f * 10;
+            currentFrameStaminaDecay = 0.1f;
         }
         else if (hungerPercent < 0.5f)       // 饥饿值<50%时 体力流失(速率0.08/s) 
         {
-            currentFrameStaminaDecay = 0.08f * 10;
+            currentFrameStaminaDecay = 0.08f;
         }
 
         // 最终衰减值
@@ -98,13 +98,13 @@ public class CharacterStatus : MonoBehaviour
         ModifyHunger(-currentFrameHungerDecay * deltaTime, true);
 
         // 体力值低于30%时 有20%几率获取随机疾病Debuff
-        if (staminaPercent < 0.95f)
+        if (staminaPercent < 0.3f)
         {
             randomDiseaseTimer += deltaTime;
             if (randomDiseaseTimer >= randomDiseaseCheckInterval)
             {
                 randomDiseaseTimer = 0f;
-                if (Random.value < 0.95f)
+                if (Random.value < 0.2f)
                 {
                     var randomDisease = buffManager.buffCollections.GetRandomDiseaseBuff();
                     buffManager.ApplyBuff(characterSO, randomDisease);

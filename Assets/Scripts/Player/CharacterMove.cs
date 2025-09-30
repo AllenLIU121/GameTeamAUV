@@ -12,7 +12,7 @@ public class CharacterMove : MonoBehaviour
     private SpriteRenderer portrait;
     private Rigidbody2D rb;
     private Vector2 movementInput;
-    private bool canMove = true;
+    public bool canMove = true;
 
     void Awake()
     {
@@ -39,11 +39,8 @@ public class CharacterMove : MonoBehaviour
         // }
         if (canMove)
             HandlePlayerMoveInput();
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            StoreManager.Instance.OpenStore();
-        }
+        else
+            movementInput = Vector2.zero;
     }
 
     void HandlePlayerMoveInput()
@@ -53,13 +50,13 @@ public class CharacterMove : MonoBehaviour
 
         movementInput = new Vector2(moveX, moveY);
 
-        if (moveX > 0f)
+        if (moveX > 0.01f)
         {
-            portrait.flipX = true;
+            transform.localScale = new Vector3(-1f, 1f, 1f);
         }
-        else if (moveX < 0f)
+        else if (moveX < -0.01f)
         {
-            portrait.flipX = false;
+            transform.localScale = new Vector3(1f, 1f, 1f);
         }
     }
 
@@ -75,11 +72,7 @@ public class CharacterMove : MonoBehaviour
         GetComponent<CapsuleCollider2D>().enabled = false;
         GetComponentInChildren<SpriteRenderer>().enabled = false;
 
-        GameObject storeUI = GameObject.Find("UI_StoreChapterOne");
-        if (storeUI != null)
-        {
-            storeUI.GetComponent<StoreUI>().DeactivateStoreUI();
-        }
+        StoreManager.Instance.CloseStore();
 
         StartCoroutine(PlayCarAnimation());
     }

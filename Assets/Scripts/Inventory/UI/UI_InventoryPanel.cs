@@ -27,16 +27,16 @@ public class UI_InventoryPanel : MonoBehaviour
         Debug.Log($"[UI_InventoryPanel] Inventory panel initialized.");
 
         // 刷新UI显示
-        EventManager.Instance.Subscribe<OnInventoryInitialized>(Refresh);
+        RefreshAllSlots(); 
 
         // 订阅物品栏变化事件
         EventManager.Instance.Subscribe<OnInventoryChanged>(HandleInventoryChanged);
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         // 取消订阅事件
-        EventManager.Instance.Unsubscribe<OnInventoryInitialized>(Refresh);
+        // EventManager.Instance.Unsubscribe<OnInventoryInitialized>(Refresh);
         EventManager.Instance.Unsubscribe<OnInventoryChanged>(HandleInventoryChanged);
     }
 
@@ -61,13 +61,13 @@ public class UI_InventoryPanel : MonoBehaviour
         {
             if (slots[i] != null)
             {
-                slots[i].Initialize(allItems[i], i);
+                slots[i].Initialize(i, inventory);
             }
         }
     }
 
     // 刷新整个物品栏UI
-    public void Refresh(OnInventoryInitialized _)
+    public void RefreshAllSlots()
     {
         if (inventory == null || GameStateManager.Instance == null)
         {
@@ -95,7 +95,7 @@ public class UI_InventoryPanel : MonoBehaviour
             }
         }
 
-        Debug.Log($"[UI_InventoryPanel] Inventory panel refreshed.]");
+        Debug.Log($"[UI_InventoryPanel] Inventory panel refreshed.");
     }
 
     // 处理物品栏变化事件

@@ -42,7 +42,7 @@ public class GameStateManager : Singleton<GameStateManager>
         }
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (EventManager.Instance != null)
         {
@@ -67,7 +67,14 @@ public class GameStateManager : Singleton<GameStateManager>
     // 游戏内数据回滚
     public void SnapshotRollback(OnGameRollback _)
     {
-        SceneController.Instance.SceneRollbackAsync();
+        if (SceneController.Instance != null)
+        {
+            SceneController.Instance.SceneRollbackAsync();
+        }
+        else
+        {
+            Debug.LogWarning("[GameStateManager] SceneController instance not found during rollback.");
+        }
 
         if (historyStack.Count > 0)
         {
@@ -151,12 +158,11 @@ public class GameStateManager : Singleton<GameStateManager>
         // 物品栏模块数据
         // 暂时不需要 因为InventoryManager直接操作的此数据currentData
 
-
         // 技能模块数据
         // 暂时不需要 当前没有保留技能冷却数据
 
         // 第二章地图数据
-        if (MapController.Instance != null)
+        if (SceneManager.GetActiveScene().name == GameConstants.SceneName.ChapterTwoScene)
         {
             currentData.mapNodes = MapController.Instance.GetMapDataToSave();
         }
@@ -189,6 +195,9 @@ public class GameStateManager : Singleton<GameStateManager>
         {
             Skill.ResetAllCooldowns();
         }
+
+        // // 第一章地震次数数据
+        // if ()
 
         // 第二章地图数据
         Debug.Log($"[GameStateManager] MapController exists? {MapController.Instance != null}; MapNodes count: {currentData.mapNodes.Count}");

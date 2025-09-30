@@ -17,11 +17,8 @@ public class PlayerController : Singleton<PlayerController>
         mainCamera = Camera.main;
         IsInSelectingMode = true;
         mapController = MapController.Instance;
-        if (!mapController.IsInitialized)
-        {
-            Debug.LogError($"[PlayerController] MapController not initialized]");
-        }
-        GameStateManager.Instance.GenerateSnapshot();
+
+        // StartCoroutine(WaitForMapController());
     }
 
     void Update()
@@ -30,8 +27,15 @@ public class PlayerController : Singleton<PlayerController>
 
         if (IsInSelectingMode && Input.GetMouseButtonDown(0))
         {
+            AudioManager.Instance.PlaySFX("鼠标点击音效0925_01.wav");
             HandleNodeSelection();
         }
+    }
+
+    private IEnumerator WaitForMapController()
+    {
+        yield return new WaitUntil(() => mapController.IsInitialized);
+        GameStateManager.Instance.GenerateSnapshot();
     }
 
     private void HandleNodeSelection()

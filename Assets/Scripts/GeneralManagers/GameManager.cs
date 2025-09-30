@@ -18,6 +18,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        Debug.Log("GameManager Start() 执行，Instance 是否为空：" + (Instance == null));
         CurrentState = GameState.MainMenu;
         ChangeGameState(CurrentState);
     }
@@ -73,7 +74,7 @@ public class GameManager : Singleton<GameManager>
     // 新游戏
     public void NewGame()
     {
-        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.IntroVideoScene);
+        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.ChapterOneScene);
     }
 
     // // 继续游戏

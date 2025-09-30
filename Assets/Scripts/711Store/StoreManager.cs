@@ -7,6 +7,7 @@ public class StoreManager : Singleton<StoreManager>
     [Header("商店配置")]
     public StoreConfigSO storeSO;
     public float essentialItemRate { get; private set; }
+    public bool IsOpen { get; private set; } = false;
 
     private void Start()
     {
@@ -20,15 +21,28 @@ public class StoreManager : Singleton<StoreManager>
 
     public void OpenStore()
     {
+        AudioManager.Instance.PlayBGM("便利店0919-1.mp3");
         StoreUI storeUI = FindAnyObjectByType<StoreUI>();
         if (storeUI != null)
         {
             storeUI.ActivateStoreUI();
+            IsOpen = true;
+        }
+    }
+
+    public void CloseStore()
+    {
+        StoreUI storeUI = FindAnyObjectByType<StoreUI>();
+        if (storeUI != null)
+        {
+            storeUI.DeactivateStoreUI();
+            IsOpen = false;
         }
     }
 
     public void CloseAndContinueToNextScene()
     {
+        AudioManager.Instance.StopBGM();
         GameObject playerGO = GameObject.FindWithTag("Player");
         if (playerGO == null)
         {

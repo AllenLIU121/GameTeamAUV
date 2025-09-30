@@ -12,7 +12,7 @@ public struct WeightedItem
 public class StoreConfigSO : ScriptableObject
 {
     [Header("商店配置")]
-    public int numberOfSlots = 12;
+    public int numberOfSlots = 10;
     [Range(0, 1)]
     public float essentialItemRate = 0.8f;
     public List<ItemSO> essentialItemsPool;

@@ -97,7 +97,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: group1_0
+      name: milk
       rect:
         serializedVersion: 2
         x: 276
@@ -105,7 +105,7 @@ TextureImporter:
         width: 37
         height: 62
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -118,7 +118,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_1
+      name: canned_meat
       rect:
         serializedVersion: 2
         x: 342
@@ -126,7 +126,7 @@ TextureImporter:
         width: 45
         height: 55
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -139,7 +139,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_2
+      name: water
       rect:
         serializedVersion: 2
         x: 46
@@ -147,7 +147,7 @@ TextureImporter:
         width: 23
         height: 67
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -160,7 +160,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_3
+      name: rice
       rect:
         serializedVersion: 2
         x: 89
@@ -168,7 +168,7 @@ TextureImporter:
         width: 45
         height: 58
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -181,7 +181,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_4
+      name: biscuit
       rect:
         serializedVersion: 2
         x: 152
@@ -189,7 +189,7 @@ TextureImporter:
         width: 43
         height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -202,7 +202,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_5
+      name: freeze
       rect:
         serializedVersion: 2
         x: 220
@@ -210,7 +210,7 @@ TextureImporter:
         width: 37
         height: 52
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -223,7 +223,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_6
+      name: raw_meat
       rect:
         serializedVersion: 2
         x: 273
@@ -231,7 +231,7 @@ TextureImporter:
         width: 58
         height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -244,7 +244,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_7
+      name: instant_noodle
       rect:
         serializedVersion: 2
         x: 343
@@ -252,7 +252,7 @@ TextureImporter:
         width: 46
         height: 50
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -265,7 +265,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_8
+      name: cold
       rect:
         serializedVersion: 2
         x: 27
@@ -273,7 +273,7 @@ TextureImporter:
         width: 68
         height: 37
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -294,7 +294,7 @@ TextureImporter:
         width: 71
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -307,7 +307,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_10
+      name: dessert
       rect:
         serializedVersion: 2
         x: 195
@@ -315,7 +315,7 @@ TextureImporter:
         width: 56
         height: 46
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -328,7 +328,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_11
+      name: vegetable_juice
       rect:
         serializedVersion: 2
         x: 269
@@ -336,7 +336,7 @@ TextureImporter:
         width: 34
         height: 67
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -349,7 +349,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_12
+      name: baby_food
       rect:
         serializedVersion: 2
         x: 341
@@ -357,7 +357,7 @@ TextureImporter:
         width: 41
         height: 59
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -378,7 +378,7 @@ TextureImporter:
         width: 53
         height: 43
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -399,7 +399,7 @@ TextureImporter:
         width: 28
         height: 52
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -412,7 +412,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: group1_15
+      name: yellow_peach
       rect:
         serializedVersion: 2
         x: 142
@@ -420,7 +420,7 @@ TextureImporter:
         width: 36
         height: 58
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -443,22 +443,22 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      group1_0: -1578606914
-      group1_1: 283264701
-      group1_10: -1588110
-      group1_11: -2120899157
-      group1_12: -1310799888
+      baby_food: -1310799888
+      biscuit: -40321064
+      canned_meat: 283264701
+      cold: 2002427019
+      dessert: -1588110
+      freeze: 999823044
       group1_13: 2123031553
       group1_14: -1807974046
-      group1_15: 328210979
-      group1_2: 1590350926
-      group1_3: 813597923
-      group1_4: -40321064
-      group1_5: 999823044
-      group1_6: -1455795528
-      group1_7: -1063030465
-      group1_8: 2002427019
       group1_9: -1353680421
+      instant_noodle: -1063030465
+      milk: -1578606914
+      raw_meat: -1455795528
+      rice: 813597923
+      vegetable_juice: -2120899157
+      water: 1590350926
+      yellow_peach: 328210979
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

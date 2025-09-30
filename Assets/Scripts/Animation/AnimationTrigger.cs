@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using DialogueSystem;
 /// <summary>
 /// 动画触发器 - 控制窗口震动和相机地震动画每隔一段时间播放一次
 /// </summary>
@@ -148,6 +148,24 @@ public class AnimationTrigger : MonoBehaviour
     private void TriggerBuildingCollapse()
     {
         Debug.Log("楼房倒塌！触发死亡结局");
+        
+        // 暂停游戏
+        Debug.Log("AnimationTrigger: 触发死亡结局，暂停游戏");
+        GameManager.Instance?.ChangeGameState(GameState.Paused);
+        
+        // 如果有对话正在进行，结束对话
+        DialogueManager dialogueManager = FindObjectOfType<DialogueManager>();
+        if (dialogueManager != null && dialogueManager.IsDialogueActive())
+        {
+            Debug.Log("AnimationTrigger: 结束当前正在进行的对话");
+            // 反射调用EndDialogue方法，因为它是私有的
+            System.Reflection.MethodInfo endDialogueMethod = typeof(DialogueManager).GetMethod("EndDialogue", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (endDialogueMethod != null)
+            {
+                endDialogueMethod.Invoke(dialogueManager, null);
+            }
+        }
 
         // 显示死亡面板
         if (deadPanelPrefab != null)
