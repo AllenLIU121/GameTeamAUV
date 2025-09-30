@@ -1,7 +1,5 @@
 using UnityEngine;
-using UnityEngine.Video;
 using DialogueSystem;
-using System.Collections.Generic;
 using System.Reflection;
 
 public class EmbassyDialogueFlow : MonoBehaviour
@@ -12,11 +10,9 @@ public class EmbassyDialogueFlow : MonoBehaviour
     public string allAliveDialogueFile = "embassy_success.csv";     // 家人都存活时的对话
 
     [Header("组件引用")]
-    public DialogueManager dialogueManager;
-    public CharacterManager characterManager;
-    public VideoManager videoManager;
+    private DialogueManager dialogueManager;
+    private CharacterManager characterManager;
     public AwardableQuestion awardableQuestion; // 使用AwardableQuestion中的正确率逻辑
-    public VideoPlayer goHomeVideoPlayer; // 回家视频播放器
 
     private string currentDialogueType = "";
 
@@ -33,9 +29,6 @@ public class EmbassyDialogueFlow : MonoBehaviour
         if (characterManager == null)
             characterManager = FindObjectOfType<CharacterManager>();
 
-        if (videoManager == null)
-            videoManager = FindObjectOfType<VideoManager>();
-
         if (awardableQuestion == null)
         {
             awardableQuestion = FindObjectOfType<AwardableQuestion>();
@@ -44,49 +37,46 @@ public class EmbassyDialogueFlow : MonoBehaviour
                 Debug.LogWarning("EmbassyDialogueFlow: 初始查找未找到AwardableQuestion组件，将在需要时再次尝试查找");
             }
         }
+
+        EventManager.Instance.Subscribe<OnVideoEnd>(HandleVideoEnd);
     }
 
     private void Start()
     {
-        // 确保视频播放结束后调用我们的方法而不是默认的场景加载
-        if (videoManager != null)
+        if (VideoManager.Instance == null)
         {
-            // 移除现有的视频结束事件监听器
-            videoManager.videoPlayer.loopPointReached -= videoManager.OnVideoEnd;
-            // 添加我们自己的事件监听器
-            videoManager.videoPlayer.loopPointReached += OnVideoEnd;
+            Debug.LogError($"[EmbassyDialogueFlow] VideoManager is null");
+            return;
         }
 
-        // 监听对话结束事件
-        if (dialogueManager != null)
-        {
-            dialogueManager.onDialogueEnd.AddListener(OnDialogueEnd);
-        }
+        VideoManager.Instance.PlayVideoClip("game complete");
     }
 
     private void OnDestroy()
     {
-        // 清理事件监听器
-        if (videoManager != null)
+        if (EventManager.Instance != null)
         {
-            videoManager.videoPlayer.loopPointReached -= OnVideoEnd;
-        }
-
-        if (dialogueManager != null)
-        {
-            dialogueManager.onDialogueEnd.RemoveListener(OnDialogueEnd);
+            EventManager.Instance.Unsubscribe<OnVideoEnd>(HandleVideoEnd);
         }
     }
 
     // 视频播放结束时调用
-    private void OnVideoEnd(UnityEngine.Video.VideoPlayer vp)
+    private void HandleVideoEnd(OnVideoEnd videoData)
     {
-        Debug.Log("EmbassyDialogueFlow: 视频播放结束，开始对话");
-        AudioManager.Instance.PlaySFX("结束钢琴0919-1.mp3");
-        // 直接检查家人存活状态并跳转到相应对话
-        if (dialogueManager != null && characterManager != null)
+        switch (videoData.videoId)
         {
-            CheckFamilyStatusForArrival();
+            case "game complete":
+                AudioManager.Instance.PlayBGM("结束钢琴0919-1.mp3");
+                // 直接检查家人存活状态并跳转到相应对话
+                if (dialogueManager != null && characterManager != null)
+                {
+                    CheckFamilyStatusForArrival();
+                }
+                break;
+
+            case "questionnaire complete":
+                OnGoHomeVideoEnd();
+                break;
         }
     }
 
@@ -122,10 +112,12 @@ public class EmbassyDialogueFlow : MonoBehaviour
 
         // 跳转到指定索引的对话
         dialogueManager.StartDialogueAt(index);
+
+        OnQuestionsEnd();
     }
 
     // 对话结束时调用
-    private void OnDialogueEnd()
+    private void OnQuestionsEnd()
     {
         Debug.Log("EmbassyDialogueFlow: 对话结束，处理后续逻辑");
 
@@ -164,6 +156,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
         }
         else if (currentDialogueType == "family_deceased" || currentDialogueType == "all_alive")
         {
+            awardableQuestion.gameObject.SetActive(false);
             // 答题对话结束后，触发回家动画
             TriggerGoHomeAnimation();
         }
@@ -238,37 +231,25 @@ public class EmbassyDialogueFlow : MonoBehaviour
     {
         Debug.Log("EmbassyDialogueFlow: 触发回家动画");
 
-        // 检查回家视频播放器是否已赋值
-        if (goHomeVideoPlayer == null)
-        {
-            Debug.LogError("EmbassyDialogueFlow: 回家视频播放器未赋值");
-            return;
-        }
-
-        // 确保视频播放器对象是激活状态
-        goHomeVideoPlayer.gameObject.SetActive(true);
-
-        // 移除之前可能存在的事件监听器（避免重复添加）
-        goHomeVideoPlayer.loopPointReached -= OnGoHomeVideoEnd;
-        // 添加视频结束事件监听器
-        goHomeVideoPlayer.loopPointReached += OnGoHomeVideoEnd;
-
         // 开始播放回家视频
-        goHomeVideoPlayer.Play();
+        VideoManager.Instance.PlayVideoClip("questionnaire complete");
+
         Debug.Log("EmbassyDialogueFlow: 开始播放回家视频");
     }
 
     // 回家视频播放结束时调用
-    private void OnGoHomeVideoEnd(VideoPlayer vp)
+    private void OnGoHomeVideoEnd()
     {
         Debug.Log("EmbassyDialogueFlow: 回家视频播放结束，退出游戏");
 
-        // 退出游戏
-        Application.Quit();
+        EventManager.Instance.Publish(new OnGameFinished());
+
+        // 重新开始游戏
+        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.MenuScene);
 
         // 在编辑器模式下停止播放
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
+        // UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
 
@@ -310,14 +291,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
 
         foreach (var characterStatus in allCharacters)
         {
-            if (!characterStatus.IsAlive)
-            {
-                // 这里需要通过修改体力值来复活角色
-                Debug.Log($"EmbassyDialogueFlow: 复活角色: {characterStatus.CharacterID}");
-
-                // 恢复体力值到最大值的50%来复活角色
-                characterStatus.ModifyStamina(characterStatus.MaxStamina * 0.5f);
-            }
+            characterStatus.Resurrect();
         }
     }
 }

@@ -52,6 +52,9 @@ public class SceneController : Singleton<SceneController>
         // 释放当前场景资源, 加载新场景资源
         await ReleaseAndLoadAssets(assetLabel);
 
+        // 停止当前场景音乐
+        StopAllAudio();
+
         // 加载新场景
         await LoadingProgressAsync(sceneName, showLoadingUI);
 
@@ -85,7 +88,7 @@ public class SceneController : Singleton<SceneController>
     private async Task LoadingProgressAsync(string sceneName, bool showLoadingUI)
     {
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
-        
+
         progressBar.gameObject.SetActive(showLoadingUI);
 
         while (!operation.isDone)
@@ -111,5 +114,14 @@ public class SceneController : Singleton<SceneController>
             await Task.Yield();
         }
         canvasGroup.alpha = targetAlpha;
+    }
+
+    private void StopAllAudio()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBGM();
+            AudioManager.Instance.StopAllSFX();
+        }
     }
 }

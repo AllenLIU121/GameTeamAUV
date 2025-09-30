@@ -6,6 +6,8 @@ public struct OnGameStateChanged   // 游戏状态改变时发布
     public GameState newState;
 }
 
+public struct OnGameFinished { }    // 游戏结束重加载前发布
+
 public struct OnSceneLoaded { }    // 场景加载完毕时发布
 
 public struct OnGameRollback { }    // 游戏回滚时发布
@@ -16,6 +18,11 @@ public struct OnGameRollback { }    // 游戏回滚时发布
 //     public GameObject characterGO;
 // }
 
+public struct OnVideoEnd        // 视频播放结束后发布
+{
+    public string videoId;
+} 
+
 public struct OnCharacterDied       // 角色死亡时发布
 {
     public CharacterSO characterSO;
@@ -25,7 +32,6 @@ public struct OnCharacterRevived     // 角色复活时发布
 {
     public CharacterSO characterSO;
 }
-
 
 public struct OnCharacterStatChanged     // 角色属性改变时发布
 {

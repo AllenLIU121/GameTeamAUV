@@ -74,7 +74,7 @@ public class GameManager : Singleton<GameManager>
     // 新游戏
     public void NewGame()
     {
-        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.IntroVideoScene);
+        SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.ChapterOneScene);
     }
 
     // // 继续游戏

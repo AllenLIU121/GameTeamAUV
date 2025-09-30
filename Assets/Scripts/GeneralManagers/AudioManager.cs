@@ -74,6 +74,28 @@ public class AudioManager : Singleton<AudioManager>
 
         ObjectPoolManager.Instance.ReturnToPool(sfxSourcePrefab, objectToReturn);
     }
+
+    public void StopAllSFX()
+    {
+        StopAllCoroutines();
+
+        for (int i = sfxSourceParent.childCount - 1; i >= 0; i--)
+        {
+            GameObject sfxPlayer = sfxSourceParent.GetChild(i).gameObject;
+            
+            // 获取AudioSource并停止播放
+            AudioSource source = sfxPlayer.GetComponent<AudioSource>();
+            if (source != null && source.isPlaying)
+            {
+                source.Stop();
+            }
+
+            source.clip = null;
+            
+            // 将对象立即返还对象池
+            ObjectPoolManager.Instance.ReturnToPool(sfxSourcePrefab, sfxPlayer);
+        }
+    }
     #endregion
 
     #region BGM

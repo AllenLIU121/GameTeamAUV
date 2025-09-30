@@ -21,7 +21,7 @@ public class StoreManager : Singleton<StoreManager>
 
     public void OpenStore()
     {
-        AudioManager.Instance.PlaySFX("便利店0919-1.mp3");
+        AudioManager.Instance.PlayBGM("便利店0919-1.mp3");
         StoreUI storeUI = FindAnyObjectByType<StoreUI>();
         if (storeUI != null)
         {
