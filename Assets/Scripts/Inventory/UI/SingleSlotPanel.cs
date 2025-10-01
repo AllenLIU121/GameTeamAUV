@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class SingleSlotPanel : MonoBehaviour
 {
@@ -9,12 +10,14 @@ public class SingleSlotPanel : MonoBehaviour
     [SerializeField] private Image itemImage;
     [SerializeField] private TextMeshProUGUI stackNum;
     [SerializeField] private Image background; // 添加背景图片组件引用
+    [SerializeField] private Slider freshnessFill;
 
     // 不同状态的背景图
     public Sprite emptySlotBackground;
     public Sprite filledSlotBackground;
 
     private int slotIndex;
+    public int SlotIndex => slotIndex;
     private InventoryManager inventoryManager;
     private ItemSO itemData;
     private int itemCount = 0;
@@ -23,15 +26,18 @@ public class SingleSlotPanel : MonoBehaviour
     {
         slotIndex = index;
         inventoryManager = manager;
+        freshnessFill.value = 0f;
 
         // 订阅物品栏变化事件
         EventManager.Instance.Subscribe<OnInventoryChanged>(HandleInventoryChanged);
+        EventManager.Instance.Subscribe<OnItemFreshnessChanged>(HandleFreshnessDecay);
     }
 
     private void OnDestroy()
     {
         // 取消订阅事件
         EventManager.Instance.Unsubscribe<OnInventoryChanged>(HandleInventoryChanged);
+        EventManager.Instance.Unsubscribe<OnItemFreshnessChanged>(HandleFreshnessDecay);
     }
 
     public void UpdateSlot(InventorySlot slotData)
@@ -57,9 +63,11 @@ public class SingleSlotPanel : MonoBehaviour
             {
                 stackNum.text = slotData.quantity.ToString();
                 stackNum.enabled = true;
+                freshnessFill.value = 1f;
             }
             else
             {
+                freshnessFill.value = 0f;
                 stackNum.text = "";
                 stackNum.enabled = false;
             }
@@ -124,6 +132,13 @@ public class SingleSlotPanel : MonoBehaviour
         if (eventData.updatedSlotIndexes.Contains(slotIndex))
         {
             UpdateSlot(gameData.inventorySlots[slotIndex]);
-      }
+        }
+    }
+
+    private void HandleFreshnessDecay(OnItemFreshnessChanged eventData)
+    {
+        if (slotIndex != eventData.slotIndex) return;
+
+        freshnessFill.value = Mathf.Max(0f, eventData.currentFreshness / itemData.maxFreshness);
     }
 }
