@@ -6,7 +6,7 @@ using Inventory;
 using UnityEngine.SceneManagement;
 
 // 处理UI元素的拖拽逻辑，包括物品栏中的物品拖拽到角色栏或场景中
-public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
+public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler
 {
     [Header("拖拽设置")]
     [Tooltip("要在场景中生成的物品预制体")]
@@ -21,6 +21,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public bool blockScrollWhenDragging = true;
 
     // 拖拽状态
+    private bool isDragging = false;
     private GameObject m_DraggingIcon;
     private RectTransform m_DraggingPlane;
     private CanvasGroup canvasGroup;
@@ -38,6 +39,13 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         cachedInventoryManager = FindObjectOfType<InventoryManager>();
     }
 
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (isDragging || !TargetingManager.Instance.IsTargeting) return;
+
+        TargetingManager.Instance.SelectTarget(slotIndex);
+    }
+
     /// <summary>
     /// 鼠标按下时调用，准备拖拽所需数据
     /// </summary>
@@ -46,6 +54,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 #if DEBUG
         Debug.Log("[DragHandler] 鼠标按下: " + gameObject.name);
 #endif
+        isDragging = false;
         AudioManager.Instance.PlaySFX("鼠标点击音效0925_01.wav");
 
         // 尝试获取父级的SingleSlotPanel来获取槽位索引
@@ -93,6 +102,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         Debug.Log("[DragHandler] 开始拖拽: " + gameObject.name + " (槽位索引: " + slotIndex + ")");
 #endif
 
+        isDragging = true;
         // 阻止ScrollRect滚动（如果启用了此功能）
         if (blockScrollWhenDragging && parentScrollRect != null)
         {
@@ -208,6 +218,8 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     /// </summary>
     public void OnEndDrag(PointerEventData eventData)
     {
+        isDragging = false;
+
         // 清理拖拽图标
         CleanupDraggingIcon();
 

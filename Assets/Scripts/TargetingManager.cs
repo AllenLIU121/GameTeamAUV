@@ -20,6 +20,7 @@ public class TargetingManager : Singleton<TargetingManager>
     {
         if (!isTargeting) return;
 
+        Debug.Log($"[TargetingManager] Target selected! Executing skill");
         GameStateManager.Instance.Skill.ExecuteSkillWithTarget(characterID, skillSO, slotIndex);
         EndTargeting();
     }
