@@ -27,7 +27,7 @@ public class PlayerController : Singleton<PlayerController>
 
         if (IsInSelectingMode && Input.GetMouseButtonDown(0))
         {
-            AudioManager.Instance.PlaySFX("鼠标点击音效0925_01.wav");
+            AudioManager.Instance.PlaySFX("SFX_UIClick");
             HandleNodeSelection();
         }
     }

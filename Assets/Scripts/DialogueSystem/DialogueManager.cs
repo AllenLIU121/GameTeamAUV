@@ -65,7 +65,7 @@ namespace DialogueSystem
             if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
                 && !_isWaitingForChoice)
             {
-                AudioManager.Instance.PlaySFX("鼠标点击音效0925_01.wav");
+                AudioManager.Instance.PlaySFX("SFX_UIClick");
                 if (_isTyping)
                     CompleteTyping();
                 else

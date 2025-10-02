@@ -13,8 +13,8 @@ public static class GameConstants
         public const string FinalScene = "FinalScene";
     }
 
-    public static class AddressablesName
+    public static class AddressablesAssetLabel
     {
-        public const string MenuUI = "UI_MainMenu";
+        public const string GameAudio = "GameAudio";
     }
 }

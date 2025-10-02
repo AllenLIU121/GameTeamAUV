@@ -22,32 +22,32 @@ public class DisasterSystem : MonoBehaviour
 
         if (isPlayerInMountain)
         {
-            AudioManager.Instance.PlaySFX("山体滑坡循环0925_01.wav");
+            AudioManager.Instance.PlaySFX("SFX_LandSlide");
             ActiveDisaster = landslideDisaster;     // 触发山体滑坡
         }
         else if (isPlayerInSea)
         {
-            AudioManager.Instance.PlaySFX("海啸循环0925_01.wav");
+            AudioManager.Instance.PlaySFX("SFX_Tsunami");
             ActiveDisaster = tsunamiDisaster;   // 触发海啸
         }
         else
         {
             ActiveDisaster = mapWideDisasters[Random.Range(0, mapWideDisasters.Count)]; // 空旷地区随机触发全图灾害
-            if (ActiveDisaster.disasterName == "\\u5730\\u9707")
+            if (ActiveDisaster.disasterID == "earthquake")
             {
-                AudioManager.Instance.PlaySFX("地震循环0925_01.wav");
+                AudioManager.Instance.PlaySFX("SFX_Earthquake");
             }
-            else if (ActiveDisaster.disasterName == "\\u706B\\u707E")
+            else if (ActiveDisaster.disasterID == "fire")
             {
-                AudioManager.Instance.PlaySFX("火灾循环0925_01.wav");
+                AudioManager.Instance.PlaySFX("SFX_Fire");
             }
-            else if (ActiveDisaster.disasterName == "\\u6D2A\\u6C34")
+            else if (ActiveDisaster.disasterID == "flood")
             {
-                AudioManager.Instance.PlaySFX("洪水循环0925_01.wav");
+                AudioManager.Instance.PlaySFX("SFX_Flood");
             }
-            else if (ActiveDisaster.disasterName == "\\u53F0\\u98CE")
+            else if (ActiveDisaster.disasterID == "typhoon")
             {
-                AudioManager.Instance.PlaySFX("台风循环0925_01.wav");
+                AudioManager.Instance.PlaySFX("SFX_Typhoon");
             }
         }
 
