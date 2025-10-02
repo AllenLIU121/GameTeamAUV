@@ -246,6 +246,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
 
         // 重新开始游戏
         SceneController.Instance.LoadSceneAsync(GameConstants.SceneName.MenuScene);
+        AddressableManager.Instance.ReleaseAssetsByLabel(GameConstants.AddressablesAssetLabel.GameAudio);
 
         // 在编辑器模式下停止播放
 #if UNITY_EDITOR

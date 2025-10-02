@@ -67,6 +67,8 @@ public class MapController : Singleton<MapController>
         turnCycle = 0;
         ProcessTurnCycle();
         IsInitialized = true;
+
+        AudioManager.Instance.PlayBGM("赶路0925-1（基础节奏）.mp3");
     }
 
     private void InitializePlayerPos()
@@ -192,7 +194,9 @@ public class MapController : Singleton<MapController>
         else
         {
             if (StoreManager.Instance.IsOpen)
-                StoreManager.Instance.CloseStore();
+            {
+                StoreManager.Instance.CloseStore();             
+            }
         }
 
         nodeViewGrid[node.gridPosition.x, node.gridPosition.y].UpdateVisuals();
@@ -224,7 +228,7 @@ public class MapController : Singleton<MapController>
     {
         DisasterSO currentDisaster = disasterSystem.ActiveDisaster;
         if (currentDisaster == null) return true;
-        AudioManager.Instance.PlaySFX("到达安全区0925_01.wav");
+        AudioManager.Instance.PlaySFX("SFX_SafeZone");
         switch (currentDisaster.safeCondition)
         {
             case SafeZoneCondition.InNode:

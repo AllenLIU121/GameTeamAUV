@@ -8,6 +8,7 @@ public class StoreTrigger : MonoBehaviour
         if (!isTriggered)
         {
             StoreManager.Instance.OpenStore();
+            AudioManager.Instance.PlaySFX("SFX_Shop");
             isTriggered = true;
 
             GameObject player = GameObject.FindWithTag("Player");

@@ -8,6 +8,7 @@ public class DisasterSO : ScriptableObject
 {
     [Header("灾害信息")]
     public string disasterName;
+    public string disasterID;
     public DisasterTriggerZone triggerZone;
 
     [Header("安全区条件")]
