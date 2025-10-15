@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public struct OnGameStateChanged   // 游戏状态改变时发布
 {
@@ -22,6 +21,8 @@ public struct OnVideoEnd        // 视频播放结束后发布
 {
     public string videoId;
 } 
+
+public struct OnPlayerDied { }  // 玩家死亡时发布
 
 public struct OnCharacterDied       // 角色死亡时发布
 {
@@ -59,7 +60,6 @@ public struct OnItemFreshnessChanged
 {
     public int slotIndex;
     public float currentFreshness;
-    // public float maxFreshness;
 }
 
 public struct OnSkillActivated //角色技能激活 

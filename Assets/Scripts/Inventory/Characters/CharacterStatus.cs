@@ -302,7 +302,7 @@ public class CharacterStatus : MonoBehaviour
             characterSO.skill.OnDeactivate(characterSO);
 
         if (characterSO.characterID == "player")
-            EventManager.Instance.Publish(new OnGameRollback());
+            EventManager.Instance.Publish(new OnPlayerDied());
     }
 
     // 角色复活逻辑, 体力饥饿恢复一半

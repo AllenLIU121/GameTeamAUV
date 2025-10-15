@@ -30,8 +30,8 @@ public class SceneController : Singleton<SceneController>
 
         isLoading = true;
         canvasGroup.gameObject.SetActive(true);
-
-        await Fade(1f);
+        canvasGroup.alpha = 1f;
+        
         await Task.Yield();
         await Fade(0f);
 
