@@ -1,6 +1,7 @@
 using UnityEngine;
 using DialogueSystem;
 using System.Reflection;
+using System.Collections;
 
 public class EmbassyDialogueFlow : MonoBehaviour
 {
@@ -60,7 +61,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
         }
     }
 
-    // 视频播放结束时调用
+    // 视频播放结束时触发
     private void HandleVideoEnd(OnVideoEnd videoData)
     {
         switch (videoData.videoId)
@@ -113,6 +114,14 @@ public class EmbassyDialogueFlow : MonoBehaviour
         // 跳转到指定索引的对话
         dialogueManager.StartDialogueAt(index);
 
+        StartCoroutine(WaitForDialogueEnd());
+        Debug.Log($"dialogueActive: {dialogueManager.dialogueActive}");
+        // OnQuestionsEnd();
+    }
+
+    private IEnumerator WaitForDialogueEnd()
+    {
+        yield return new WaitUntil(() => !dialogueManager.dialogueActive);
         OnQuestionsEnd();
     }
 
@@ -133,7 +142,7 @@ public class EmbassyDialogueFlow : MonoBehaviour
                     // 尝试重新查找AwardableQuestion组件
                     awardableQuestion = FindObjectOfType<AwardableQuestion>();
                 }
-                
+
                 if (awardableQuestion != null)
                 {
                     Debug.Log("EmbassyDialogueFlow: 显示AwardableQuestion问答预制体");

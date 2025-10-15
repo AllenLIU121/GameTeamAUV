@@ -38,6 +38,7 @@ namespace DialogueSystem
         private bool _dialogueActiveFlag = false;
         private Coroutine _typingCoroutine;
         private string _currentCSVPath;
+        public bool dialogueActive => _dialogueActiveFlag;
 
         void Start()
         {
@@ -342,7 +343,7 @@ namespace DialogueSystem
                 ReturnToChoicePoint();
                 return;
             }
-
+                
             // 正常进入下一条
             _currentDialogueIndex++;
             ShowCurrentDialogue();
@@ -461,60 +462,62 @@ namespace DialogueSystem
                 StartCoroutine(_characterController.HideCurrentCharacter());
             }
 
-            // 查找或创建死亡面板
-            GameObject deadPanel = null;
-            // 获取合适的Canvas作为父对象
-            Canvas parentCanvas = FindSuitableCanvas();
+            EventManager.Instance.Publish(new OnPlayerDied());
 
-            // 优先使用Inspector配置的预制体
-            if (_diedPanelPrefab != null)
-            {
-                // 尝试查找已实例化的死亡面板
-                deadPanel = GameObject.Find("DiedPanel(Clone)");
-                if (deadPanel == null)
-                {
-                    deadPanel = Instantiate(_diedPanelPrefab, parentCanvas != null ? parentCanvas.transform : null);
-                    Debug.Log("DialogueManager: 从预制体实例化死亡面板");
-                }
-            }
-            else
-            {
-                // 查找场景中的死亡面板
-                deadPanel = GameObject.Find("UI/Final Canvas/DiedPanel");
+            // // 查找或创建死亡面板
+            // GameObject deadPanel = null;
+            // // 获取合适的Canvas作为父对象
+            // Canvas parentCanvas = FindSuitableCanvas();
 
-                if (deadPanel == null)
-                {
-                    // 如果找不到，尝试从Resources加载
-                    GameObject panelFromResources = Resources.Load<GameObject>("UI/DiedPanel");
-                    if (panelFromResources != null)
-                    {
-                        deadPanel = Instantiate(panelFromResources, parentCanvas != null ? parentCanvas.transform : null);
-                        Debug.Log("DialogueManager: 从Resources加载并实例化死亡面板");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("DialogueManager: 找不到死亡面板预制体");
-                        // 如果无法显示死亡面板，至少结束对话
-                        onDialogueEnd.Invoke();
-                        return;
-                    }
-                }
-                else
-                {
-                    // 如果找到现有面板，确保它是激活的
-                    deadPanel.SetActive(true);
-                    Debug.Log("DialogueManager: 激活场景中已有的死亡面板");
-                }
-            }
+            // // 优先使用Inspector配置的预制体
+            // if (_diedPanelPrefab != null)
+            // {
+            //     // 尝试查找已实例化的死亡面板
+            //     deadPanel = GameObject.Find("DiedPanel(Clone)");
+            //     if (deadPanel == null)
+            //     {
+            //         deadPanel = Instantiate(_diedPanelPrefab, parentCanvas != null ? parentCanvas.transform : null);
+            //         Debug.Log("DialogueManager: 从预制体实例化死亡面板");
+            //     }
+            // }
+            // else
+            // {
+            //     // 查找场景中的死亡面板
+            //     deadPanel = GameObject.Find("UI/Final Canvas/DiedPanel");
 
-            // 如果成功找到或创建了死亡面板，确保它是激活的
-            if (deadPanel != null)
-            {
-                deadPanel.SetActive(true);
-                // 确保面板在最上层
-                deadPanel.transform.SetAsLastSibling();
-                Debug.Log("DialogueManager: 死亡面板已激活并设置为最上层");
-            }
+            //     if (deadPanel == null)
+            //     {
+            //         // 如果找不到，尝试从Resources加载
+            //         GameObject panelFromResources = Resources.Load<GameObject>("UI/DiedPanel");
+            //         if (panelFromResources != null)
+            //         {
+            //             deadPanel = Instantiate(panelFromResources, parentCanvas != null ? parentCanvas.transform : null);
+            //             Debug.Log("DialogueManager: 从Resources加载并实例化死亡面板");
+            //         }
+            //         else
+            //         {
+            //             Debug.LogWarning("DialogueManager: 找不到死亡面板预制体");
+            //             // 如果无法显示死亡面板，至少结束对话
+            //             onDialogueEnd.Invoke();
+            //             return;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         // 如果找到现有面板，确保它是激活的
+            //         deadPanel.SetActive(true);
+            //         Debug.Log("DialogueManager: 激活场景中已有的死亡面板");
+            //     }
+            // }
+
+            // // 如果成功找到或创建了死亡面板，确保它是激活的
+            // if (deadPanel != null)
+            // {
+            //     deadPanel.SetActive(true);
+            //     // 确保面板在最上层
+            //     deadPanel.transform.SetAsLastSibling();
+            //     Debug.Log("DialogueManager: 死亡面板已激活并设置为最上层");
+            // }
         }
 
         /// <summary>

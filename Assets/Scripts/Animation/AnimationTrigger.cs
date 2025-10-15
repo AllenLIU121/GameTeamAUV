@@ -167,38 +167,41 @@ public class AnimationTrigger : MonoBehaviour
             }
         }
 
-        // 显示死亡面板
-        if (deadPanelPrefab != null)
-        {
-            // 确保只实例化一个面板
-            if (instantiatedDeadPanel == null)
-            {
-                // 查找Final Canvas作为父对象
-                GameObject finalCanvas = GameObject.Find("Final Canvas");
+        // 发布玩家死亡信息 激活死亡面板 
+        EventManager.Instance.Publish(new OnPlayerDied());
 
-                if (finalCanvas != null)
-                {
-                    // 在Final Canvas下实例化死亡面板
-                    instantiatedDeadPanel = Instantiate(deadPanelPrefab, finalCanvas.transform);
-                    Debug.Log("死亡面板已在Final Canvas下实例化并显示");
-                }
-                else
-                {
-                    // 如果找不到Final Canvas，使用默认实例化方式
-                    instantiatedDeadPanel = Instantiate(deadPanelPrefab);
-                    Debug.LogWarning("未找到Final Canvas，使用默认方式实例化死亡面板");
-                }
-            }
-            else
-            {
-                instantiatedDeadPanel.SetActive(true);
-                Debug.Log("死亡面板已显示（之前已实例化）");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("死亡面板预制体未设置，请在Inspector中赋值");
-        }
+        // // 显示死亡面板
+        // if (deadPanelPrefab != null)
+        // {
+        //     // 确保只实例化一个面板
+        //     if (instantiatedDeadPanel == null)
+        //     {
+        //         // 查找Final Canvas作为父对象
+        //         GameObject finalCanvas = GameObject.Find("UI_CharacterInventory");
+
+        //         if (finalCanvas != null)
+        //         {
+        //             // 在Final Canvas下实例化死亡面板
+        //             instantiatedDeadPanel = Instantiate(deadPanelPrefab, finalCanvas.transform);
+        //             Debug.Log("死亡面板已在Final Canvas下实例化并显示");
+        //         }
+        //         else
+        //         {
+        //             // 如果找不到Final Canvas，使用默认实例化方式
+        //             instantiatedDeadPanel = Instantiate(deadPanelPrefab);
+        //             Debug.LogWarning("未找到Final Canvas，使用默认方式实例化死亡面板");
+        //         }
+        //     }
+        //     else
+        //     {
+        //         instantiatedDeadPanel.SetActive(true);
+        //         Debug.Log("死亡面板已显示（之前已实例化）");
+        //     }
+        // }
+        // else
+        // {
+        //     Debug.LogWarning("死亡面板预制体未设置，请在Inspector中赋值");
+        // }
 
         // 停止动画循环
         if (animationCoroutine != null)

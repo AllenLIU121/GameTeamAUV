@@ -85,6 +85,9 @@ public class VideoManager : Singleton<VideoManager>
     {
         if (videoDict.TryGetValue(videoID, out VideoClip videoClip))
         {
+            AudioManager.Instance.StopBGM();
+            AudioManager.Instance.StopAllSFX();
+
             videoId = videoID;
             StartCoroutine(FadeInCanvas(videoClip, fadeDuration));
         }
