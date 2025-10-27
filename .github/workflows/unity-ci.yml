@@ -1,0 +1,87 @@
+name: Unity CI - Test & Build WebGL
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  # === 运行测试 ===
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with: 
+          lfs: false
+
+      - name: Cache Git LFS
+        uses: actions/cache@v4
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.gitattributes') }}
+          restore-keys: |
+            lfs-
+
+      - name: Pull Git LFS
+        run: git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library     
+          key: Library-test-${{ hashFiles('ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-test-
+
+      - name: Run Unity Tests
+        uses: game-ci/unity-test@v4   
+        with:
+          unityLicense: ${{ secrets.UNITY_LICENSE }}
+          unityVersion: auto
+
+  # === 构建 WebGL ===
+  build:
+    name: Build WebGL
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with: 
+          lfs: false
+
+      - name: Cache Git LFS
+        uses: actions/cache@v4
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.gitattributes') }}
+          restore-keys: |
+            lfs-
+
+      - name: Pull Git LFS
+        run: git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-build-WebGL-${{ hashFiles('ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-build-WebGL-
+
+      - name: Build Unity Project (WebGL)
+        uses: game-ci/unity-build@v4
+        with: 
+          unityLicense: ${{ secrets.UNITY_LICENSE }}
+          unityVersion: auto
+          targetPlatform: WebGL
+          buildsPath: build
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages
+          path: build/WebGL
