@@ -36,7 +36,7 @@ jobs:
             Library-test-
 
       - name: Run Unity Tests
-        uses: game-ci/unity-test@v4   
+        uses: game-ci/unity-test-runner@v4   
         with:
           unityLicense: ${{ secrets.UNITY_LICENSE }}
           unityVersion: auto
