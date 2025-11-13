@@ -40,11 +40,12 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          installVisualCppBuildTools: true
           unityVersion: auto
           targetPlatform: StandaloneWindows64 
           
           # *** 在这里修改你的 .exe 名称 (不带.exe后缀) ***
-          buildName: MyGameTestBuild
+          buildName: GameTestBuild
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
