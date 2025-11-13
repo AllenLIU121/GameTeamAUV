@@ -31,20 +31,25 @@ jobs:
           key: Library-build-win-${{ hashFiles('ProjectSettings/ProjectVersion.txt') }}
           restore-keys: |
             Library-build-win-
-      
-      - name: Build Unity Project
-        id: build # 给这个步骤一个id，方便后面引用
-        uses: game-ci/unity-builder@v4
+
+      - name: Activate Unity License
+        uses: game-ci/unity-activate@v3
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           installVisualCppBuildTools: true
+      
+      - name: Build Unity Project
+        id: build # 给这个步骤一个id，方便后面引用
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
           unityVersion: auto
           targetPlatform: StandaloneWindows64 
-          
-          # *** 在这里修改你的 .exe 名称 (不带.exe后缀) ***
+          # *** 在这里修改.exe 名称 (不带.exe后缀) ***
           buildName: GameTestBuild
 
       - name: Upload Build Artifact
