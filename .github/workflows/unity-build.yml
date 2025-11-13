@@ -6,7 +6,7 @@ on:
 jobs:
   build-windows:
     name: Build for Windows
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          unityVersion: 2022.3.62f2
+          unityVersion: auto
       
       - name: Build Unity Project
         id: build # 给这个步骤一个id，方便后面引用
